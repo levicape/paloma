@@ -1,4 +1,4 @@
-name: Release NPM - Publish to npm registry
+name: Release NPM - Publish to github packages
 
 on:
   release:
@@ -7,10 +7,12 @@ on:
 env:
   NPM_REGISTRY_PROTOCOL: 'https'
   NPM_REGISTRY_HOST: 'npm.pkg.github.com'
-  GITHUB_REPOSITORY_OWNER: 'levicape'
 
 jobs:
-  npm:
+  packages:
+    permissions:
+      packages: write
+      contents: read
     name: Publish to npm registry
     runs-on: ubuntu-latest
     steps:
@@ -18,31 +20,35 @@ jobs:
 
       - name: Verify registry url
         run: |
-          echo 'NPM_REGISTRY_URL: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}/api/packages/${{ env.GITHUB_REPOSITORY_OWNER }}/npm/'
+          echo 'NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}'
           echo "If this fails, try adding the following to your /etc/docker/daemon.json file:"
           echo '{
-            "insecure-registries": ["${{ vars.NPM_REGISTRY_PROTOCOL }}//${{ vars.NPM_REGISTRY_HOST }}"],
+            "insecure-registries": ["${{ env.NPM_REGISTRY_PROTOCOL }}//${{ env.NPM_REGISTRY_HOST }}"],
             "mtu": 1450
           }'
-          curl -v ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }} --insecure
+          curl -v ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }} --insecure
         continue-on-error: true
 
       - uses: pnpm/action-setup@v4
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - uses: actions/setup-node@v4
         with:
           node-version: '23.x'
-          registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          registry-url: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
-          scope: '@levicaper'
+          scope: '@levicape'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache node modules
         id: cache-npm
         uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           path: ~/.npm
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.json') }}
@@ -62,10 +68,12 @@ jobs:
           pnpm run test;
       - name: Increment version
         run: | 
-          export PREID=${{ env.GITHUB_SHA }};
+          export PREID=$RELEVANT_SHA;
           export PREID=${PREID:0:10};
           export ARGS="--git-tag-version=false --commit-hooks=false";
-          pnpm version ${{ env.GITHUB_REF_NAME }}-$PREID.${{ env.GITHUB_RUN_NUMBER }} $ARGS --allow-same-version;
+          npm version ${{ github.event.release.tag_name }}-$PREID.${{ github.run_number }} $ARGS --allow-same-version;
+        env:
+          RELEVANT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}          
       - name: Publish to npm registry
         if: success()
         run: |

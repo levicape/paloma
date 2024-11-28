@@ -23,7 +23,6 @@ on:
 env:
   NPM_REGISTRY_PROTOCOL: 'https'
   NPM_REGISTRY_HOST: 'npm.pkg.github.com'
-  GITHUB_REPOSITORY_OWNER: 'levicape'
 # TODO: Bundle node and pnpm in a docker image
 jobs:
   unit:
@@ -38,10 +37,11 @@ jobs:
         with:
           node-version: '23.x'
           registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
-          scope: '@levicaper'
+          scope: '@levicape'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache node modules
         id: cache-npm
@@ -60,6 +60,8 @@ jobs:
         name: List the state of node modules
         continue-on-error: true
         run: npm list
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
         run: |
@@ -83,10 +85,11 @@ jobs:
         with:
           node-version: '23.x'
           registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
-          scope: '@levicaper'
+          scope: '@levicape'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache node modules
         id: cache-npm
@@ -105,6 +108,8 @@ jobs:
         name: List the state of node modules
         continue-on-error: true
         run: npm list
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
         run: |
