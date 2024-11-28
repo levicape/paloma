@@ -1,4 +1,4 @@
-name: Run tests
+name: Push test - Run package.json tests
 on:
   push:
     branches:
@@ -20,6 +20,10 @@ on:
       - revert/*
       - merge/*
       - deploy
+env:
+  NPM_REGISTRY_PROTOCOL: 'https'
+  NPM_REGISTRY_HOST: 'npm.pkg.github.com'
+  GITHUB_REPOSITORY_OWNER: 'levicape'
 # TODO: Bundle node and pnpm in a docker image
 jobs:
   unit:
@@ -27,19 +31,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '23.x'
-          registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}/api/packages/${{ env.GITHUB_REPOSITORY_OWNER }}/npm/
+          registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
           scope: '@levicaper'
-      - uses: pnpm/action-setup@v4
+
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+
       - name: Install dependencies
         run: |
           pnpm install;
           pnpm run build;
+
       - name: Run unit tests
         run: pnpm run test:unit
+
       - name: Run lint
         run: pnpm run lint
   examples:
@@ -47,18 +76,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '23.x'
-          registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}/api/packages/${{ env.GITHUB_REPOSITORY_OWNER }}/npm/
+          registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
           scope: '@levicaper'
-      - uses: pnpm/action-setup@v4
+
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+
       - name: Install dependencies
         run: |
           pnpm install;
           pnpm run build;
+
       - name: Run examples
         run: pnpm run test:examples
-      - name: Run lint
-        run: pnpm run lint
