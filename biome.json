@@ -1,0 +1,27 @@
+{
+	"files": {
+		"ignore": [
+			"app/_protocols/**/*",
+			"lambda.runtime.ts",
+			"*.gen.ts",
+			"cookie-store.server.ts",
+			"cloudscape.*.css"
+		]
+	},
+	"linter": {
+		"rules": {
+			"complexity": {
+				"noForEach": "off",
+				"noUselessFragments": "off",
+				"noStaticOnlyClass": "off"
+			},
+			"performance": {
+				"noDelete": "off"
+			},
+			"style": {
+				"noUselessElse": "off",
+				"noUnusedTemplateLiteral": "off"
+			}
+		}
+	}
+}

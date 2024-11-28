@@ -1,0 +1,64 @@
+name: Run tests
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - mr-*
+      - feature/*
+      - feature/*/*
+      - feature/*/*/*
+      - hotfix/*
+      - release/*
+      - bugfix/*
+      - ci/*
+      - docs/*
+      - refactor/*
+      - test/*
+      - fix/*
+      - update/*
+      - revert/*
+      - merge/*
+      - deploy
+# TODO: Bundle node and pnpm in a docker image
+jobs:
+  unit:
+    name: Verify test:unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '23.x'
+          registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}/api/packages/${{ env.GITHUB_REPOSITORY_OWNER }}/npm/
+          token: ${{ secrets.GITHUB_TOKEN }}
+          scope: '@levicaper'
+      - uses: pnpm/action-setup@v4
+      - name: Install dependencies
+        run: |
+          pnpm install;
+          pnpm run build;
+      - name: Run unit tests
+        run: pnpm run test:unit
+      - name: Run lint
+        run: pnpm run lint
+  examples:
+    name: Verify test:examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '23.x'
+          registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}/api/packages/${{ env.GITHUB_REPOSITORY_OWNER }}/npm/
+          token: ${{ secrets.GITHUB_TOKEN }}
+          scope: '@levicaper'
+      - uses: pnpm/action-setup@v4
+      - name: Install dependencies
+        run: |
+          pnpm install;
+          pnpm run build;
+      - name: Run examples
+        run: pnpm run test:examples
+      - name: Run lint
+        run: pnpm run lint

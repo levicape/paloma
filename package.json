@@ -1,0 +1,41 @@
+{
+  "name": "@levicaper/papagallo",
+  "main": " module/index.ts",
+  "types": "module/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "prelint": "npx @biomejs/biome format ./src ./test ./examples",
+    "lint": "npx @biomejs/biome check ./src ./test ./examples",
+    "lint:format": "npx @biomejs/biome format --write ./src ./test ./examples",
+    "lint:write": "npx @biomejs/biome check --write ./src ./test ./examples",
+    "lint:unsafe": "npx @biomejs/biome check --write --unsafe ./src ./test ./examples",
+    "build": "npx tsc",
+    "pretest": "npm run clean && npm run build",
+    "test": "npm run test:unit && npm run test:examples",
+    "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.js\"",
+    "test:examples": "node --experimental-strip-types examples/basic.ts",
+    "clean": "rm -rf ./module",
+    "clean:pack": "rm -rf ./papagallo.alltest.repopack",
+    "pack": "npx clean:pack && npx repopack --output ./papagallo.alltest.repopack"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.7.2"
+  },
+  "files": [
+    "src",
+    "module"
+  ],
+  "dependencies": {
+    "@stricli/core": "^1.1.0",
+    "better-sqlite3": "^11.6.0",
+    "knex": "^3.1.0",
+    "ksuid": "^3.0.0",
+    "nanoid": "^5.0.9",
+    "slugid": "^5.0.1"
+  },
+  "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf"
+}

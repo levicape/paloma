@@ -1,0 +1,41 @@
+name: Run unit tests and publish to npm registry
+
+on:
+  - release
+
+jobs:
+  npm:
+    name: Publish to npm registry
+    runs-on: docker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '23.x'
+          registry-url: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}/api/packages/${{ env.GITHUB_REPOSITORY_OWNER }}/npm/
+          token: ${{ secrets.NPM_TOKEN }}
+          scope: '@levicaper'
+      - name: Verify registry url
+        run: |
+          echo 'NPM_REGISTRY_URL: ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }}/api/packages/${{ env.GITHUB_REPOSITORY_OWNER }}/npm/'
+          echo "If this fails, try adding the following to your /etc/docker/daemon.json file:"
+          echo '{
+            "insecure-registries": ["${{ vars.NPM_REGISTRY_PROTOCOL }}//${{ vars.NPM_REGISTRY_HOST }}"],
+            "mtu": 1450
+          }'
+          curl -v ${{ vars.NPM_REGISTRY_PROTOCOL }}://${{ vars.NPM_REGISTRY_HOST }} --insecure
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
+      - name: Increment version
+        run: | 
+          export PREID=${{ env.GITHUB_SHA }};
+          export PREID=${PREID:0:10};
+          export ARGS="--git-tag-version=false --commit-hooks=false";
+          npm version ${{ env.GITHUB_REF_NAME }}-$PREID.${{ env.GITHUB_RUN_NUMBER }} $ARGS --allow-same-version;
+      - name: Publish to npm registry
+        if: success()
+        run: |
+          npm config set -- '//${{ vars.NPM_REGISTRY_HOST }}/api/packages/${{ env.GITHUB_REPOSITORY_OWNER }}/npm/:_authToken' "${{ secrets.NPM_TOKEN }}"
+          npm publish
