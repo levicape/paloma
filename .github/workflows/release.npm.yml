@@ -1,13 +1,10 @@
-name: Release NPM - Publish to github packages
-
+name: "on Release: Publish github package"
 on:
   release:
     types: [released]
-
 env:
   NPM_REGISTRY_PROTOCOL: 'https'
   NPM_REGISTRY_HOST: 'npm.pkg.github.com'
-
 jobs:
   packages:
     permissions:
@@ -73,7 +70,7 @@ jobs:
           export ARGS="--git-tag-version=false --commit-hooks=false";
           npm version ${{ github.event.release.tag_name }}-$PREID.${{ github.run_number }} $ARGS --allow-same-version;
         env:
-          RELEVANT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}          
+          RELEVANT_SHA: ${{ github.event.release.target_commitish || github.sha }}          
       - name: Publish to npm registry
         if: success()
         run: |

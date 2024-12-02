@@ -99,12 +99,10 @@
   },
   "include": [
     "src/**/*",
-    "cli/**/*",
   ],
   "exclude": [
     "node_modules",
     "tsc.out",
-    "",
-    "src/_protocols",
+    "module",
   ]
 }

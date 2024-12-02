@@ -1,8 +1,15 @@
 {
-  "name": "@levicape/musical-carnival",
-  "main": "module/index.ts",
+  "name": "@levicape/paloma",
+  "author": "Pedro Cardona",
+  "license": "AGPL-3.0-only",
+  "main": "module/index.js",
   "types": "module/index.d.ts",
   "type": "module",
+  "module": "module/index.js",
+  "version": "0.0.0-local.0",
+  "engines": {
+      "node": ">=20.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/levicape/musical-carnival.git"
@@ -10,20 +17,29 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
+  "bin": {
+    "@levicape/paloma": "module/cli/bin.js"
+  },
+  "files": [
+    ".github",
+    "src",
+    "module",
+    "examples"
+  ],
   "scripts": {
-    "prelint": "npx @biomejs/biome format ./src ./test ./examples",
-    "lint": "npx @biomejs/biome check ./src ./test ./examples",
-    "lint:format": "npx @biomejs/biome format --write ./src ./test ./examples",
-    "lint:write": "npx @biomejs/biome check --write ./src ./test ./examples",
-    "lint:unsafe": "npx @biomejs/biome check --write --unsafe ./src ./test ./examples",
+    "prelint": "npx @biomejs/biome format ./src ./examples",
+    "lint": "npx @biomejs/biome check ./src ./examples",
+    "lint:format": "npx @biomejs/biome format --write ./src ./examples",
+    "lint:write": "npx @biomejs/biome check --write ./src ./examples",
+    "lint:unsafe": "npx @biomejs/biome check --write --unsafe ./src ./examples",
     "build": "npx tsc",
     "pretest": "npm run clean && npm run build",
     "test": "npm run test:unit && npm run test:examples",
     "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.js\"",
     "test:examples": "node --experimental-strip-types examples/basic.ts",
     "clean": "rm -rf ./module",
-    "clean:pack": "rm -rf ./papagallo.alltest.repopack",
-    "pack": "npx clean:pack && npx repopack --output ./papagallo.alltest.repopack"
+    "clean:pack": "rm -rf ./paloma.alltest.repopack",
+    "pack": "npx clean:pack && npx repopack --output ./paloma.alltest.repopack"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -33,10 +49,6 @@
   "peerDependencies": {
     "typescript": "^5.7.2"
   },
-  "files": [
-    "src",
-    "module"
-  ],
   "dependencies": {
     "@stricli/core": "^1.1.0",
     "better-sqlite3": "^11.6.0",
@@ -46,6 +58,5 @@
     "nexe": "4.0.0-rc.6",
     "slugid": "^5.0.1"
   },
-  "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf",
-  "version": "1.0.0"
+  "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf"
 }

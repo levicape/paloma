@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { basename } from "node:path";
 
 export class WorkQueueFilesystem {
-	static root = process.env.LEAF_WORK_QUEUE_FS_PATH ?? "/tmp/papagallo/work";
+	static root = process.env.LEAF_WORK_QUEUE_FS_PATH ?? "/tmp/paloma/work";
 	static namecache = {};
 	constructor(
 		private readonly test: string,

@@ -1,18 +1,14 @@
 import { buildApplication, buildRouteMap } from "@stricli/core";
-import { command as echo } from "./commands/echo.js";
-import {
-	buildBinaryMathCommand,
-	buildUnaryMathCommand,
-	buildVariadicMathCommand,
-} from "./commands/math.js";
+// import { } from "./commands/echo.js";
+import {} from "./commands/apply.js";
 
 const math = buildRouteMap({
 	routes: {
-		log: buildUnaryMathCommand("log"),
-		sqrt: buildUnaryMathCommand("sqrt"),
-		pow: buildBinaryMathCommand("pow"),
-		max: buildVariadicMathCommand("max"),
-		min: buildVariadicMathCommand("min"),
+		// log: buildUnaryMathCommand("log"),
+		// sqrt: buildUnaryMathCommand("sqrt"),
+		// pow: buildBinaryMathCommand("pow"),
+		// max: buildVariadicMathCommand("max"),
+		// min: buildVariadicMathCommand("min"),
 	},
 	docs: {
 		brief: "Various math operations",
@@ -21,7 +17,7 @@ const math = buildRouteMap({
 
 const root = buildRouteMap({
 	routes: {
-		echo,
+		// echo,
 		math,
 	},
 	docs: {
@@ -30,5 +26,5 @@ const root = buildRouteMap({
 });
 
 export const app = buildApplication(root, {
-	name: "papagallo",
+	name: "paloma",
 });
