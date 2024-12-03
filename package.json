@@ -6,7 +6,13 @@
   "types": "module/index.d.ts",
   "type": "module",
   "exports": {
-    ".": "./module/index.js"
+    ".": "./module/index.js",
+    "./bootstrap": "./module/bootstrap/index.js",
+    "./classified": "./module/classified/index.js",
+    "./cli": "./module/cli/index.js",
+    "./debug": "./module/debug/index.js",
+    "./harness": "./module/harness/index.js",
+    "./repository": "./module/repository/index.js"
   },
   "version": "0.0.0-local.0",
   "engines": {
