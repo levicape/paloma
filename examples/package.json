@@ -1,7 +1,7 @@
 {
-	"private": true,
-	"type": "module",
-	"dependencies": {
-		"@levicape/paloma": "workspace:*"
-	}
+  "dependencies": {
+    "@levicape/paloma": "workspace:*"
+  },
+  "private": true,
+  "type": "module"
 }

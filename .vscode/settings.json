@@ -1,5 +1,13 @@
 {
-	"yaml.schemas": {
-		"https://json.schemastore.org/github-workflow.json": "file:///Users/rz-tunes-gotonull/Source/musical-carnival/.workflows/workflows/ci.push.test.yml"
+	"search.exclude": {
+	// Avoid polluting search results with lockfile content
+	"pnpm-lock.yaml": true,
+	},
+	// Ensure VSCode uses pnpm instead of npm
+	"eslint.packageManager": "pnpm",
+	"npm.packageManager": "pnpm",
+	// For those using file-nesting, nest the new files. E.g.:
+	"explorer.fileNesting.patterns":{
+		"package.json": "pnpm-workspace.yaml, pnpm-lock.yaml"
 	}
 }

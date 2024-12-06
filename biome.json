@@ -5,7 +5,11 @@
 			"lambda.runtime.ts",
 			"*.gen.ts",
 			"cookie-store.server.ts",
-			"cloudscape.*.css"
+			"cloudscape.*.css",
+			"package.json",
+			"package-lock.json",
+			"**/package.json",
+			"**/package-lock.json"		
 		]
 	},
 	"linter": {

@@ -1,24 +1,35 @@
 {
   "name": "@levicape/paloma",
-  "author": "Pedro Cardona",
-  "license": "AGPL-3.0-only",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/levicape/paloma.git"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "version": "0.0.0-local.0",
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "type": "module",
+  "author": "Pedro Cardona",
   "bin": {
     "@levicape/paloma": "module/cli/bin.mjs"
   },
-  "main": "module/harness/index.mjs",
-  "types": "module/harness/index.d.mts",
+  "config": {
+    "packagemanager": "pnpm",
+    "packageexecutor": "pnpm",
+    "lintpaths": "./src ./examples"
+  },
+  "dependencies": {
+    "@stricli/core": "^1.1.0",
+    "better-sqlite3": "^11.6.0",
+    "knex": "^3.1.0",
+    "ksuid": "^3.0.0",
+    "nanoid": "^5.0.9",
+    "slugid": "^5.0.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "latest",
+    "depcheck": "^1.4.7",
+    "nexe": "4.0.0-rc.6",
+    "publint": "^0.2.12",
+    "syncpack": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "exports": {
     ".": "./module/harness/index.mjs",
     "./bootstrap": "./module/bootstrap/index.mjs",
@@ -31,42 +42,35 @@
     ".github",
     "module"
   ],
-  "config": {
-    "packagemanager": "pnpm",
-    "lintpaths": "./src ./examples"
-  },
-  "scripts": {
-    "prelint": "npx @biomejs/biome format $npm_package_config_lintpaths",
-    "lint": "npx @biomejs/biome check $npm_package_config_lintpaths",
-    "lint:format": "npx @biomejs/biome format --write $npm_package_config_lintpaths",
-    "lint:write": "npx @biomejs/biome check --write $npm_package_config_lintpaths",
-    "lint:unsafe": "npx @biomejs/biome check --write --unsafe $npm_package_config_lintpaths",
-    "build": "npx tsc",
-    "pretest": "npm run clean && npm run build",
-    "test": "npm run test:unit && npm run test:examples",
-    "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.(mjs|cjs|js)\"",
-    "test:examples": "node --experimental-strip-types examples/basic.ts",
-    "prepublish": "npx -y publint --strict",
-    "clean": "rm -rf ./module",
-    "clean:install": "rm -rf ./node_modules"
-  },
+  "license": "AGPL-3.0-only",
+  "main": "module/harness/index.mjs",
+  "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf",
   "peerDependencies": {
     "typescript": "^5.7.2"
   },
-  "dependencies": {
-    "@stricli/core": "^1.1.0",
-    "better-sqlite3": "^11.6.0",
-    "knex": "^3.1.0",
-    "ksuid": "^3.0.0",
-    "nanoid": "^5.0.9",
-    "nexe": "4.0.0-rc.6",
-    "slugid": "^5.0.1"
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/better-sqlite3": "^7.6.12",
-    "@types/node": "latest",
-    "publint": "^0.2.12"
+  "repository": "github:levicape/paloma",
+  "scripts": {
+    "build": "$npm_package_config_packageexecutor tsc",
+    "clean": "rm -rf ./module",
+    "clean:install": "rm -rf ./node_modules",
+    "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_lintpaths",
+    "lint:format": "$npm_package_config_packageexecutor biome format --write $npm_package_config_lintpaths",
+    "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_lintpaths",
+    "lint:write": "$npm_package_config_packageexecutor biome check --write $npm_package_config_lintpaths",
+    "package:deps": "$npm_package_config_packageexecutor depcheck",
+    "package:fix": "$npm_package_config_packageexecutor syncpack fix-mismatches",
+    "package:format": "$npm_package_config_packageexecutor syncpack format",
+    "package:update": "$npm_package_config_packageexecutor syncpack update",
+    "prelint": "$npm_package_config_packageexecutor biome format $npm_package_config_lintpaths",
+    "prepublish": "$npm_package_config_packageexecutor -y publint --strict",
+    "pretest": "$npm_package_config_packagemanager run clean && $npm_package_config_packagemanager run build",
+    "test": "$npm_package_config_packagemanager run test:unit && $npm_package_config_packagemanager run test:examples",
+    "test:examples": "node --experimental-strip-types examples/basic.ts",
+    "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.(mjs|cjs|js)\""
   },
-  "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf"
+  "type": "module",
+  "types": "module/harness/index.d.mts"
 }
