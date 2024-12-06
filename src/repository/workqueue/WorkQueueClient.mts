@@ -1,9 +1,9 @@
 import Sqlite3 from "better-sqlite3";
 import createQueryBuilder from "knex";
-import { DebugLog } from "../../debug/index.js";
-import type { TestAction } from "../../harness/TestAction.js";
-import { WorkQueueExecutionTable } from "./WorkQueueExecutionTable.js";
-import { WorkQueueFilesystem } from "./WorkQueueFilesystem.js";
+import { DebugLog } from "../../debug/DebugLog.mjs";
+import type { TestAction } from "../../harness/TestAction.mjs";
+import { WorkQueueExecutionTable } from "./WorkQueueExecutionTable.mjs";
+import { WorkQueueFilesystem } from "./WorkQueueFilesystem.mjs";
 
 const { schema } = createQueryBuilder({
 	client: "sqlite3",

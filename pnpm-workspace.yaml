@@ -1,0 +1,5 @@
+packages:
+  - .
+  - examples
+catalog:
+  "@levicape/spork": "0.0.7-main.10"

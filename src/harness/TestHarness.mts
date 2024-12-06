@@ -1,6 +1,6 @@
-import type { PrimitiveObject } from "../repository/workqueue/index.ts";
-import type { Funnel } from "./Funnel.js";
-import type { ContinueActionProps, TestAction } from "./TestAction.js";
+import type { PrimitiveObject } from "../repository/workqueue/WorkQueueClient.mjs";
+import type { Funnel } from "./Funnel.mjs";
+import type { ContinueActionProps, TestAction } from "./TestAction.mjs";
 
 type AllPrimitive = PrimitiveObject;
 

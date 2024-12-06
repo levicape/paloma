@@ -1,4 +1,4 @@
-import type { Console } from "../debug/index.js";
+import type { Console } from "../debug/Console.mjs";
 
 export type AlltestOptions<S> = {
 	name: string;

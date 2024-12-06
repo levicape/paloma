@@ -1,7 +1,4 @@
-import type {
-	Primitive,
-	PrimitiveObject,
-} from "../repository/workqueue/index.js";
+import type { PrimitiveObject } from "../repository/workqueue/WorkQueueClient.mjs";
 
 export type ContinueActionProps<
 	S,

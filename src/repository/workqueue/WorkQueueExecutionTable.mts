@@ -1,8 +1,8 @@
 import type { Database } from "better-sqlite3";
 import createQueryBuilder from "knex";
 import KSUID from "ksuid";
-import { DebugLog } from "../../debug/index.js";
-import type { PrimitiveObject, WorkQueueRow } from "./WorkQueueClient.js";
+import { DebugLog } from "../../debug/DebugLog.mjs";
+import type { PrimitiveObject, WorkQueueRow } from "./WorkQueueClient.mjs";
 
 const { schema } = createQueryBuilder({
 	client: "sqlite3",

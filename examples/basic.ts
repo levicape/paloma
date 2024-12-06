@@ -1,8 +1,8 @@
 import { ok } from "node:assert";
+import type { ContinueAction } from "@levicape/paloma";
+import { Alltest } from "@levicape/paloma";
+import { SecretValue } from "@levicape/paloma/materials";
 import KSUID from "ksuid";
-import { SecretValue } from "../module/classified/index.js";
-import type { ContinueAction } from "../module/harness/index.js";
-import { Alltest } from "../module/harness/index.js";
 
 const staticKey = crypto.subtle
 	.generateKey("Ed25519", true, ["sign", "verify"])

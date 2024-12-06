@@ -1,7 +1,4 @@
-import type {
-	Primitive,
-	PrimitiveObject,
-} from "../repository/workqueue/index.js";
+import type { Primitive } from "../repository/workqueue/index.mjs";
 type SecretId = string;
 export class SecretValue<S = Primitive, U = Primitive>
 	implements Record<string, unknown>

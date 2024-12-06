@@ -2,57 +2,53 @@
   "name": "@levicape/paloma",
   "author": "Pedro Cardona",
   "license": "AGPL-3.0-only",
-  "main": "module/index.js",
-  "types": "module/index.d.ts",
-  "type": "module",
-  "exports": {
-    ".": "./module/index.js",
-    "./bootstrap": "./module/bootstrap/index.js",
-    "./classified": "./module/classified/index.js",
-    "./cli": "./module/cli/index.js",
-    "./debug": "./module/debug/index.js",
-    "./harness": "./module/harness/index.js",
-    "./repository": "./module/repository/index.js"
-  },
-  "version": "0.0.0-local.0",
-  "engines": {
-      "node": ">=20.0.0"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/levicape/paloma.git"
+    "url": "git+https://github.com/levicape/paloma.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
+  "version": "0.0.0-local.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "type": "module",
   "bin": {
-    "@levicape/paloma": "module/cli/bin.js"
+    "@levicape/paloma": "module/cli/bin.mjs"
+  },
+  "main": "module/harness/index.mjs",
+  "types": "module/harness/index.d.mts",
+  "exports": {
+    ".": "./module/harness/index.mjs",
+    "./bootstrap": "./module/bootstrap/index.mjs",
+    "./materials": "./module/materials/index.mjs",
+    "./cli": "./module/cli/index.mjs",
+    "./debug": "./module/debug/index.mjs",
+    "./repository": "./module/repository/index.mjs"
   },
   "files": [
     ".github",
-    "src",
-    "module",
-    "examples"
+    "module"
   ],
+  "config": {
+    "packagemanager": "pnpm",
+    "lintpaths": "./src ./examples"
+  },
   "scripts": {
-    "prelint": "npx @biomejs/biome format ./src ./examples",
-    "lint": "npx @biomejs/biome check ./src ./examples",
-    "lint:format": "npx @biomejs/biome format --write ./src ./examples",
-    "lint:write": "npx @biomejs/biome check --write ./src ./examples",
-    "lint:unsafe": "npx @biomejs/biome check --write --unsafe ./src ./examples",
+    "prelint": "npx @biomejs/biome format $npm_package_config_lintpaths",
+    "lint": "npx @biomejs/biome check $npm_package_config_lintpaths",
+    "lint:format": "npx @biomejs/biome format --write $npm_package_config_lintpaths",
+    "lint:write": "npx @biomejs/biome check --write $npm_package_config_lintpaths",
+    "lint:unsafe": "npx @biomejs/biome check --write --unsafe $npm_package_config_lintpaths",
     "build": "npx tsc",
     "pretest": "npm run clean && npm run build",
     "test": "npm run test:unit && npm run test:examples",
-    "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.js\"",
+    "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.(mjs|cjs|js)\"",
     "test:examples": "node --experimental-strip-types examples/basic.ts",
+    "prepublish": "npx -y publint --strict",
     "clean": "rm -rf ./module",
-    "clean:pack": "rm -rf ./paloma.alltest.repopack",
-    "pack": "npx clean:pack && npx repopack --output ./paloma.alltest.repopack"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/better-sqlite3": "^7.6.12",
-    "@types/node": "latest"
+    "clean:install": "rm -rf ./node_modules"
   },
   "peerDependencies": {
     "typescript": "^5.7.2"
@@ -65,6 +61,12 @@
     "nanoid": "^5.0.9",
     "nexe": "4.0.0-rc.6",
     "slugid": "^5.0.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "latest",
+    "publint": "^0.2.12"
   },
   "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf"
 }

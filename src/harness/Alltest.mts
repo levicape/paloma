@@ -1,16 +1,16 @@
 import { createHash } from "node:crypto";
-import { DebugLog } from "../debug/index.js";
+import { DebugLog } from "../debug/DebugLog.mjs";
 import {
 	type PrimitiveObject,
 	WorkQueueClient,
-} from "../repository/workqueue/WorkQueueClient.js";
-import type { WorkQueueExecutionTable } from "../repository/workqueue/index.js";
-import { WorkQueueFilesystem } from "../repository/workqueue/index.js";
-import type { AlltestOptions } from "./AlltestOptions.js";
-import type { AlltestSetup } from "./AlltestSetup.js";
-import type { Funnel } from "./Funnel.js";
-import type { ContinueAction, TestAction } from "./TestAction.js";
-import type { TestHarness } from "./TestHarness.js";
+} from "../repository/workqueue/WorkQueueClient.mjs";
+import type { WorkQueueExecutionTable } from "../repository/workqueue/WorkQueueExecutionTable.mjs";
+import { WorkQueueFilesystem } from "../repository/workqueue/WorkQueueFilesystem.mjs";
+import type { AlltestOptions } from "./AlltestOptions.mjs";
+import type { AlltestSetup } from "./AlltestSetup.mjs";
+import type { Funnel } from "./Funnel.mjs";
+import type { ContinueAction, TestAction } from "./TestAction.mjs";
+import type { TestHarness } from "./TestHarness.mjs";
 
 type BrowserClient<M extends string, Funnels extends string> = {
 	screenshots: {

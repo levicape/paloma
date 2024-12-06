@@ -1,6 +1,6 @@
 import { equal } from "node:assert";
 import { describe, it } from "node:test";
-import { WorkQueueFilesystem } from "./WorkQueueFilesystem.js";
+import { WorkQueueFilesystem } from "./WorkQueueFilesystem.mjs";
 
 describe("WorkQueueFileSystem", async () => {
 	it("sqlite filepath", async () => {
