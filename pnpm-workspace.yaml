@@ -2,7 +2,7 @@ packages:
   - .
   - examples
 catalog:
-  "@levicape/spork": "0.0.7-main.10"
+  "@levicape/spork": "0.0.10-main.13"
 
 catalogs:
   core:

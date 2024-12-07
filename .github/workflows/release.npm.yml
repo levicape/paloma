@@ -32,7 +32,7 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: 23
+          node-version: "22.12.0"
           registry-url: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
