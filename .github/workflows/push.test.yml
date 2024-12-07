@@ -59,7 +59,7 @@ jobs:
       - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         name: List the state of node modules
         continue-on-error: true
-        run: npm list
+        run: pnpm list
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -107,7 +107,7 @@ jobs:
       - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         name: List the state of node modules
         continue-on-error: true
-        run: npm list
+        run: pnpm list
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
