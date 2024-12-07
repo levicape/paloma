@@ -7,26 +7,28 @@
   },
   "config": {
     "packagemanager": "pnpm",
-    "packageexecutor": "pnpm",
-    "lintpaths": "./src ./examples"
+    "packageexecutor": "pnpm exec",
+    "outpath": "./module",
+    "srcpaths": "./src ./examples"
   },
   "dependencies": {
-    "@stricli/core": "^1.1.0",
-    "better-sqlite3": "^11.6.0",
-    "knex": "^3.1.0",
-    "ksuid": "^3.0.0",
-    "nanoid": "^5.0.9",
-    "slugid": "^5.0.1"
+    "@stricli/core": "catalog:cli",
+    "better-sqlite3": "catalog:database",
+    "knex": "catalog:database",
+    "ksuid": "catalog:id",
+    "nanoid": "catalog:id",
+    "slugid": "catalog:id"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/better-sqlite3": "^7.6.12",
-    "@types/node": "latest",
-    "depcheck": "^1.4.7",
-    "nexe": "4.0.0-rc.6",
-    "publint": "^0.2.12",
-    "syncpack": "^13.0.0",
-    "tsx": "^4.19.2"
+    "@biomejs/biome": "catalog:lint",
+    "@types/better-sqlite3": "catalog:types",
+    "@types/node": "catalog:types",
+    "ci": "catalog:package",
+    "depcheck": "catalog:package",
+    "nexe": "catalog:build",
+    "publint": "catalog:package",
+    "syncpack": "catalog:package",
+    "tsx": "catalog:dev"
   },
   "engines": {
     "node": ">=22.0.0"
@@ -47,7 +49,7 @@
   "main": "module/harness/index.mjs",
   "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf",
   "peerDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "catalog:dev"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -55,21 +57,24 @@
   "repository": "github:levicape/paloma",
   "scripts": {
     "build": "$npm_package_config_packageexecutor tsc",
-    "clean": "rm -rf ./module",
+    "build:ci": "$npm_package_config_packagemanager run build",
+    "clean": "rm -rf $npm_package_config_outpath",
     "clean:install": "rm -rf ./node_modules",
-    "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_lintpaths",
-    "lint:format": "$npm_package_config_packageexecutor biome format --write $npm_package_config_lintpaths",
-    "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_lintpaths",
-    "lint:write": "$npm_package_config_packageexecutor biome check --write $npm_package_config_lintpaths",
+    "dx:prepublish": "pnpm run build:ci && pnpm run lint:write && pnpm run package:format && pnpm run prepublish",
+    "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_srcpaths",
+    "lint:format": "$npm_package_config_packageexecutor biome format --write $npm_package_config_srcpaths",
+    "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_srcpaths",
+    "lint:write": "$npm_package_config_packageexecutor biome check --write $npm_package_config_srcpaths",
     "package:deps": "$npm_package_config_packageexecutor depcheck",
     "package:fix": "$npm_package_config_packageexecutor syncpack fix-mismatches",
     "package:format": "$npm_package_config_packageexecutor syncpack format",
     "package:update": "$npm_package_config_packageexecutor syncpack update",
-    "prelint": "$npm_package_config_packageexecutor biome format $npm_package_config_lintpaths",
-    "prepublish": "$npm_package_config_packageexecutor -y publint --strict",
+    "prebuild": "$npm_package_config_packagemanager run clean",
+    "prelint": "$npm_package_config_packageexecutor biome format $npm_package_config_srcpaths",
+    "prepublish": "$npm_package_config_packageexecutor publint --strict",
     "pretest": "$npm_package_config_packagemanager run clean && $npm_package_config_packagemanager run build",
     "test": "$npm_package_config_packagemanager run test:unit && $npm_package_config_packagemanager run test:examples",
-    "test:examples": "node --experimental-strip-types examples/basic.ts",
+    "test:examples": "node --experimental-strip-types ./examples/src/basic/harness.canary.mts",
     "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.(mjs|cjs|js)\""
   },
   "type": "module",
