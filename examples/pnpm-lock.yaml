@@ -119,6 +119,9 @@ importers:
       '@biomejs/biome':
         specifier: catalog:lint
         version: 1.9.4
+      ci:
+        specifier: catalog:package
+        version: 2.3.0
       publint:
         specifier: catalog:package
         version: 0.2.12
