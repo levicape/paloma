@@ -29,8 +29,8 @@ catalogs:
       version: 8.13.1
   default:
     '@levicape/spork':
-      specifier: 0.0.7-main.10
-      version: 0.0.7-main.10
+      specifier: 0.0.10-main.13
+      version: 0.0.10-main.13
   dev:
     tsx:
       specifier: ^4.19.2
@@ -148,7 +148,7 @@ importers:
         version: link:..
       '@levicape/spork':
         specifier: 'catalog:'
-        version: 0.0.7-main.10(@bufbuild/protobuf@2.2.2)(@hono/node-server@1.13.7(hono@4.6.13))(better-sqlite3@11.6.0)(hono@4.6.13)(jsonwebtoken@9.0.2)(pg@8.13.1)(pino@9.5.0)(zod@3.23.8)
+        version: 0.0.10-main.13(@bufbuild/protobuf@2.2.2)(@hono/node-server@1.13.7(hono@4.6.13))(better-sqlite3@11.6.0)(hono@4.6.13)(jsonwebtoken@9.0.2)(pg@8.13.1)(pino@9.5.0)(zod@3.23.8)
       expect:
         specifier: catalog:test
         version: 29.7.0
@@ -625,8 +625,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@levicape/spork@0.0.7-main.10':
-    resolution: {integrity: sha512-vYc0vxGHnNTsoe4TEjCEy8x0c9c8pVRgDDAY/OJ9PaQDWSBpAw8bmAuU5pxU/7juAflzgx5xtK0x/963FxP6gA==, tarball: https://npm.pkg.github.com/download/@levicape/spork/0.0.7-main.10/981e2bbddc8972cb7c1ecf2502ebc71e6fdde630}
+  '@levicape/spork@0.0.10-main.13':
+    resolution: {integrity: sha512-qckUwDB6RreYNISmJHHvCU53via6iNQeF1Lf+ubOAQhdcBs7sNXSbza4DUwuHq1SoVzJ2Pa6Am27L9S/Mww18g==, tarball: https://npm.pkg.github.com/download/@levicape/spork/0.0.10-main.13/ae27cf1f68042d568ee0d3748dcdee6338708644}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -634,7 +634,7 @@ packages:
       '@hono/node-server': ^1.13.7
       hono: ^4.6.12
       jsonwebtoken: ^9.0.2
-      zod: ^3.23.8
+      zod: 3.23.8
 
   '@noble/hashes@1.6.1':
     resolution: {integrity: sha512-pq5D8h10hHBjyqX+cfBm0i8JUXJ0UhczFc4r74zbuT9XgewFo2E3J1cOaGtdZynILNmQ685YWGzGE1Zv6io50w==}
@@ -3580,7 +3580,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@levicape/spork@0.0.7-main.10(@bufbuild/protobuf@2.2.2)(@hono/node-server@1.13.7(hono@4.6.13))(better-sqlite3@11.6.0)(hono@4.6.13)(jsonwebtoken@9.0.2)(pg@8.13.1)(pino@9.5.0)(zod@3.23.8)':
+  '@levicape/spork@0.0.10-main.13(@bufbuild/protobuf@2.2.2)(@hono/node-server@1.13.7(hono@4.6.13))(better-sqlite3@11.6.0)(hono@4.6.13)(jsonwebtoken@9.0.2)(pg@8.13.1)(pino@9.5.0)(zod@3.23.8)':
     dependencies:
       '@aws-sdk/client-dynamodb': 3.705.0
       '@aws-sdk/client-secrets-manager': 3.699.0
