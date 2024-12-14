@@ -3,11 +3,18 @@ packages:
   - examples
 catalog:
   "@levicape/spork": "0.0.10-main.13"
+  "@levicape/fourtwo": "0.0.3-main.3"
 
 catalogs:
   core:
     "long": "^5.2.3"
     "zod": "3.23.8"
+    "yaml": "^2.6.1"
+    "ini": "^5.0.0"
+    "pify": "^6.1.0"
+    "verror": "^1.10.0"
+    "pretty-ms": "^9.2.0"
+    "fast-xml-parser": "^4.5.0"
   id:
     "@paralleldrive/cuid2": "^2.2.2"
     "ksuid": "^3.0.0"
@@ -27,6 +34,7 @@ catalogs:
 
     "node-html-parser": "^6.1.13"
     "lru-cache": "^11.0.2"
+    "unzipper": "^0.12.3"
   aws:
     "@aws-sdk/client-dynamodb": "^3.705.0"
     "@aws-sdk/client-secrets-manager": "^3.699.0"
@@ -42,6 +50,7 @@ catalogs:
     "pg": "^8.13.1"
   cli:
     "@stricli/core": "^1.1.0"
+    "enquirer": "^2.4.1"
   hono:
     "hono": "^4.6.12"
     "@hono/node-server": "^1.13.7"
@@ -63,9 +72,15 @@ catalogs:
     "@types/react-dom": "^19.0.0"
 
 
+    "@types/folder-hash": "^4.0.4"
+    "@types/node": "^22.10.1"
+    "@types/unzipper": "^0.10.10"
     "@types/compressible": "^2.0.2"
     "@types/jsonwebtoken": "^9.0.7"
-    "@types/node": "^22.10.1"
+    "@types/module-alias": "^2.0.4"
+    "@types/ini": "^4.1.1"
+    "@types/verror": "^1.10.10"
+
   test:
     "expect": "^29.7.0"
   lint:
@@ -101,6 +116,7 @@ catalogs:
     "webpack": "^5.96.1"
     "@vitejs/plugin-react": "^4.3.4"
     "nexe": "4.0.0-rc.6"
+    "folder-hash": "^4.0.4"
   web:
     "redaxios": "^0.5.1"
     "spin-delay": "^2.0.1"
@@ -149,8 +165,16 @@ catalogs:
     "@cloudscape-design/global-styles": "^1.0.32"
 
   pulumi:
-    "@pulumi/aws": "^6.0.0"
-    "@pulumi/awsx": "^2.0.2"
     "@pulumi/docker-build": "^0.0.7"
-    "@pulumi/pulumi": "^3.113.0"
     "@pulumi/synced-folder": "^0.11.1"
+    "@pulumi/aws": "^6.64.0"
+    "@pulumi/awsx": "^2.19.0"
+    "@pulumi/command": "^1.0.1"
+    "@pulumi/docker": "^4.5.7"
+    "@pulumi/kubernetes": "^4.18.4"
+    "@pulumi/pulumi": "^3.142.0"
+    "@pulumi/random": "^4.16.7"
+    "@pulumiverse/time": "^0.1.0"
+
+  kubernetes:
+    "@kubernetes-models/postgres-operator": "^0.4.2"

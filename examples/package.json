@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "catalog:protobuf",
+    "@levicape/fourtwo": "catalog:",
     "@levicape/paloma": "workspace:",
     "@levicape/spork": "catalog:",
     "expect": "catalog:test",

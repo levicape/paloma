@@ -9,7 +9,7 @@
     "packagemanager": "pnpm",
     "packageexecutor": "pnpm exec",
     "outpath": "./module",
-    "srcpaths": "./src ./examples"
+    "lintpaths": "./src ./examples ./iac"
   },
   "dependencies": {
     "@stricli/core": "catalog:cli",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
+    "@levicape/fourtwo": "catalog:",
     "@types/better-sqlite3": "catalog:types",
     "@types/node": "catalog:types",
     "ci": "catalog:package",
@@ -42,7 +43,6 @@
     "./repository": "./module/repository/index.mjs"
   },
   "files": [
-    ".github",
     "module"
   ],
   "license": "AGPL-3.0-only",
@@ -57,25 +57,28 @@
   "repository": "github:levicape/paloma",
   "scripts": {
     "build": "$npm_package_config_packageexecutor tsc",
-    "build:ci": "$npm_package_config_packagemanager run build",
     "clean": "rm -rf $npm_package_config_outpath",
     "clean:install": "rm -rf ./node_modules",
-    "dx:config:post": "$npm_package_config_packagemanager config set recursive-install true",
-    "dx:config:pre": "$npm_package_config_packagemanager config set recursive-install false",
-    "dx:lint": "$npm_package_config_packagemanager run build:ci && $npm_package_config_packagemanager run lint:write && $npm_package_config_packagemanager run package:format && pnpm run prepublish",
-    "dx:prepublish": "$npm_package_config_packagemanager run dx:config:pre && $npm_package_config_packagemanager run dx:lint && $npm_package_config_packagemanager run dx:config:post",
-    "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_srcpaths",
-    "lint:format": "$npm_package_config_packageexecutor biome format --write $npm_package_config_srcpaths",
-    "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_srcpaths",
-    "lint:write": "$npm_package_config_packageexecutor biome check --write $npm_package_config_srcpaths",
+    "compile": "$npm_package_config_packagemanager run build",
+    "dx:cli:bin": "$npm_package_config_packageexecutor tsx $npm_package_config_binpath",
+    "dx:cli:dev": "node --inspect-brk --import tsx $npm_package_config_binpath",
+    "dx:lint": "$npm_package_config_packagemanager run compile && $npm_package_config_packagemanager run lint:format && $npm_package_config_packagemanager run package:format",
+    "dx:prepublish": "$npm_package_config_packagemanager run dx:prepublish:pre && $npm_package_config_packagemanager run dx:lint && $npm_package_config_packagemanager run dx:sync && $npm_package_config_packagemanager run prepublish",
+    "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
+    "dx:sync": "echo 'dx:sync -- Not supported yet'",
+    "dx:test": "$npm_package_config_packagemanager run clean && $npm_package_config_packagemanager run build && $npm_package_config_packagemanager run test",
+    "ft:gha:push:main": "$npm_package_config_packageexecutor fourtwo github workflows gen \"./iac/workflows/github/push/GithubMainPushPipeline.js\" --output",
+    "ft:gha:release:released": "$npm_package_config_packageexecutor fourtwo github workflows gen \"./iac/workflows/github/release/GithubReleaseReleasedPipeline.js\" --output",
+    "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_lintpaths",
+    "lint:format": "$npm_package_config_packageexecutor biome check --write $npm_package_config_lintpaths",
+    "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_lintpaths",
     "package:deps": "$npm_package_config_packageexecutor depcheck",
     "package:fix": "$npm_package_config_packageexecutor syncpack fix-mismatches",
     "package:format": "$npm_package_config_packageexecutor syncpack format",
     "package:update": "$npm_package_config_packageexecutor syncpack update",
     "prebuild": "$npm_package_config_packagemanager run clean",
-    "prelint": "$npm_package_config_packageexecutor biome format $npm_package_config_srcpaths",
+    "prelint": "$npm_package_config_packageexecutor biome format $npm_package_config_lintpaths",
     "prepublish": "$npm_package_config_packageexecutor publint --strict",
-    "pretest": "$npm_package_config_packagemanager run clean && $npm_package_config_packagemanager run build",
     "test": "$npm_package_config_packagemanager run test:unit && $npm_package_config_packagemanager run test:examples",
     "test:examples": "node --experimental-strip-types ./examples/src/basic/harness.canary.mts",
     "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.(mjs|cjs|js)\""

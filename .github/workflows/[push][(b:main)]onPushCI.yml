@@ -1,0 +1,59 @@
+# THIS FILE WAS AUTOMATICALLY GENERATED, DO NOT MODIFY
+# .../codegen/github/GenerateGithubNode.mjs
+########################################
+name: "on Push: CI"
+on:
+  push:
+    branches:
+      - main
+env:
+  NPM_REGISTRY_PROTOCOL: https
+  NPM_REGISTRY_HOST: npm.pkg.github.com
+jobs:
+  build:
+    name: Compile, Lint and Test package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Setup Node 22.12.0
+        uses: actions/setup-node@v4
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          node-version: 22.12.0
+          registry-url: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}/
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+          scope: "@levicape"
+      - id: cache-npm
+        name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.json') }}
+          restore-keys: |-
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List Dependencies
+        run: pnpm list;
+        continue-on-error: true
+      - name: Install Dependencies
+        run: pnpm install;
+      - name: Compile module
+        run: pnpm run compile;
+      - name: "Run package.json: lint"
+        run: pnpm run lint;
+      - name: "Run package.json: test"
+        run: pnpm run test;
+
+########################################
+########################################
+# {"started":"2024-12-14T06:53:14.593Z","now":"2024-12-14T06:53:14.600Z","elapsed":"7ms","hashed":"c884b05af6d9fed3b7c9a3c4ce76c0805f6ef4101aaba80d114e44ed5e9a2f80","signed":"5f15e108cc00c3e4ef9c35d5f45ef6651ad4c9fc2bd4dddf7fc9b3809a9a4e3cd8e389cde46b3daba300efc1379359b1f49f3bc80d3fa0607ade648db9ee11e83bce8e22794467518b0ba9e3eae9434d3189ada09412ee535b6b46045acaef36ac004ce70f83281bf8a5f50c66a466cafbb05db2fc1fd2df729eee450acfd539"}
+# END OF GENERATED FILE
