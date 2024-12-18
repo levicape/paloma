@@ -8,9 +8,7 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "catalog:protobuf",
-    "@levicape/fourtwo": "catalog:",
     "@levicape/paloma": "workspace:",
-    "@levicape/spork": "catalog:",
     "expect": "catalog:test",
     "knex": "catalog:database",
     "ksuid": "catalog:id",
@@ -25,6 +23,16 @@
     "syncpack": "catalog:package",
     "typescript": "catalog:dev"
   },
+  "nx": {
+    "targets": {
+      "dx:precommit": {
+        "dependsOn": [
+          "dx:prepublish",
+          "^dx:precommit"
+        ]
+      }
+    }
+  },
   "private": true,
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -32,24 +40,23 @@
   "repository": "github:levicape/paloma",
   "scripts": {
     "build": "$npm_package_config_packageexecutor tsc",
-    "build:ci": "$npm_package_config_packagemanager run clean:install && $npm_package_config_packageexecutor ci && $npm_package_config_packagemanager run generate:ci && $npm_package_config_packagemanager run build",
     "clean": "rm -rf $npm_package_config_outpaths || true",
     "clean:install": "echo \"Clean node_modules if npm\"",
+    "compile": "$npm_package_config_packagemanager run build",
     "dx:config:post": "$npm_package_config_packagemanager config set recursive-install true",
     "dx:config:pre": "$npm_package_config_packagemanager config set recursive-install false",
-    "dx:lint": "$npm_package_config_packagemanager run build:ci && $npm_package_config_packagemanager run lint:write && $npm_package_config_packagemanager run package:format && $npm_package_config_packagemanager run prepublish",
-    "dx:prepublish": "$npm_package_config_packagemanager run dx:config:pre && $npm_package_config_packagemanager run dx:lint && $npm_package_config_packagemanager run dx:config:post",
-    "generate:ci": "echo \"Codegen []\"",
+    "dx:lint": "$npm_package_config_packagemanager run compile && $npm_package_config_packagemanager run lint:format && $npm_package_config_packagemanager run package:format",
+    "dx:precommit": "$npm_package_config_packagemanager run dx:precommit:pre && $npm_package_config_packagemanager run package:deps",
+    "dx:precommit:pre": "echo \"Starting precommit dx. This will check package.json dependencies.\"",
+    "dx:prepublish": "$npm_package_config_packagemanager run dx:prepublish:pre && $npm_package_config_packagemanager run dx:lint && $npm_package_config_packagemanager run prepublish",
+    "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
     "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_lintpaths",
-    "lint:format": "$npm_package_config_packageexecutor biome format --write $npm_package_config_lintpaths",
+    "lint:format": "$npm_package_config_packageexecutor biome check --write $npm_package_config_lintpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_lintpaths",
-    "lint:write": "$npm_package_config_packageexecutor biome check --write $npm_package_config_lintpaths",
     "package:deps": "$npm_package_config_packageexecutor depcheck",
     "package:fix": "$npm_package_config_packageexecutor syncpack fix-mismatches",
     "package:format": "$npm_package_config_packageexecutor syncpack format",
-    "package:lockfile": "$npm_package_config_packagemanager install --lockfile-only --lockfile-dir .",
     "package:update": "$npm_package_config_packageexecutor syncpack update",
-    "postinstall": "$npm_package_config_packagemanager run package:lockfile",
     "prebuild": "$npm_package_config_packagemanager run clean",
     "prelint": "$npm_package_config_packageexecutor biome format $npm_package_config_lintpaths",
     "prepublish": "$npm_package_config_packageexecutor publint --strict"

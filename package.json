@@ -15,18 +15,15 @@
     "@stricli/core": "catalog:cli",
     "better-sqlite3": "catalog:database",
     "knex": "catalog:database",
-    "ksuid": "catalog:id",
-    "nanoid": "catalog:id",
-    "slugid": "catalog:id"
+    "ksuid": "catalog:id"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
     "@levicape/fourtwo": "catalog:",
     "@types/better-sqlite3": "catalog:types",
     "@types/node": "catalog:types",
-    "ci": "catalog:package",
     "depcheck": "catalog:package",
-    "nexe": "catalog:build",
+    "nx": "20.2.2",
     "publint": "catalog:package",
     "syncpack": "catalog:package",
     "tsx": "catalog:dev"
@@ -47,6 +44,16 @@
   ],
   "license": "AGPL-3.0-only",
   "main": "module/harness/index.mjs",
+  "nx": {
+    "targets": {
+      "dx:precommit": {
+        "dependsOn": [
+          "dx:prepublish",
+          "^dx:precommit"
+        ]
+      }
+    }
+  },
   "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf",
   "peerDependencies": {
     "typescript": "catalog:dev"
@@ -60,15 +67,19 @@
     "clean": "rm -rf $npm_package_config_outpath",
     "clean:install": "rm -rf ./node_modules",
     "compile": "$npm_package_config_packagemanager run build",
-    "dx:cli:bin": "$npm_package_config_packageexecutor tsx $npm_package_config_binpath",
-    "dx:cli:dev": "node --inspect-brk --import tsx $npm_package_config_binpath",
     "dx:lint": "$npm_package_config_packagemanager run compile && $npm_package_config_packagemanager run lint:format && $npm_package_config_packagemanager run package:format",
-    "dx:prepublish": "$npm_package_config_packagemanager run dx:prepublish:pre && $npm_package_config_packagemanager run dx:lint && $npm_package_config_packagemanager run dx:sync && $npm_package_config_packagemanager run prepublish",
+    "dx:precommit": "$npm_package_config_packagemanager run dx:precommit:pre && $npm_package_config_packagemanager run dx:sync && $npm_package_config_packagemanager run package:deps",
+    "dx:precommit:pre": "echo \"Starting precommit dx. This will recompile iac files and check package.json dependencies.\"",
+    "dx:prepublish": "$npm_package_config_packagemanager run dx:prepublish:pre && $npm_package_config_packagemanager run dx:lint && $npm_package_config_packagemanager run prepublish",
     "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
-    "dx:sync": "echo 'dx:sync -- Not supported yet'",
-    "dx:test": "$npm_package_config_packagemanager run clean && $npm_package_config_packagemanager run build && $npm_package_config_packagemanager run test",
-    "ft:gha:push:main": "$npm_package_config_packageexecutor fourtwo github workflows gen \"./iac/workflows/github/push/GithubMainPushPipeline.js\" --output",
-    "ft:gha:release:released": "$npm_package_config_packageexecutor fourtwo github workflows gen \"./iac/workflows/github/release/GithubReleaseReleasedPipeline.js\" --output",
+    "dx:sync": "$npm_package_config_packagemanager run dx:sync:pre && $npm_package_config_packagemanager run ft:sync:main",
+    "dx:sync:pre": "echo \"Starting sync dx. This will generate all the workflows and sync them with the repository.\"",
+    "ft:cc:push:main": "$npm_package_config_packageexecutor fourtwo aws codecatalyst workflows generate \"./iac/workflows/codecatalyst/push/CodeCatalystMainPush.js\" --output",
+    "ft:cc:sync:main": "$npm_package_config_packagemanager run ft:cc:push:main --write",
+    "ft:gha:push:main": "$npm_package_config_packageexecutor fourtwo github workflows gen \"./iac/workflows/github/push/GithubMainPush.js\" --output",
+    "ft:gha:release:released": "$npm_package_config_packageexecutor fourtwo github workflows gen \"./iac/workflows/github/release/GithubReleaseReleased.js\" --output",
+    "ft:gha:sync:main": "$npm_package_config_packagemanager run ft:gha:push:main --write && $npm_package_config_packagemanager run ft:gha:release:released --write",
+    "ft:sync:main": "$npm_package_config_packagemanager run ft:gha:sync:main",
     "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_lintpaths",
     "lint:format": "$npm_package_config_packageexecutor biome check --write $npm_package_config_lintpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_lintpaths",
@@ -81,7 +92,7 @@
     "prepublish": "$npm_package_config_packageexecutor publint --strict",
     "test": "$npm_package_config_packagemanager run test:unit && $npm_package_config_packagemanager run test:examples",
     "test:examples": "node --experimental-strip-types ./examples/src/basic/harness.canary.mts",
-    "test:unit": "node --experimental-strip-types --test  \"module/**/*.test.(mjs|cjs|js)\""
+    "test:unit": "node --experimental-strip-types --experimental-test-coverage --test --test-reporter junit --test-reporter-destination test-unit.junit.xml  \"module/**/*.test.(mjs|cjs|js)\""
   },
   "type": "module",
   "types": "module/harness/index.d.mts"

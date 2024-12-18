@@ -3,26 +3,31 @@
 
 import {
 	GithubJobBuilder,
-	GithubJobX,
 	GithubNodePipelinePackageSteps,
-	GithubPipelineX,
-	GithubStepX,
 } from "@levicape/fourtwo/ci/cd/pipeline/github";
-import { CurrentState } from "@levicape/fourtwo/ci/cd/state";
+import { GithubWorkflowExpressions } from "@levicape/fourtwo/ci/cd/pipeline/github";
 import {
-	GithubPipelineNodeScriptsX,
-	GithubPipelineNodeSetupX,
-} from "@levicape/fourtwo/ci/codegen/github";
+	GithubJobX,
+	GithubStepCheckoutX,
+	GithubStepX,
+	GithubWorkflowX,
+} from "@levicape/fourtwo/x/github";
+import {
+	GithubStepNodeInstallX,
+	GithubStepNodeScriptsX,
+	GithubStepNodeSetupX,
+} from "@levicape/fourtwo/x/github/node";
+import { NodeGhaConfiguration } from "../push/GithubMainPush.js";
 
-let {
+const {
 	current: { register, context: _$_, env },
-} = CurrentState;
+} = GithubWorkflowExpressions;
 
 // const enquirer = new Enquirer();
 // const prompt = enquirer.prompt.bind(enquirer);
 
-export default (
-	<GithubPipelineX
+export default async () => (
+	<GithubWorkflowX
 		name="on Release: [released] Publish @levicape Github"
 		on={{
 			release: {
@@ -38,10 +43,8 @@ export default (
 			id="packages"
 			name="Compile package, test and publish to npm"
 			runsOn={GithubJobBuilder.defaultRunsOn()}
-			permissions={{
-				packages: "write",
-				contents: "read",
-			}}
+			contents={"read"}
+			packages={"write"}
 			steps={
 				<>
 					<GithubStepX
@@ -52,42 +55,22 @@ export default (
 							`curl -v --insecure ${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")}`,
 						]}
 					/>
-					<GithubPipelineNodeSetupX
-						configuration={{
-							packageManager: {
-								node: "pnpm",
-							},
-							registry: {
-								scope: "@levicape",
-							},
-							version: {
-								node: "22.12.0",
-							},
-						}}
-						options={{}}
-					>
+					<GithubStepCheckoutX />
+					<GithubStepNodeSetupX configuration={NodeGhaConfiguration({ env })}>
 						{(node) => {
 							return (
 								<>
-									<GithubStepX
-										name={"Verify registry URL"}
-										continueOnError={true}
-										run={[
-											`echo "NPM_REGISTRY_URL: ${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")}"`,
-											`echo "NPM_REGISTRY_SCOPE: ${node.configuration.registry.scope}"`,
-											`curl -v --insecure ${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")}`,
-										]}
-									/>
+									<GithubStepNodeInstallX {...node} />
 									<GithubStepX
 										name={"Compile module"}
 										run={[
 											new GithubNodePipelinePackageSteps()
 												.getScript(node.configuration)("compile")
-												.build().run,
+												.build().run as string,
 										]}
 									/>
-									<GithubPipelineNodeScriptsX {...node} scripts={["lint"]} />
-									<GithubPipelineNodeScriptsX {...node} scripts={["test"]} />
+									<GithubStepNodeScriptsX {...node} scripts={["lint"]} />
+									<GithubStepNodeScriptsX {...node} scripts={["test"]} />
 									<GithubStepX
 										name={"Increment version"}
 										run={[
@@ -102,10 +85,7 @@ export default (
 											),
 										}}
 									/>
-									<GithubPipelineNodeScriptsX
-										{...node}
-										scripts={["prepublish"]}
-									/>
+									<GithubStepNodeScriptsX {...node} scripts={["prepublish"]} />
 									<GithubStepX
 										if={"success()"}
 										name={"Increment version"}
@@ -115,9 +95,9 @@ export default (
 								</>
 							);
 						}}
-					</GithubPipelineNodeSetupX>
+					</GithubStepNodeSetupX>
 				</>
 			}
 		/>
-	</GithubPipelineX>
+	</GithubWorkflowX>
 );

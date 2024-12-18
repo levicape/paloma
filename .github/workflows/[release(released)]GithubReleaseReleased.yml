@@ -1,5 +1,5 @@
+########################################
 # THIS FILE WAS AUTOMATICALLY GENERATED, DO NOT MODIFY
-# .../codegen/github/GenerateGithubNode.mjs
 ########################################
 name: "on Release: [released] Publish @levicape Github"
 on:
@@ -12,54 +12,52 @@ env:
 jobs:
   packages:
     name: Compile package, test and publish to npm
+    runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
-    runs-on: ubuntu-latest
     steps:
       - name: Verify registry URL
+        continue-on-error: true
         run: |-
           echo "NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}";
           curl -v --insecure ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }};
-        continue-on-error: true
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
       - name: Setup Node 22.12.0
         uses: actions/setup-node@v4
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           node-version: 22.12.0
-          registry-url: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}/
+          registry-url: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
           scope: "@levicape"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: cache-npm
         name: Cache node modules
         uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.json') }}
-          restore-keys: |-
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          key: ${{ runner.os }}-build-npm-node-modules-${{ hashFiles('**/pnpm-lock.json') }}
+          restore-keys: ${{ runner.os }}-build-npm-node-modules-
+      - name: Get pnpm store directory
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV;
+      - id: cache-pnpm-store
+        name: Cache pnpm files
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.json') }}
+          restore-keys: ${{ runner.os }}-pnpm-store-
       - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         name: List Dependencies
-        run: pnpm list;
         continue-on-error: true
+        run: pnpm list;
       - name: Install Dependencies
         run: pnpm install;
-      - name: Verify registry URL
-        run: |-
-          echo "NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}";
-          echo "NPM_REGISTRY_SCOPE: @levicape";
-          curl -v --insecure ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }};
-        continue-on-error: true
       - name: Compile module
         run: pnpm run compile;
       - name: "Run package.json: lint"
@@ -78,10 +76,14 @@ jobs:
         run: pnpm run prepublish;
       - if: success()
         name: Increment version
-        run: pnpm publish --no-git-checks;
         continue-on-error: true
+        run: pnpm publish --no-git-checks;
 
 ########################################
 ########################################
-# {"started":"2024-12-14T06:55:35.967Z","now":"2024-12-14T06:55:35.978Z","elapsed":"11ms","hashed":"10aaa9c572b16450e08fc6ae52877bd4ed242cc274d2317e27cdc3d6d534488b","signed":"059b9f203f6485641b90cb5442cd2fd7b1ac5c9b9ea623af49c9112f99c90584376c2c2458f3671ce1853a3b1cc7aa4f3fe7a3c85be861648eadc5894d10268d6ead8ae5ab3ace13d483f9e025648e8f790e78968a3ca0af94dafa6f8d6c1ce8214b76bc8a1d7a2659a3c4238a0ec536eeffd5804ac3aab5cf7d4a3ff42d7df5"}
+#**:_$~- {"$$":"head","filename":"[release(released)]GithubReleaseReleased.yml","source":"iac/workflows/github/release/GithubReleaseReleased.js"}
+#**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
+#**:_$~- {"$$":"body","hashed":"da3d6fe3c51ee9270693f5f4fe87e5e313580d9025a64528893b93da29c6595d"}
+#**:_$~- {"$$":"footer","started":"2024-12-18T16:50:49.837Z","now":"2024-12-18T16:50:49.843Z","elapsed":"6ms"}
 # END OF GENERATED FILE
+

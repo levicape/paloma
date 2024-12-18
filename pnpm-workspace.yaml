@@ -2,8 +2,8 @@ packages:
   - .
   - examples
 catalog:
-  "@levicape/spork": "0.0.10-main.13"
-  "@levicape/fourtwo": "0.0.3-main.3"
+  "@levicape/spork": "0.1.1-main.2"
+  "@levicape/fourtwo": "0.1.1-main.2"
 
 catalogs:
   core:
@@ -15,6 +15,7 @@ catalogs:
     "verror": "^1.10.0"
     "pretty-ms": "^9.2.0"
     "fast-xml-parser": "^4.5.0"
+    "js-yaml": "^4.1.0"
   id:
     "@paralleldrive/cuid2": "^2.2.2"
     "ksuid": "^3.0.0"
@@ -43,6 +44,7 @@ catalogs:
     "@aws-sdk/util-dynamodb": "^3.705.0"
     "aws4fetch": "^1.0.20"
     "pino-lambda": "^4.4.1"
+    "@aws/codecatalyst-workflows-sdk": "0.1.5-preview.6"
   database:
     "better-sqlite3": "^11.6.0"
     "slonik": "^46.2.0"
@@ -81,6 +83,8 @@ catalogs:
     "@types/ini": "^4.1.1"
     "@types/verror": "^1.10.10"
 
+    "@types/js-yaml": "^4.0.9"
+
   test:
     "expect": "^29.7.0"
   lint:
@@ -90,7 +94,7 @@ catalogs:
     "publint": "^0.2.12"
     "syncpack": "^13.0.0"
     "ci": "^2.3.0"
-
+    "nx": "20.2.2"
   crypto:
     # TODO: ???
     "crypto-js": "^4.2.0"
