@@ -2,8 +2,8 @@ packages:
   - .
   - examples
 catalog:
-  "@levicape/spork": "0.1.1-main.2"
   "@levicape/fourtwo": "0.2.1-main.5"
+
 
 
 
@@ -30,7 +30,7 @@ catalog:
 catalogs:
   core:
     "long": "^5.2.3"
-    "zod": "3.23.8"
+    "zod": "3.24.1"
     "yaml": "^2.6.1"
     "ini": "^5.0.0"
     "pify": "^6.1.0"

@@ -100,7 +100,7 @@
     "dx:cli:bin": "$npm_package_config_packageexecutor tsx $npm_package_config_binpath",
     "dx:cli:dev": "node --inspect-brk --import tsx $npm_package_config_binpath",
     "dx:commit": "$npm_package_config_packagemanager run clean:packages && $npm_package_config_packageexecutor nx dx:precommit --no-cloud --verbose",
-    "dx:lint": "$npm_package_config_packageexecutor nx compile && $npm_package_config_packageexecutor nx lint:format && $npm_package_config_packageexecutor nx package:format",
+    "dx:lint": "$npm_package_config_packageexecutor nx nx:compile && $npm_package_config_packageexecutor nx lint:format && $npm_package_config_packageexecutor nx package:format",
     "dx:precommit": "$npm_package_config_packageexecutor nx dx:precommit:pre && $npm_package_config_packageexecutor nx dx:sync && $npm_package_config_packageexecutor nx package:deps",
     "dx:precommit:pre": "echo \"Starting precommit dx. This will recompile iac files and check package.json dependencies.\"",
     "dx:prepublish": "$npm_package_config_packageexecutor nx dx:prepublish:pre && $npm_package_config_packageexecutor nx dx:lint && $npm_package_config_packageexecutor nx prepublish",
@@ -123,7 +123,8 @@
     "prelint": "$npm_package_config_packageexecutor nx exec -- biome format $npm_package_config_lintpaths",
     "prepublish": "$npm_package_config_packageexecutor publint --strict",
     "test": "$npm_package_config_packageexecutor nx nx:test --verbose",
-    "test:unit": "node --experimental-strip-types --experimental-test-coverage --test --test-reporter junit --test-reporter-destination test-unit.junit.xml  \"module/**/*.test.(mjs|cjs|js)\""
+    "test:unit": "node --experimental-strip-types --experimental-test-coverage --test --test-reporter junit --test-reporter-destination test-unit.junit.xml  \"module/**/*.test.(mjs|cjs|js)\"",
+    "xx:workflow": "$npm_package_config_packageexecutor nx run-many -t generate,compile,lint,test --parallel=1 --verbose --no-cloud"
   },
   "type": "module",
   "types": "module/harness/index.d.mts"
