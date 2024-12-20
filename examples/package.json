@@ -9,16 +9,12 @@
   "dependencies": {
     "@bufbuild/protobuf": "catalog:protobuf",
     "@levicape/paloma": "workspace:",
-    "expect": "catalog:test",
-    "knex": "catalog:database",
     "ksuid": "catalog:id",
-    "pg": "catalog:database",
-    "ts-proto": "catalog:protobuf",
-    "zod": "catalog:core"
+    "ts-proto": "catalog:protobuf"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
-    "ci": "catalog:package",
+    "@types/node": "catalog:types",
     "publint": "catalog:package",
     "syncpack": "catalog:package",
     "typescript": "catalog:dev"
@@ -28,7 +24,38 @@
       "dx:precommit": {
         "dependsOn": [
           "dx:prepublish",
-          "^dx:precommit"
+          "nx:test"
+        ]
+      },
+      "dx:prepublish": {
+        "dependsOn": [
+          "clean:tsc"
+        ]
+      },
+      "dx:test": {
+        "dependsOn": [
+          "dx:lint",
+          "nx:test"
+        ]
+      },
+      "nx:compile": {
+        "dependsOn": [
+          "build"
+        ]
+      },
+      "nx:test": {
+        "dependsOn": [
+          "handler"
+        ]
+      },
+      "build": {
+        "dependsOn": [
+          "@levicape/paloma:build"
+        ]
+      },
+      "handler": {
+        "dependsOn": [
+          "compile"
         ]
       }
     }
@@ -41,25 +68,33 @@
   "scripts": {
     "build": "$npm_package_config_packageexecutor tsc",
     "clean": "rm -rf $npm_package_config_outpaths || true",
-    "clean:install": "echo \"Clean node_modules if npm\"",
-    "compile": "$npm_package_config_packagemanager run build",
+    "clean:tsc": "rm -rf ./.tsc",
+    "commit": "$npm_package_config_packageexecutor nx dx:precommit --no-cloud --verbose",
+    "compile": "$npm_package_config_packageexecutor nx nx:compile",
     "dx:config:post": "$npm_package_config_packagemanager config set recursive-install true",
     "dx:config:pre": "$npm_package_config_packagemanager config set recursive-install false",
-    "dx:lint": "$npm_package_config_packagemanager run compile && $npm_package_config_packagemanager run lint:format && $npm_package_config_packagemanager run package:format",
-    "dx:precommit": "$npm_package_config_packagemanager run dx:precommit:pre && $npm_package_config_packagemanager run package:deps",
+    "dx:lint": "$npm_package_config_packageexecutor nx compile && $npm_package_config_packageexecutor nx lint:format && $npm_package_config_packageexecutor nx package:format",
+    "dx:precommit": "$npm_package_config_packageexecutor nx dx:precommit:pre && $npm_package_config_packageexecutor nx package:deps",
     "dx:precommit:pre": "echo \"Starting precommit dx. This will check package.json dependencies.\"",
-    "dx:prepublish": "$npm_package_config_packagemanager run dx:prepublish:pre && $npm_package_config_packagemanager run dx:lint && $npm_package_config_packagemanager run prepublish",
+    "dx:prepublish": "$npm_package_config_packageexecutor nx dx:prepublish:pre && $npm_package_config_packageexecutor nx dx:lint && $npm_package_config_packageexecutor nx prepublish",
     "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
-    "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_lintpaths",
-    "lint:format": "$npm_package_config_packageexecutor biome check --write $npm_package_config_lintpaths",
-    "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_lintpaths",
-    "package:deps": "$npm_package_config_packageexecutor depcheck",
-    "package:fix": "$npm_package_config_packageexecutor syncpack fix-mismatches",
-    "package:format": "$npm_package_config_packageexecutor syncpack format",
-    "package:update": "$npm_package_config_packageexecutor syncpack update",
-    "prebuild": "$npm_package_config_packagemanager run clean",
-    "prelint": "$npm_package_config_packageexecutor biome format $npm_package_config_lintpaths",
-    "prepublish": "$npm_package_config_packageexecutor publint --strict"
+    "dx:start": "$npm_package_config_packageexecutor nx dx:start:pre && $npm_package_config_packageexecutor nx dx:lint && $npm_package_config_packageexecutor nx handler",
+    "dx:start:pre": "echo \"Starting dx:start. This will dx:lint the package and start the harness.\"",
+    "handler": "node --experimental-strip-types $npm_package_config_outpaths/basic/harness.canary.mjs",
+    "lint": "$npm_package_config_packageexecutor nx exec -- biome check $npm_package_config_lintpaths",
+    "lint:format": "$npm_package_config_packageexecutor nx exec -- biome check --write $npm_package_config_lintpaths",
+    "lint:unsafe": "$npm_package_config_packageexecutor nx exec -- biome check --write --unsafe $npm_package_config_lintpaths",
+    "package:deps": "$npm_package_config_packageexecutor nx exec -- depcheck",
+    "package:fix": "$npm_package_config_packageexecutor nx exec -- syncpack fix-mismatches",
+    "package:format": "$npm_package_config_packageexecutor nx exec -- syncpack format",
+    "package:update": "$npm_package_config_packageexecutor nx exec -- syncpack update",
+    "prebuild": "$npm_package_config_packageexecutor nx clean",
+    "precommit": "$npm_package_config_packageexecutor nx dx:prepublish --no-cloud --verbose",
+    "prelint": "$npm_package_config_packageexecutor nx exec -- biome format $npm_package_config_lintpaths",
+    "prepublish": "$npm_package_config_packageexecutor publint --strict",
+    "test": "$npm_package_config_packagemanager run test:module && $npm_package_config_packagemanager run test:canary",
+    "test:canary": "node --experimental-strip-types canary/src/basic/server.canary.mts",
+    "test:module": "echo 'node --test  \"module/**/*.test.js\"'"
   },
   "type": "module"
 }
