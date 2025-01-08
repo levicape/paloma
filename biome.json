@@ -1,6 +1,9 @@
 {
     "files": {
       "ignore": [
+        "**/commonjs",
+        "**/module",
+        "**/node_modules",
         "**/module",
         "package.json",
         "package-lock.json",
@@ -9,7 +12,11 @@
       ]
     },  
     "linter": {
-      "rules": {
+      "rules": { 
+        "correctness": {
+          "useJsxKeyInIterable": "off",
+          "noChildrenProp": "off"
+        },
         "suspicious": {
             "noAssignInExpressions": "off",
             "noUnsafeDeclarationMerging": "off",
@@ -24,7 +31,8 @@
             "noStaticOnlyClass": "off",
             "noForEach": "off",
             "noBannedTypes": "off",
-            "useLiteralKeys": "off"
+            "useLiteralKeys": "off",
+            "noUselessFragments": "off"
         },
         "performance": {
             "noAccumulatingSpread": "off"

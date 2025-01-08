@@ -3,12 +3,15 @@
   "version": "0.0.0-local.0",
   "author": "Pedro Cardona",
   "bin": {
-    "@levicape/paloma": "module/cli/bin.mjs"
+    "@levicape/paloma": "module/cli/bin.mjs",
+    "paloma": "module/cli/bin.mjs"
   },
   "config": {
     "packagemanager": "pnpm",
     "packageexecutor": "pnpm exec",
     "outpath": "./module",
+    "binpath": "./src/cli/bin.mts",
+    "clipath": "./module/cli/bin.mjs",
     "lintpaths": "./src ./examples ./iac"
   },
   "dependencies": {
@@ -26,7 +29,8 @@
     "nx": "catalog:package",
     "publint": "catalog:package",
     "syncpack": "catalog:package",
-    "tsx": "catalog:dev"
+    "tsx": "catalog:dev",
+    "typescript": "catalog:dev"
   },
   "engines": {
     "node": ">=22.0.0"
@@ -43,7 +47,6 @@
     "module"
   ],
   "license": "AGPL-3.0-only",
-  "main": "module/harness/index.mjs",
   "nx": {
     "targets": {
       "dx:precommit": {
@@ -71,7 +74,7 @@
       },
       "nx:sync": {
         "dependsOn": [
-          "ft:gha:sync:main"
+          "iac-workflows:nx:sync"
         ]
       },
       "nx:test": {
@@ -83,9 +86,6 @@
     }
   },
   "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c",
-  "peerDependencies": {
-    "typescript": "catalog:dev"
-  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
@@ -97,19 +97,17 @@
     "clean:tsc": "rm -rf ./.tsc",
     "commit": "$npm_package_config_packageexecutor nx dx:precommit --no-cloud --verbose",
     "compile": "$npm_package_config_packageexecutor nx nx:compile",
-    "dx:cli:bin": "$npm_package_config_packageexecutor tsx $npm_package_config_binpath",
+    "dx:cli:bin": "NODE_NO_WARNINGS=1 $npm_package_config_packageexecutor tsx $npm_package_config_binpath",
     "dx:cli:dev": "node --inspect-brk --import tsx $npm_package_config_binpath",
+    "dx:cli:mjs": "NODE_NO_WARNINGS=1 node $npm_package_config_clipath",
     "dx:commit": "$npm_package_config_packagemanager run clean:packages && $npm_package_config_packageexecutor nx dx:precommit --no-cloud --verbose",
     "dx:lint": "$npm_package_config_packageexecutor nx nx:compile && $npm_package_config_packageexecutor nx lint:format && $npm_package_config_packageexecutor nx package:format",
     "dx:precommit": "$npm_package_config_packageexecutor nx dx:precommit:pre && $npm_package_config_packageexecutor nx dx:sync && $npm_package_config_packageexecutor nx package:deps",
     "dx:precommit:pre": "echo \"Starting precommit dx. This will recompile iac files and check package.json dependencies.\"",
     "dx:prepublish": "$npm_package_config_packageexecutor nx dx:prepublish:pre && $npm_package_config_packageexecutor nx dx:lint && $npm_package_config_packageexecutor nx prepublish",
     "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
-    "dx:sync": "$npm_package_config_packageexecutor nx dx:sync:pre && $npm_package_config_packageexecutor nx nx:sync",
+    "dx:sync": "$npm_package_config_packageexecutor nx dx:sync:pre && $npm_package_config_packageexecutor nx nx:sync --verbose",
     "dx:sync:pre": "echo \"Starting sync dx. This will generate all the workflows and sync them with the repository.\"",
-    "ft:gha:push:main": "$npm_package_config_packageexecutor fourtwo github workflows gen \"./iac/workflows/github/push/GithubMainPush.js\" --output",
-    "ft:gha:release:released": "$npm_package_config_packageexecutor fourtwo github workflows gen \"./iac/workflows/github/release/GithubReleaseReleased.js\" --output",
-    "ft:gha:sync:main": "$npm_package_config_packageexecutor nx ft:gha:push:main --write && $npm_package_config_packageexecutor nx ft:gha:release:released --write",
     "lint": "$npm_package_config_packageexecutor nx exec -- biome check $npm_package_config_lintpaths",
     "lint:format": "$npm_package_config_packageexecutor nx exec -- biome check --write $npm_package_config_lintpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor nx exec -- biome check --write --unsafe $npm_package_config_lintpaths",
@@ -123,9 +121,10 @@
     "prelint": "$npm_package_config_packageexecutor nx exec -- biome format $npm_package_config_lintpaths",
     "prepublish": "$npm_package_config_packageexecutor publint --strict",
     "test": "$npm_package_config_packageexecutor nx nx:test --verbose",
+    "test:example": "$npm_package_config_packageexecutor nx nx:test @levicape/paloma-examples --verbose",
     "test:unit": "node --experimental-strip-types --experimental-test-coverage --test --test-reporter junit --test-reporter-destination test-unit.junit.xml  \"module/**/*.test.(mjs|cjs|js)\"",
     "xx:workflow": "$npm_package_config_packageexecutor nx run-many -t generate,compile,lint,test --parallel=1 --verbose --no-cloud"
   },
   "type": "module",
-  "types": "module/harness/index.d.mts"
+  "types": "./module/harness/index.d.mts"
 }

@@ -1,1 +1,1 @@
-ignores: ["tsx", "nx", "@bufbuild/protobuf", "ts-proto"]
+ignores: ["@levicape/*", "tsx", "nx", "@bufbuild/protobuf", "ts-proto"]

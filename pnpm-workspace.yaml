@@ -1,11 +1,11 @@
 packages:
   - .
+  - iac/*
+  - iac/images/*
   - examples
 catalog:
-  "@levicape/fourtwo": "0.2.1-main.5"
-
-
-
+  "@levicape/fourtwo": "0.4.3-main.4"
+  "@levicape/fourtwo-pulumi": "0.4.3-main.4"
 
 
 
@@ -29,9 +29,10 @@ catalog:
 
 catalogs:
   core:
+    "jsonc-parser": "3.2.0"
     "long": "^5.2.3"
     "zod": "3.24.1"
-    "yaml": "^2.6.1"
+    "yaml": "^2.7.0"
     "ini": "^5.0.0"
     "pify": "^6.1.0"
     "verror": "^1.10.0"
@@ -54,7 +55,6 @@ catalogs:
     "hookable": "^5.5.3"
     "@stricjs/cluster": "^2.0.0"
     "@stricjs/utils": "^2.0.7"
-
     "node-html-parser": "^6.1.13"
     "lru-cache": "^11.0.2"
     "unzipper": "^0.12.3"
@@ -85,7 +85,6 @@ catalogs:
     "typescript": "^5.7.2"
     "tsx": "^4.19.2"
   types:
-
     "@total-typescript/ts-reset": "^0.6.1"
     "tslib": "^2.8.1"
     "@types/bcryptjs": "^2.4.6"
@@ -94,19 +93,15 @@ catalogs:
     "@types/qrcode": "^1.5.5"
     "@types/react": "^19.0.0"
     "@types/react-dom": "^19.0.0"
-
-
     "@types/folder-hash": "^4.0.4"
-    "@types/node": "^22.10.1"
+    "@types/node": "^22.10.3"
     "@types/unzipper": "^0.10.10"
     "@types/compressible": "^2.0.2"
     "@types/jsonwebtoken": "^9.0.7"
     "@types/module-alias": "^2.0.4"
     "@types/ini": "^4.1.1"
     "@types/verror": "^1.10.10"
-
     "@types/js-yaml": "^4.0.9"
-
   test:
     "expect": "^29.7.0"
   lint:
@@ -116,7 +111,7 @@ catalogs:
     "publint": "^0.2.12"
     "syncpack": "^13.0.0"
     "ci": "^2.3.0"
-    "nx": "20.2.2"
+    "nx": "20.3.0"
   crypto:
     # TODO: ???
     "crypto-js": "^4.2.0"
@@ -125,11 +120,9 @@ catalogs:
   http:
     "http-status-codes": "^2.3.0"
     "odata-filter-parser": "^0.5.5"
-
     "cookie": "^1.0.2"
     "cookie-signature": "^1.2.2"
     "isbot": "^4.4.0"
-
   build:
     "node-gyp": "^10.2.0"
     "autoprefixer": "^10.4.20"
@@ -189,7 +182,6 @@ catalogs:
   web-cloudscape:
     "@cloudscape-design/components": "^3.0.839"
     "@cloudscape-design/global-styles": "^1.0.32"
-
   pulumi:
     "@pulumi/docker-build": "^0.0.7"
     "@pulumi/synced-folder": "^0.11.1"
@@ -201,6 +193,5 @@ catalogs:
     "@pulumi/pulumi": "^3.142.0"
     "@pulumi/random": "^4.16.7"
     "@pulumiverse/time": "^0.1.0"
-
   kubernetes:
     "@kubernetes-models/postgres-operator": "^0.4.2"

@@ -1,27 +1,19 @@
 ########################################
 # THIS FILE WAS AUTOMATICALLY GENERATED, DO NOT MODIFY
 ########################################
-name: "on Release: [released] Publish @levicape Github"
+name: "on Push: CI"
 on:
-  release:
-    types:
-      - released
+  push:
+    branches:
+      - main
 env:
   NPM_REGISTRY_PROTOCOL: https
   NPM_REGISTRY_HOST: npm.pkg.github.com
 jobs:
-  packages:
-    name: Compile package, test and publish to npm
+  build:
+    name: Compile, Lint and Test all workspace packages
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
     steps:
-      - name: Verify registry URL
-        continue-on-error: true
-        run: |-
-          echo "NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}";
-          curl -v --insecure ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }};
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup pnpm
@@ -58,32 +50,18 @@ jobs:
         run: pnpm list;
       - name: Install Dependencies
         run: pnpm install;
-      - name: Compile module
-        run: pnpm run compile;
-      - name: "Run package.json: lint"
-        run: pnpm run lint;
-      - name: "Run package.json: test"
-        run: pnpm run test;
-      - name: Increment version
-        env:
-          RELEVANT_SHA: ${{ github.event.release.target_commitish || github.sha }}
-        run: |-
-          export PREID=$RELEVANT_SHA;
-          export PREID=${PREID:0:10};
-          export ARGS="--git-tag-version=false --commit-hooks=false";
-          npm version ${{ github.event.release.tag_name }}-$PREID.${{ github.run_number }} $ARGS --allow-same-version;
-      - name: "Run package.json: prepublish"
-        run: pnpm run prepublish;
-      - if: success()
-        name: Increment version
-        continue-on-error: true
-        run: pnpm publish --no-git-checks;
+      - name: Compile
+        run: pnpx nx run-many -t compile --parallel=1 --verbose --no-cloud;
+      - name: Lint
+        run: pnpx nx run-many -t lint --parallel=1 --verbose --no-cloud;
+      - name: Test
+        run: pnpx nx run-many -t test --parallel=1 --verbose --no-cloud;
 
 ########################################
 ########################################
-#**:_$~- {"$$":"head","filename":"[release(released)]GithubReleaseReleased.yml","source":"iac/workflows/github/release/GithubReleaseReleased.js"}
+#**:_$~- {"$$":"head","filename":"[push(b:main)]CI.yml","source":"iac/workflows/github/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"da3d6fe3c51ee9270693f5f4fe87e5e313580d9025a64528893b93da29c6595d"}
-#**:_$~- {"$$":"footer","started":"2024-12-20T08:38:09.735Z","now":"2024-12-20T08:38:09.739Z","elapsed":"4ms"}
+#**:_$~- {"$$":"body","hashed":"88d4b74c8e10c9a910de4925e8e55551781cabaedcc6c74479ed38fcc656742e"}
+#**:_$~- {"$$":"footer","started":"2025-01-08T05:19:15.620Z","now":"2025-01-08T05:19:15.624Z","elapsed":"4ms"}
 # END OF GENERATED FILE
 
