@@ -6,7 +6,7 @@ RunMode: SUPERSEDED
 SchemaVersion: "1.0"
 Compute:
   Type: EC2
-  Fleet: Linux.Arm64.2XLarge
+  Fleet: Linux.Arm64.XLarge
 Triggers:
   - Type: PUSH
     Branches:
@@ -43,20 +43,20 @@ Actions:
           Sources:
             - WorkflowSource
           Variables:
+            - Name: NPM_REGISTRY_PROTOCOL
+              Value: https
+            - Name: NPM_REGISTRY_HOST
+              Value: npm.pkg.github.com
+            - Name: NODE_AUTH_TOKEN
+              Value: ${Secrets.GITHUB_LEVICAPE_PAT}
             - Name: PAKETO_CLI_IMAGE
               Value: buildpacksio/pack:latest
             - Name: PAKETO_BUILDER_IMAGE
               Value: heroku/builder:24
             - Name: PAKETO_LAUNCHER_IMAGE
               Value: heroku/heroku:24
-            - Name: NPM_REGISTRY_PROTOCOL
-              Value: https
-            - Name: NPM_REGISTRY_HOST
-              Value: npm.pkg.github.com
             - Name: PULUMI_VERSION
               Value: 3.144.1
-            - Name: NODE_AUTH_TOKEN
-              Value: ${Secrets.GITHUB_LEVICAPE_PAT}
         Configuration:
           Container:
             Registry: CODECATALYST
@@ -68,9 +68,9 @@ Actions:
             - Run: npm root -g
             - Run: npm install --g pnpm
             - Run: npm install --g n
-            - Run: npm exec n 22
+            - Run: npm exec n 23
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
-            - Run: npm exec pnpm install
+            - Run: npm exec pnpm install --ignore-scripts
             - Run: mkdir -p /tmp/npm-global
             - Run: mkdir -p /tmp/pnpm-store
             - Run: mkdir -p /tmp/nx-cache
@@ -115,6 +115,15 @@ Actions:
         Inputs:
           Sources:
             - WorkflowSource
+          Variables:
+            - Name: NPM_REGISTRY_PROTOCOL
+              Value: https
+            - Name: NPM_REGISTRY_HOST
+              Value: npm.pkg.github.com
+            - Name: NODE_AUTH_TOKEN
+              Value: ${Secrets.GITHUB_LEVICAPE_PAT}
+            - Name: PYTHON
+              Value: /root/.pyenv/shims/python3
         Outputs:
           AutoDiscoverReports:
             Enabled: true
@@ -124,11 +133,16 @@ Actions:
             Registry: CODECATALYST
             Image: CodeCatalystLinux_Arm64:2024_03
           Steps:
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL://$NPM_REGISTRY_HOST --location project
+            - Run: npm config set //$NPM_REGISTRY_HOST/:_authToken=$NODE_AUTH_TOKEN --location project
             - Run: npm config set prefix=/tmp/npm-global
-            - Run: npm exec n 22
+            - Run: npm exec n 23
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
-            - Run: npm exec pnpm install --prefer-offline
-            - Run: npm exec pnpm compile
+            - Run: npm exec pnpm install --prefer-offline --ignore-scripts
+            - Run: which python || true
+            - Run: which python3 || true
+            - Run: npm rebuild knex better-sqlite3
+            - Run: npm exec pnpm build
             - Run: npm exec pnpm lint
             - Run: npm exec pnpm test
             - Run: du -sh $(pwd)/**/module $(pwd)/**/commonjs || true
@@ -159,8 +173,16 @@ Actions:
           Sources:
             - WorkflowSource
           Variables:
+            - Name: NPM_REGISTRY_PROTOCOL
+              Value: https
+            - Name: NPM_REGISTRY_HOST
+              Value: npm.pkg.github.com
+            - Name: NODE_AUTH_TOKEN
+              Value: ${Secrets.GITHUB_LEVICAPE_PAT}
             - Name: APPLICATION_IMAGE_NAME
               Value: paloma
+            - Name: PYTHON
+              Value: /root/.pyenv/shims/python3
         Outputs:
           Artifacts:
             - Name: images
@@ -175,18 +197,21 @@ Actions:
             - Run: docker load --input /tmp/docker-cache/images/builder.tar.gz || true
             - Run: docker load --input /tmp/docker-cache/images/launcher.tar.gz || true
             - Run: mkdir -p _images
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL://$NPM_REGISTRY_HOST --location project
+            - Run: npm config set //$NPM_REGISTRY_HOST/:_authToken=$NODE_AUTH_TOKEN --location project
             - Run: npm config set prefix=/tmp/npm-global
-            - Run: npm exec n 22
+            - Run: npm exec n 23
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
-            - Run: npm exec pnpm install --prefer-offline
+            - Run: npm exec pnpm install --prefer-offline --ignore-scripts
+            - Run: npm rebuild knex better-sqlite3
             - Run: npm exec pnpm exec nx pack:build iac-images-application --verbose
             - Run: docker save $APPLICATION_IMAGE_NAME | gzip > _images/application.tar.gz
             - Run: du -sh _images/application.tar.gz
             - Run: ls -la _images
-      Preview:
+      Current:
         Identifier: aws/build@v1.0.0
         DependsOn:
-          - Image
+          - Install
         Timeout: 10
         Environment:
           Name: current
@@ -212,56 +237,176 @@ Actions:
           Sources:
             - WorkflowSource
           Variables:
+            - Name: NPM_REGISTRY_PROTOCOL
+              Value: https
+            - Name: NPM_REGISTRY_HOST
+              Value: npm.pkg.github.com
+            - Name: NODE_AUTH_TOKEN
+              Value: ${Secrets.GITHUB_LEVICAPE_PAT}
             - Name: APPLICATION_IMAGE_NAME
               Value: paloma
-            - Name: BRANCH_NAME
-              Value: ${BranchName}
-            - Name: COMMIT_ID
-              Value: ${CommitId}
             - Name: CI_ENVIRONMENT
               Value: current
             - Name: AWS_REGION
               Value: us-west-2
+            - Name: FRONTEND_HOSTNAME
+              Value: paloma.levicape.cloud
             - Name: PULUMI_HOME
               Value: /tmp/pulumi
             - Name: PULUMI_CONFIG_PASSPHRASE
               Value: ${{ Secrets.PULUMI_CONFIG_PASSPHRASE }}
+        Outputs:
           Artifacts:
-            - images
+            - Name: pulumi
+              Files:
+                - _pulumi/**/*
         Configuration:
           Container:
             Registry: CODECATALYST
             Image: CodeCatalystLinux_Arm64:2024_03
           Steps:
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL://$NPM_REGISTRY_HOST --location project
+            - Run: npm config set //$NPM_REGISTRY_HOST/:_authToken=$NODE_AUTH_TOKEN --location project
             - Run: npm config set prefix=/tmp/npm-global
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
-            - Run: npm exec n 22
-            - Run: npm exec pnpm install --prefer-offline
-            - Run: npm exec pnpm compile
-            - Run: ls -la $CATALYST_SOURCE_DIR_images/_images
-            - Run: docker load --input $CATALYST_SOURCE_DIR_images/_images/application.tar.gz
-            - Run: docker images
+            - Run: npm exec n 23
+            - Run: npm exec pnpm install --prefer-offline --ignore-scripts
             - Run: aws ssm get-parameter --name /fourtwo/_principal/pulumi/backend/StateBackendCommandReference
             - Run: npm exec pnpm exec fourtwo aws pulumi ci -- --region $AWS_REGION > .pulumi-ci
             - Run: cat .pulumi-ci
             - Run: cat .pulumi-ci | grep "export" >> .export-cd
             - Run: cat .export-cd
             - Run: source .export-cd
-            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-code.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/code || true
-            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-code.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/code || true
-            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/code
-            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/code
-            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/code
-            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$HOSTNAME" -C $(pwd)/iac/stacks/code
-            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/code
-            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/code  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "$BRANCH_NAME-$COMMIT_ID"
-            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/code --yes --suppress-progress --non-interactive --diff --message "$BRANCH_NAME-$COMMIT_ID"
+            - Run: mkdir _pulumi
+            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-codestar.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/codestar || true
+            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-codestar.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/codestar || true
+            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/codestar
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/codestar
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/codestar
+            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/codestar
+            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/codestar
+            - Run: /tmp/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/codestar --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
+            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/codestar  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
+            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/codestar --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/codestar --json > $(pwd)/_pulumi/codestar.json
+            - Run: cat _pulumi/codestar.json
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/codestar --shell > $(pwd)/_pulumi/codestar.sh
+            - Run: cat _pulumi/codestar.sh
+            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-datalayer.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/datalayer || true
+            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-datalayer.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/datalayer || true
+            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/datalayer
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/datalayer
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/datalayer
+            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/datalayer
+            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/datalayer
+            - Run: /tmp/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/datalayer --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
+            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/datalayer  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
+            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/datalayer --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/datalayer --json > $(pwd)/_pulumi/datalayer.json
+            - Run: cat _pulumi/datalayer.json
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/datalayer --shell > $(pwd)/_pulumi/datalayer.sh
+            - Run: cat _pulumi/datalayer.sh
+            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-schedule.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/schedule || true
+            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-schedule.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/schedule || true
+            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/schedule
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/schedule
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/schedule
+            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/schedule
+            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/schedule
+            - Run: /tmp/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/schedule --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
+            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/schedule  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
+            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/schedule --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/schedule --json > $(pwd)/_pulumi/schedule.json
+            - Run: cat _pulumi/schedule.json
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/schedule --shell > $(pwd)/_pulumi/schedule.sh
+            - Run: cat _pulumi/schedule.sh
+            - Run: du -sh _pulumi
+  Deployment:
+    DependsOn:
+      - Integration
+    Actions:
+      Lambda:
+        Identifier: aws/build@v1.0.0
+        Timeout: 10
+        Environment:
+          Name: current
+        Caching:
+          FileCaching:
+            a64_npm_global:
+              Path: /tmp/npm-global
+              RestoreKeys:
+                - npminstall
+            a64_pnpm_store:
+              Path: /tmp/pnpm-store
+              RestoreKeys:
+                - pnpminstall
+            a64_nx:
+              Path: /tmp/nx-cache
+              RestoreKeys:
+                - nx
+        Inputs:
+          Sources:
+            - WorkflowSource
+          Variables:
+            - Name: NPM_REGISTRY_PROTOCOL
+              Value: https
+            - Name: NPM_REGISTRY_HOST
+              Value: npm.pkg.github.com
+            - Name: NODE_AUTH_TOKEN
+              Value: ${Secrets.GITHUB_LEVICAPE_PAT}
+            - Name: APPLICATION_IMAGE_NAME
+              Value: paloma
+            - Name: AWS_REGION
+              Value: us-west-2
+            - Name: CI_ENVIRONMENT
+              Value: current
+          Artifacts:
+            - images
+            - pulumi
+        Configuration:
+          Container:
+            Registry: CODECATALYST
+            Image: CodeCatalystLinux_Arm64:2024_03
+          Steps:
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL://$NPM_REGISTRY_HOST --location project
+            - Run: npm config set //$NPM_REGISTRY_HOST/:_authToken=$NODE_AUTH_TOKEN --location project
+            - Run: npm config set prefix=/tmp/npm-global
+            - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
+            - Run: npm exec n 23
+            - Run: npm exec pnpm install --prefer-offline --ignore-scripts
+            - Run: ls -la $CATALYST_SOURCE_DIR_images/_images
+            - Run: docker load --input $CATALYST_SOURCE_DIR_images/_images/application.tar.gz
+            - Run: docker images
+            - Run: ls -la $CATALYST_SOURCE_DIR_pulumi/_pulumi
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/schedule.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/schedule.sh
+            - Run: env
+            - Run: |-
+                NODE_NO_WARNINGS=1 node -e '(function(){let imports=JSON.parse(process.env["_PALOMA_SCHEDULE_IMPORTS"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":imports.paloma.codestar.ecr.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
+                `)})})()' > .ci-env
+            - Run: cat .ci-env
+            - Run: source .ci-env
+            - Run: export _AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            - Run: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $_PALOMA_CODE_REPOSITORY_URL
+            - Run: echo $APPLICATION_IMAGE_NAME
+            - Run: echo git-${WorkflowSource.CommitId}
+            - Run: echo "Tagging $_PALOMA_CODE_REPOSITORY_URL:git-${WorkflowSource.CommitId}"
+            - Run: docker tag $APPLICATION_IMAGE_NAME:latest $_PALOMA_CODE_REPOSITORY_URL:git-${WorkflowSource.CommitId}
+            - Run: docker push $_PALOMA_CODE_REPOSITORY_URL:git-${WorkflowSource.CommitId}
+            - Run: echo $CI_ENVIRONMENT
+            - Run: echo "Tagging $_PALOMA_CODE_REPOSITORY_URL:$CI_ENVIRONMENT"
+            - Run: docker tag $APPLICATION_IMAGE_NAME:latest $_PALOMA_CODE_REPOSITORY_URL:$CI_ENVIRONMENT
+            - Run: docker push $_PALOMA_CODE_REPOSITORY_URL:$CI_ENVIRONMENT
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[push(b:main)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"2791001678fc2d003fc3b3abcb92046be382ed6752ab585f3deae97a4c77e812"}
-#**:_$~- {"$$":"footer","started":"2025-01-08T07:55:57.919Z","now":"2025-01-08T07:55:57.925Z","elapsed":"6ms"}
+#**:_$~- {"$$":"body","hashed":"326eba3e696d5e08e01cf46120267c9fd3984646ea2e8c2e19af56f5d56eca49"}
+#**:_$~- {"$$":"footer","started":"2025-01-18T23:09:28.766Z","now":"2025-01-18T23:09:28.774Z","elapsed":"8ms"}
 # END OF GENERATED FILE
 

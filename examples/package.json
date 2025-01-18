@@ -4,11 +4,17 @@
     "packagemanager": "pnpm",
     "packageexecutor": "pnpm exec",
     "lintpaths": "./src",
-    "outpaths": "./module"
+    "outpaths": "./module",
+    "canaryharness": "./module/harness.canary.mjs",
+    "canaryserver": "./module/server.canary.mjs",
+    "canaryserverhttp": "./module/server/http.mjs",
+    "lambdacanaryharness": "./module/harness.canary.handler",
+    "lambdacanaryserver": "./module/server.canary.handler"
   },
   "dependencies": {
     "@bufbuild/protobuf": "catalog:protobuf",
     "@levicape/paloma": "workspace:",
+    "aws-lambda-ric": "catalog:aws",
     "ksuid": "catalog:id",
     "ts-proto": "catalog:protobuf"
   },
@@ -27,11 +33,6 @@
           "nx:test"
         ]
       },
-      "dx:prepublish": {
-        "dependsOn": [
-          "clean:tsc"
-        ]
-      },
       "dx:test": {
         "dependsOn": [
           "dx:lint",
@@ -40,17 +41,18 @@
       },
       "nx:compile": {
         "dependsOn": [
-          "build"
+          "build:tsc"
         ]
       },
       "nx:test": {
         "dependsOn": [
-          "handler"
+          "canary:harness",
+          "canary:server"
         ]
       },
-      "build": {
+      "build:tsc": {
         "dependsOn": [
-          "@levicape/paloma:build"
+          "@levicape/paloma:build:tsc"
         ]
       },
       "handler": {
@@ -66,11 +68,12 @@
   },
   "repository": "github:levicape/paloma",
   "scripts": {
-    "build": "$npm_package_config_packageexecutor tsc",
+    "build": "$npm_package_config_packageexecutor nx nx:compile",
+    "build:tsc": "$npm_package_config_packageexecutor tsc",
+    "canary:harness": "node $npm_package_config_canaryharness",
+    "canary:server": "nohup node $npm_package_config_canaryserverhttp & node $npm_package_config_canaryserver",
     "clean": "rm -rf $npm_package_config_outpaths || true",
-    "clean:tsc": "rm -rf ./.tsc",
     "commit": "$npm_package_config_packageexecutor nx dx:precommit --no-cloud --verbose",
-    "compile": "$npm_package_config_packageexecutor nx nx:compile",
     "dx:config:post": "$npm_package_config_packagemanager config set recursive-install true",
     "dx:config:pre": "$npm_package_config_packagemanager config set recursive-install false",
     "dx:lint": "$npm_package_config_packageexecutor nx nx:compile && $npm_package_config_packageexecutor nx lint:format && $npm_package_config_packageexecutor nx package:format",
@@ -81,6 +84,8 @@
     "dx:start": "$npm_package_config_packageexecutor nx dx:start:pre && $npm_package_config_packageexecutor nx dx:lint && $npm_package_config_packageexecutor nx handler",
     "dx:start:pre": "echo \"Starting dx:start. This will dx:lint the package and start the harness.\"",
     "handler": "node --experimental-strip-types $npm_package_config_outpaths/basic/harness.canary.mjs",
+    "handler:canary:harness:lambda": "$npm_package_config_packageexecutor aws-lambda-ric $npm_package_config_lambdacanaryharness",
+    "handler:canary:server:lambda": "nohup node $npm_package_config_canaryserverhttp & $npm_package_config_packageexecutor aws-lambda-ric $npm_package_config_lambdacanaryserver",
     "lint": "$npm_package_config_packageexecutor nx exec -- biome check $npm_package_config_lintpaths",
     "lint:format": "$npm_package_config_packageexecutor nx exec -- biome check --write $npm_package_config_lintpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor nx exec -- biome check --write --unsafe $npm_package_config_lintpaths",
@@ -88,13 +93,10 @@
     "package:fix": "$npm_package_config_packageexecutor nx exec -- syncpack fix-mismatches",
     "package:format": "$npm_package_config_packageexecutor nx exec -- syncpack format",
     "package:update": "$npm_package_config_packageexecutor nx exec -- syncpack update",
-    "prebuild": "$npm_package_config_packageexecutor nx clean",
     "precommit": "$npm_package_config_packageexecutor nx dx:prepublish --no-cloud --verbose",
     "prelint": "$npm_package_config_packageexecutor nx exec -- biome format $npm_package_config_lintpaths",
     "prepublish": "$npm_package_config_packageexecutor publint --strict",
-    "test": "$npm_package_config_packageexecutor nx nx:test --no-cloud --verbose",
-    "test:canary": "node --experimental-strip-types module/basic/harness.canary.mjs",
-    "test:module": "echo 'node --test  \"module/**/*.test.js\"'"
+    "test": "$npm_package_config_packageexecutor nx nx:test --no-cloud --verbose"
   },
   "type": "module"
 }

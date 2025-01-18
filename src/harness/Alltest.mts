@@ -66,6 +66,7 @@ export class Alltest<
 	Previous extends TestAction<S, TestAction<S, any>> = TestAction<S, any>,
 	Context extends Record<string, unknown> = Record<string, unknown>,
 > {
+	private started = false;
 	constructor(
 		private setup: AlltestSetup<Prepared, Resolved>,
 		private states: {
@@ -81,13 +82,25 @@ export class Alltest<
 			>;
 		},
 		private options: AlltestOptions<S>,
-	) {}
+	) {
+		if (process.env.NO_AUTORUN === undefined) {
+			setTimeout(() => {
+				if (!this.started) {
+					this.handler({} as HandlerEvent, {} as HandlerContext);
+				}
+			}, 1000);
+		}
+	}
 
 	private async allReady() {
 		await WorkQueueFilesystem.ready();
 	}
 
 	public handler = (event: HandlerEvent, context: HandlerContext) => {
+		if (this.started) {
+			throw new Error("Alltest handler already started");
+		}
+		this.started = true;
 		const hash = createHash("md5")
 			.update(
 				`${Object.values(this.states)

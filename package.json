@@ -33,7 +33,7 @@
     "typescript": "catalog:dev"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=23.6.0"
   },
   "exports": {
     ".": "./module/harness/index.mjs",
@@ -52,12 +52,8 @@
       "dx:precommit": {
         "dependsOn": [
           "dx:prepublish",
-          "nx:test"
-        ]
-      },
-      "dx:prepublish": {
-        "dependsOn": [
-          "clean:tsc"
+          "nx:test",
+          "@levicape/paloma-iac-stacks:dx:precommit"
         ]
       },
       "dx:test": {
@@ -68,7 +64,7 @@
       },
       "nx:compile": {
         "dependsOn": [
-          "build",
+          "build:tsc",
           "@levicape/paloma-examples:nx:compile"
         ]
       },
@@ -91,12 +87,11 @@
   },
   "repository": "github:levicape/paloma",
   "scripts": {
-    "build": "$npm_package_config_packageexecutor tsc",
+    "build": "$npm_package_config_packageexecutor nx nx:compile",
+    "build:tsc": "$npm_package_config_packageexecutor tsc",
     "clean": "rm -rf $npm_package_config_outpath",
     "clean:packages": "rm -rf **/node_modules && $npm_package_config_packageexecutor nx reset",
-    "clean:tsc": "rm -rf ./.tsc",
     "commit": "$npm_package_config_packageexecutor nx dx:precommit --no-cloud --verbose",
-    "compile": "$npm_package_config_packageexecutor nx nx:compile",
     "dx:cli:bin": "NODE_NO_WARNINGS=1 $npm_package_config_packageexecutor tsx $npm_package_config_binpath",
     "dx:cli:dev": "node --inspect-brk --import tsx $npm_package_config_binpath",
     "dx:cli:mjs": "NODE_NO_WARNINGS=1 node $npm_package_config_clipath",
@@ -108,6 +103,7 @@
     "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
     "dx:sync": "$npm_package_config_packageexecutor nx dx:sync:pre && $npm_package_config_packageexecutor nx nx:sync --verbose",
     "dx:sync:pre": "echo \"Starting sync dx. This will generate all the workflows and sync them with the repository.\"",
+    "heroku-prebuild": "npm rebuild aws-lambda-ric",
     "lint": "$npm_package_config_packageexecutor nx exec -- biome check $npm_package_config_lintpaths",
     "lint:format": "$npm_package_config_packageexecutor nx exec -- biome check --write $npm_package_config_lintpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor nx exec -- biome check --write --unsafe $npm_package_config_lintpaths",
@@ -116,14 +112,14 @@
     "package:format": "$npm_package_config_packageexecutor nx exec -- syncpack format",
     "package:update": "$npm_package_config_packageexecutor nx exec -- syncpack update",
     "postclean:packages": "$npm_package_config_packagemanager install",
-    "prebuild": "$npm_package_config_packageexecutor nx clean",
     "precommit": "$npm_package_config_packageexecutor nx dx:prepublish --no-cloud --verbose",
+    "predx:lint": "$npm_package_config_packageexecutor nx clean",
     "prelint": "$npm_package_config_packageexecutor nx exec -- biome format $npm_package_config_lintpaths",
     "prepublish": "$npm_package_config_packageexecutor publint --strict",
     "test": "$npm_package_config_packageexecutor nx nx:test --verbose",
     "test:example": "$npm_package_config_packageexecutor nx nx:test @levicape/paloma-examples --verbose",
     "test:unit": "node --experimental-strip-types --experimental-test-coverage --test --test-reporter junit --test-reporter-destination test-unit.junit.xml  \"module/**/*.test.(mjs|cjs|js)\"",
-    "xx:workflow": "$npm_package_config_packageexecutor nx run-many -t generate,compile,lint,test --parallel=1 --verbose --no-cloud"
+    "xx:workflow": "$npm_package_config_packageexecutor nx run-many -t build,lint,test --parallel=1 --verbose --no-cloud"
   },
   "type": "module",
   "types": "./module/harness/index.d.mts"

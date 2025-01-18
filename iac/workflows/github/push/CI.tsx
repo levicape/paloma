@@ -68,7 +68,7 @@ export default async () => (
 								<GithubStepX
 									name="Compile"
 									run={[
-										"pnpx nx run-many -t compile --parallel=1 --verbose --no-cloud",
+										"pnpx nx run-many -t build --parallel=1 --verbose --no-cloud",
 									]}
 								/>,
 								<GithubStepX

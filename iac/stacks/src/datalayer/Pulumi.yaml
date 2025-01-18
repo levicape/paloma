@@ -1,0 +1,11 @@
+name: paloma-datalayer
+description: | 
+  Data layer: DynamoDB, SQS and EFS
+runtime:
+  name: nodejs
+  options:
+    packagemanager: pnpm
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-typescript

@@ -103,4 +103,4 @@ const test = new Alltest(
 	},
 );
 
-test.handler({}, {});
+export const handler = test.handler;

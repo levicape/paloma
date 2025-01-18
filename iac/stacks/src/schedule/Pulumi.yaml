@@ -1,5 +1,6 @@
-name: paloma-code
-description: State bucket and associated SSM parameters
+name: paloma-schedule
+description: | 
+  Lambda schedule handler, cloudmap service
 runtime:
   name: nodejs
   options:

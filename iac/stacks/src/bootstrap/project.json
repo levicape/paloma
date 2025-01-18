@@ -3,12 +3,12 @@
 	"description": "Template for new Pulumi stacks",
 	"config": {
 		"packagemanager": "pnpm",
-		"packageexecutor": "pnpm exec"
+		"packageexecutor": "corepack pnpm exec"
 	},
 	"nx": {
 		"targets": {
 			"nx:compile": {
-				"dependsOn": ["iac_stacks:nx:compile"]
+				"dependsOn": ["@levicape/paloma-iac-stacks:nx:compile"]
 			},
 			"dx:precommit": {
 				"dependsOn": []

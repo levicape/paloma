@@ -1,7 +1,7 @@
 ########################################
 # THIS FILE WAS AUTOMATICALLY GENERATED, DO NOT MODIFY
 ########################################
-name: "on Release: [released] Publish @levicape Github"
+name: "on Release: [released] Publish @levicape/(paloma) to Github"
 on:
   release:
     types:
@@ -10,8 +10,8 @@ env:
   NPM_REGISTRY_PROTOCOL: https
   NPM_REGISTRY_HOST: npm.pkg.github.com
 jobs:
-  packages:
-    name: Compile package, test and publish to npm
+  publish_paloma:
+    name: "@levicape/paloma: Compile and publish to Github"
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -58,12 +58,14 @@ jobs:
         run: pnpm list;
       - name: Install Dependencies
         run: pnpm install;
-      - name: Compile module
-        run: pnpm run compile;
+      - name: "Run package.json: build"
+        run: pnpm run build;
       - name: "Run package.json: lint"
         run: pnpm run lint;
       - name: "Run package.json: test"
         run: pnpm run test;
+      - name: "Run package.json: prepublish"
+        run: pnpm run prepublish;
       - name: Increment version
         env:
           RELEVANT_SHA: ${{ github.event.release.target_commitish || github.sha }}
@@ -72,10 +74,8 @@ jobs:
           export PREID=${PREID:0:10};
           export ARGS="--git-tag-version=false --commit-hooks=false";
           npm version ${{ github.event.release.tag_name }}-$PREID.${{ github.run_number }} $ARGS --allow-same-version;
-      - name: "Run package.json: prepublish"
-        run: pnpm run prepublish;
       - if: success()
-        name: Increment version
+        name: Publish to npm
         continue-on-error: true
         run: pnpm publish --no-git-checks;
 
@@ -83,7 +83,7 @@ jobs:
 ########################################
 #**:_$~- {"$$":"head","filename":"[release(released)]Publish tagged module to npm.yml","source":"iac/workflows/github/release/Publish tagged module to npm.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"da3d6fe3c51ee9270693f5f4fe87e5e313580d9025a64528893b93da29c6595d"}
-#**:_$~- {"$$":"footer","started":"2025-01-08T05:19:13.206Z","now":"2025-01-08T05:19:13.210Z","elapsed":"4ms"}
+#**:_$~- {"$$":"body","hashed":"676b8ac8ef711005170978043a0695d95a3859f6d939c8deba9c5e6b4b576284"}
+#**:_$~- {"$$":"footer","started":"2025-01-18T09:14:53.828Z","now":"2025-01-18T09:14:53.834Z","elapsed":"6ms"}
 # END OF GENERATED FILE
 
