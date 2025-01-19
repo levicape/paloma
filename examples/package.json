@@ -5,11 +5,11 @@
     "packageexecutor": "pnpm exec",
     "lintpaths": "./src",
     "outpaths": "./module",
-    "canaryharness": "./module/harness.canary.mjs",
-    "canaryserver": "./module/server.canary.mjs",
+    "canaryharness": "./module/canary/harness.mjs",
+    "canaryserver": "./module/canary/server.mjs",
     "canaryserverhttp": "./module/server/http.mjs",
-    "lambdacanaryharness": "./module/harness.canary.handler",
-    "lambdacanaryserver": "./module/server.canary.handler"
+    "lambdacanaryharness": "./module/canary/harness.LambdaHandler",
+    "lambdacanaryserver": "./module/canary/server.LambdaHandler"
   },
   "dependencies": {
     "@bufbuild/protobuf": "catalog:protobuf",

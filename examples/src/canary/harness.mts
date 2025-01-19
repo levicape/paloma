@@ -4,12 +4,6 @@ import { Alltest } from "@levicape/paloma";
 import { SecretValue } from "@levicape/paloma/materials";
 import KSUID from "ksuid";
 
-const staticKey = crypto.subtle
-	.generateKey("Ed25519", true, ["sign", "verify"])
-	.then((key) => {
-		console.log(key);
-	});
-
 const test = new Alltest(
 	{
 		prepare: async () => {
@@ -103,4 +97,4 @@ const test = new Alltest(
 	},
 );
 
-export const handler = test.handler;
+export const LambdaHandler = test.handler;

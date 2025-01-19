@@ -27,10 +27,6 @@ Actions:
               Path: /tmp/pnpm-store
               RestoreKeys:
                 - pnpminstall
-            a64_nx:
-              Path: /tmp/nx-cache
-              RestoreKeys:
-                - nx
             a64_docker:
               Path: /tmp/docker-cache
               RestoreKeys:
@@ -39,6 +35,10 @@ Actions:
               Path: /tmp/pulumi
               RestoreKeys:
                 - pulumi
+            a64_python:
+              Path: /root/.pyenv
+              RestoreKeys:
+                - python
         Inputs:
           Sources:
             - WorkflowSource
@@ -73,7 +73,6 @@ Actions:
             - Run: npm exec pnpm install --ignore-scripts
             - Run: mkdir -p /tmp/npm-global
             - Run: mkdir -p /tmp/pnpm-store
-            - Run: mkdir -p /tmp/nx-cache
             - Run: mkdir -p /tmp/docker-cache
             - Run: mkdir -p /tmp/pulumi
             - Run: mkdir -p /tmp/docker-cache/images
@@ -93,6 +92,14 @@ Actions:
             - Run: du -sh /tmp/pulumi
             - Run: npm exec pnpm list
             - Run: du -sh node_modules /tmp/npm-global /tmp/pnpm-store
+            - Run: which pyenv
+            - Run: eval "$(pyenv init -)"
+            - Run: git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
+            - Run: pyenv update || true
+            - Run: pyenv install 3.11 || true
+            - Run: pyenv global 3.11 || true
+            - Run: pyenv versions || true
+            - Run: python3 -m pip install -r requirements.txt
       Compile:
         Identifier: aws/build@v1.0.0
         DependsOn:
@@ -108,10 +115,10 @@ Actions:
               Path: /tmp/pnpm-store
               RestoreKeys:
                 - pnpminstall
-            a64_nx:
-              Path: /tmp/nx-cache
+            a64_python:
+              Path: /root/.pyenv
               RestoreKeys:
-                - nx
+                - python
         Inputs:
           Sources:
             - WorkflowSource
@@ -139,8 +146,9 @@ Actions:
             - Run: npm exec n 23
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
             - Run: npm exec pnpm install --prefer-offline --ignore-scripts
-            - Run: which python || true
             - Run: which python3 || true
+            - Run: python3 -c "print('ok')" || true
+            - Run: npm rebuild node-gyp
             - Run: npm rebuild knex better-sqlite3
             - Run: npm exec pnpm build
             - Run: npm exec pnpm lint
@@ -161,14 +169,14 @@ Actions:
               Path: /tmp/pnpm-store
               RestoreKeys:
                 - pnpminstall
-            a64_nx:
-              Path: /tmp/nx-cache
-              RestoreKeys:
-                - nx
             a64_docker:
               Path: /tmp/docker-cache
               RestoreKeys:
                 - docker
+            a64_python:
+              Path: /root/.pyenv
+              RestoreKeys:
+                - python
         Inputs:
           Sources:
             - WorkflowSource
@@ -203,6 +211,7 @@ Actions:
             - Run: npm exec n 23
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
             - Run: npm exec pnpm install --prefer-offline --ignore-scripts
+            - Run: npm rebuild node-gyp
             - Run: npm rebuild knex better-sqlite3
             - Run: npm exec pnpm exec nx pack:build iac-images-application --verbose
             - Run: docker save $APPLICATION_IMAGE_NAME | gzip > _images/application.tar.gz
@@ -225,10 +234,6 @@ Actions:
               Path: /tmp/pnpm-store
               RestoreKeys:
                 - pnpminstall
-            a64_nx:
-              Path: /tmp/nx-cache
-              RestoreKeys:
-                - nx
             a64_pulumi:
               Path: /tmp/pulumi
               RestoreKeys:
@@ -306,20 +311,20 @@ Actions:
             - Run: cat _pulumi/datalayer.json
             - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/datalayer --shell > $(pwd)/_pulumi/datalayer.sh
             - Run: cat _pulumi/datalayer.sh
-            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-schedule.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/schedule || true
-            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-schedule.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/schedule || true
-            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/schedule
-            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/schedule
-            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/schedule
-            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/schedule
-            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/schedule
-            - Run: /tmp/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/schedule --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
-            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/schedule  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
-            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/schedule --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
-            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/schedule --json > $(pwd)/_pulumi/schedule.json
-            - Run: cat _pulumi/schedule.json
-            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/schedule --shell > $(pwd)/_pulumi/schedule.sh
-            - Run: cat _pulumi/schedule.sh
+            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-monitoring.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/monitoring || true
+            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-monitoring.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/monitoring || true
+            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/monitoring
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/monitoring
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/monitoring
+            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/monitoring
+            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/monitoring
+            - Run: /tmp/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/monitoring --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
+            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/monitoring  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
+            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/monitoring --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitoring --json > $(pwd)/_pulumi/monitoring.json
+            - Run: cat _pulumi/monitoring.json
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitoring --shell > $(pwd)/_pulumi/monitoring.sh
+            - Run: cat _pulumi/monitoring.sh
             - Run: du -sh _pulumi
   Deployment:
     DependsOn:
@@ -340,10 +345,6 @@ Actions:
               Path: /tmp/pnpm-store
               RestoreKeys:
                 - pnpminstall
-            a64_nx:
-              Path: /tmp/nx-cache
-              RestoreKeys:
-                - nx
         Inputs:
           Sources:
             - WorkflowSource
@@ -382,11 +383,11 @@ Actions:
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
-            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/schedule.sh
-            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/schedule.sh
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitoring.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitoring.sh
             - Run: env
             - Run: |-
-                NODE_NO_WARNINGS=1 node -e '(function(){let imports=JSON.parse(process.env["_PALOMA_SCHEDULE_IMPORTS"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":imports.paloma.codestar.ecr.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
+                NODE_NO_WARNINGS=1 node -e '(function(){let imports=JSON.parse(process.env["_PALOMA_MONITORING_IMPORTS"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":imports.paloma.codestar.ecr.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
                 `)})})()' > .ci-env
             - Run: cat .ci-env
             - Run: source .ci-env
@@ -401,12 +402,13 @@ Actions:
             - Run: echo "Tagging $_PALOMA_CODE_REPOSITORY_URL:$CI_ENVIRONMENT"
             - Run: docker tag $APPLICATION_IMAGE_NAME:latest $_PALOMA_CODE_REPOSITORY_URL:$CI_ENVIRONMENT
             - Run: docker push $_PALOMA_CODE_REPOSITORY_URL:$CI_ENVIRONMENT
+            - Run: npm exec pnpm store prune
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[push(b:main)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"326eba3e696d5e08e01cf46120267c9fd3984646ea2e8c2e19af56f5d56eca49"}
-#**:_$~- {"$$":"footer","started":"2025-01-18T23:09:28.766Z","now":"2025-01-18T23:09:28.774Z","elapsed":"8ms"}
+#**:_$~- {"$$":"body","hashed":"4d6ce3e5515764e04ef0a8fb4456c26c673a9beb65e6d610c4eeb4bd718b7be4"}
+#**:_$~- {"$$":"footer","started":"2025-01-19T06:41:47.052Z","now":"2025-01-19T06:41:47.061Z","elapsed":"9ms"}
 # END OF GENERATED FILE
 

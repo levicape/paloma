@@ -13,9 +13,11 @@ import { CodeCatalystBuildX } from "@levicape/fourtwo/x/codecatalyst/actions/aws
 let FileCaching = ({
 	docker,
 	pulumi,
+	python,
 }: {
 	docker?: boolean;
 	pulumi?: boolean;
+	python?: boolean;
 } = {}) => ({
 	FileCaching: {
 		a64_npm_global: {
@@ -27,10 +29,6 @@ let FileCaching = ({
 				Path: "/tmp/pnpm-store",
 				RestoreKeys: ["pnpminstall"],
 			},
-		},
-		a64_nx: {
-			Path: "/tmp/nx-cache",
-			RestoreKeys: ["nx"],
 		},
 		...(docker
 			? {
@@ -45,6 +43,14 @@ let FileCaching = ({
 					a64_pulumi: {
 						Path: "/tmp/pulumi",
 						RestoreKeys: ["pulumi"],
+					},
+				}
+			: {}),
+		...(python
+			? {
+					a64_python: {
+						Path: "/root/.pyenv",
+						RestoreKeys: ["python"],
 					},
 				}
 			: {}),
@@ -81,10 +87,10 @@ export const OUTPUT_IMAGES = [
 export const PULUMI_STACKS = [
 	"codestar",
 	"datalayer",
-	//event
 	// "http",
-	// stream
-	"schedule",
+	// "queue",
+	// "stream",
+	"monitoring",
 	// "observability",
 	// "websiteinternal",
 	// "websitefrontend",
@@ -139,10 +145,12 @@ export default async () => {
 									caching={FileCaching({
 										docker: true,
 										pulumi: true,
+										python: true,
 									})}
 									timeout={9}
 									steps={
 										<>
+											{/* Node */}
 											<CodeCatalystStepX
 												run={`npm config set @levicape:registry=${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")} --location project`}
 											/>
@@ -161,6 +169,7 @@ export default async () => {
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
 											<CodeCatalystStepX run="npm exec pnpm install --ignore-scripts" />
+											{/* Docker */}
 											{...[...ALL_CACHES, `${DOCKER_CACHE}/images`].flatMap(
 												(cache) => {
 													return (
@@ -187,6 +196,7 @@ export default async () => {
 													</>
 												);
 											})}
+											{/* Pulumi */}
 											<CodeCatalystStepX
 												run={`[ -f ${PULUMI_CACHE}/bin/pulumi ] && ${PULUMI_CACHE}/bin/pulumi version | grep $PULUMI_VERSION || curl -fsSL https://get.pulumi.com | sh -s -- --version $PULUMI_VERSION --install-root ${PULUMI_CACHE}`}
 											/>
@@ -195,6 +205,15 @@ export default async () => {
 											<CodeCatalystStepX
 												run={`du -sh node_modules ${NPM_GLOBAL_CACHE} ${PNP_STORE}`}
 											/>
+											{/* Python */}
+											<CodeCatalystStepX run="which pyenv" />
+											<CodeCatalystStepX run={'eval "$(pyenv init -)"'} />
+											<CodeCatalystStepX run="git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update" />
+											<CodeCatalystStepX run="pyenv update || true" />
+											<CodeCatalystStepX run="pyenv install 3.11 || true" />
+											<CodeCatalystStepX run="pyenv global 3.11 || true" />
+											<CodeCatalystStepX run="pyenv versions || true" />
+											<CodeCatalystStepX run="python3 -m pip install -r requirements.txt" />
 										</>
 									}
 								/>
@@ -203,7 +222,9 @@ export default async () => {
 								<CodeCatalystBuildX
 									architecture={"arm64"}
 									dependsOn={["Install"]}
-									caching={FileCaching()}
+									caching={FileCaching({
+										python: true,
+									})}
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
@@ -239,8 +260,11 @@ export default async () => {
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
 											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
-											<CodeCatalystStepX run="which python || true" />
 											<CodeCatalystStepX run="which python3 || true" />
+											<CodeCatalystStepX
+												run={`python3 -c "print('ok')" || true`}
+											/>
+											<CodeCatalystStepX run="npm rebuild node-gyp" />
 											<CodeCatalystStepX run="npm rebuild knex better-sqlite3" />
 											<CodeCatalystStepX run="npm exec pnpm build" />
 											<CodeCatalystStepX run="npm exec pnpm lint" />
@@ -256,7 +280,7 @@ export default async () => {
 								<CodeCatalystBuildX
 									dependsOn={["Install"]}
 									architecture={"arm64"}
-									caching={FileCaching({ docker: true })}
+									caching={FileCaching({ docker: true, python: true })}
 									timeout={10}
 									inputs={{
 										Sources: ["WorkflowSource"],
@@ -306,6 +330,7 @@ export default async () => {
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
 											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
+											<CodeCatalystStepX run="npm rebuild node-gyp" />
 											<CodeCatalystStepX run="npm rebuild knex better-sqlite3" />
 											<CodeCatalystStepX
 												run={
@@ -543,7 +568,7 @@ export default async () => {
 															"<APPLICATION_IMAGE_NAME>",
 															APPLICATION.toUpperCase(),
 														)
-														.replaceAll("<STACK_NAME>", "SCHEDULE")
+														.replaceAll("<STACK_NAME>", "MONITORING")
 												})()' > .ci-env`}
 											/>
 											<CodeCatalystStepX run={"cat .ci-env"} />
@@ -574,6 +599,7 @@ export default async () => {
 													/>
 												</>
 											))}
+											<CodeCatalystStepX run={`npm exec pnpm store prune`} />
 										</>
 									}
 								/>

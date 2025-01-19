@@ -17,7 +17,7 @@ import { ManagedPolicy } from "@pulumi/aws/iam";
 import { getRole } from "@pulumi/aws/iam/getRole";
 import { RolePolicy } from "@pulumi/aws/iam/rolePolicy";
 import { RolePolicyAttachment } from "@pulumi/aws/iam/rolePolicyAttachment";
-import { Alias, Function as LambdaFn } from "@pulumi/aws/lambda";
+import { Alias, Function as LambdaFn, Permission } from "@pulumi/aws/lambda";
 import {
 	Bucket,
 	BucketServerSideEncryptionConfigurationV2,
@@ -270,13 +270,13 @@ export = async () => {
 			},
 		);
 
-		const version = new Version(_(`${name}-handler-schedule-version`), {
+		const version = new Version(_(`${name}-handler-version`), {
 			functionName: lambda.name,
 			description: `(${getStack()}) Version ${stage}`,
 		});
 
 		const alias = new Alias(
-			_(`${name}-handler-schedule-alias`),
+			_(`${name}-handler-alias`),
 			{
 				name: stage,
 				functionName: lambda.name,
@@ -626,7 +626,7 @@ export = async () => {
 					},
 				}),
 			});
-			const pipeline = new EventTarget(_("event-target-schedule-pipeline"), {
+			const pipeline = new EventTarget(_("event-target-pipeline"), {
 				rule: rule.name,
 				arn: codepipeline.pipeline.arn,
 				roleArn: farRole.arn,
@@ -644,18 +644,32 @@ export = async () => {
 			const rule = new EventRule(_("event-rule-schedule"), {
 				description: `(${getStack()}) Schedule event rule`,
 				state: "ENABLED",
-				scheduleExpression: "rate(3 minutes)",
+				scheduleExpression: "rate(8 minutes)",
 			});
 
 			const targets = Object.fromEntries(
 				Object.entries(canary).map(([key, handler]) => {
-					const lambda = new EventTarget(_(`event-target-schedule-${key}`), {
+					const target = new EventTarget(_(`event-target-schedule-${key}`), {
 						rule: rule.name,
-						arn: handler.lambda.arn,
+						arn: handler.lambda.alias.arn,
 					});
-					return [key, lambda] as const;
+
+					const permission = new Permission(
+						_(`event-permission-schedule-${key}`),
+						{
+							action: "lambda:InvokeFunction",
+							function: handler.lambda.arn,
+							principal: "events.amazonaws.com",
+							sourceArn: rule.arn,
+						},
+					);
+
+					return [key, { target, permission }] as const;
 				}),
-			) as Record<keyof typeof canary, EventTarget>;
+			) as Record<
+				keyof typeof canary,
+				{ target: EventTarget; permission: Permission }
+			>;
 
 			return {
 				rule,
@@ -699,10 +713,10 @@ export = async () => {
 		eventbridge.EcrImageAction.targets.pipeline.targetId,
 		eventbridge.OnSchedule.rule.arn,
 		eventbridge.OnSchedule.rule.name,
-		eventbridge.OnSchedule.targets.harness.arn,
-		eventbridge.OnSchedule.targets.harness.targetId,
-		eventbridge.OnSchedule.targets.server.arn,
-		eventbridge.OnSchedule.targets.server.targetId,
+		eventbridge.OnSchedule.targets.harness.target.arn,
+		eventbridge.OnSchedule.targets.harness.target.targetId,
+		eventbridge.OnSchedule.targets.server.target.arn,
+		eventbridge.OnSchedule.targets.server.target.targetId,
 	]).apply(
 		([
 			artifactStoreBucket,
@@ -740,13 +754,13 @@ export = async () => {
 			scheduleEventTargetServerId,
 		]) => {
 			return {
-				_PALOMA_SCHEDULE_IMPORTS: {
+				_PALOMA_MONITORING_IMPORTS: {
 					paloma: {
 						codestar: __codestar,
 						datalayer: __datalayer,
 					},
 				},
-				paloma_schedule_s3: {
+				paloma_monitoring_s3: {
 					build: {
 						bucket: buildBucket,
 					},
@@ -760,12 +774,12 @@ export = async () => {
 						bucket: assetsBucket,
 					},
 				},
-				paloma_schedule_cloudwatch: {
+				paloma_monitoring_cloudwatch: {
 					loggroup: {
 						arn: cloudwatchLoggroupArn,
 					},
 				},
-				paloma_schedule_canary: {
+				paloma_monitoring_canary: {
 					harness: {
 						role: {
 							arn: canaryHarnessRoleArn,
@@ -797,19 +811,19 @@ export = async () => {
 						},
 					},
 				},
-				paloma_schedule_codebuild: {
+				paloma_monitoring_codebuild: {
 					project: {
 						arn: codebuildProjectArn,
 						name: codebuildProjectName,
 					},
 				},
-				paloma_schedule_pipeline: {
+				paloma_monitoring_pipeline: {
 					pipeline: {
 						arn: pipelineArn,
 						name: pipelineName,
 					},
 				},
-				paloma_schedule_eventbridge: {
+				paloma_monitoring_eventbridge: {
 					EcrImageAction: {
 						rule: {
 							arn: ecrImageEventRuleArn,

@@ -1,6 +1,6 @@
-name: paloma-schedule
+name: paloma-monitoring
 description: | 
-  Lambda schedule handler, cloudmap service
+  Lambda scheduled canary handlers
 runtime:
   name: nodejs
   options:

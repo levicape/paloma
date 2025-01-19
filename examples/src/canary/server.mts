@@ -1,7 +1,5 @@
 import { ok } from "node:assert";
-import type { ContinueAction } from "@levicape/paloma";
 import { Alltest } from "@levicape/paloma";
-import { SecretValue } from "@levicape/paloma/materials";
 import KSUID from "ksuid";
 
 const waitForMs = (ms: number) =>
@@ -126,4 +124,4 @@ const test = new Alltest(
 	},
 );
 
-export const handler = test.handler;
+export const LambdaHandler = test.handler;

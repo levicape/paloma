@@ -103,6 +103,9 @@ importers:
       '@stricli/core':
         specifier: catalog:cli
         version: 1.1.1
+      aws-lambda-ric:
+        specifier: catalog:aws
+        version: 3.2.1
       better-sqlite3:
         specifier: catalog:database
         version: 11.7.2

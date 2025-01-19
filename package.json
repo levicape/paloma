@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@stricli/core": "catalog:cli",
+    "aws-lambda-ric": "catalog:aws",
     "better-sqlite3": "catalog:database",
     "knex": "catalog:database",
     "ksuid": "catalog:id"

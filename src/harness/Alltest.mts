@@ -96,7 +96,10 @@ export class Alltest<
 		await WorkQueueFilesystem.ready();
 	}
 
-	public handler = (event: HandlerEvent, context: HandlerContext) => {
+	public handler = async (
+		_event: HandlerEvent,
+		_handlercontext: HandlerContext,
+	) => {
 		if (this.started) {
 			throw new Error("Alltest handler already started");
 		}
@@ -134,107 +137,94 @@ export class Alltest<
 			this.options,
 		);
 
-		return this.allReady().then(() => {
-			const [workQueue, metricStore] = [WorkQueueClient].map(
-				//, WorkQueueExecutionTable, MetricStore].map(
-				(table) => {
-					return new table({
-						test: this.options.name,
-						hash: hash.toString(),
-					});
-				},
-			);
-
-			const { executionTable } = workQueue;
-
-			const http = {
-				fetch: fetch,
-			};
-
-			const browser: DefaultClients<M, Funnels>["browser"] = {
-				screenshots: {
-					capture: (name: Funnels, data: string, metric?: M) => {
-						console.log({
-							Test: {
-								name: this.options.name,
-								hash: hash.toString(),
-							},
-							Screenshot: {
-								name,
-								data,
-								metric,
-							},
-						});
-					},
-				},
-			};
-
-			const assertion = {
-				ok: (condition: boolean, message: string) => {
-					if (!condition) {
-						throw new Error(message);
-					}
-				},
-			};
-
-			const metrics = {
-				increment: (name: M) => {
-					console.log({
-						Test: {
-							name: this.options.name,
-							hash: hash.toString(),
-						},
-						Metric: {
-							name,
-						},
-					});
-
-					// metricStore.increment(name);
-				},
-			};
-
-			const log = {
-				debug: (args: unknown) => {
-					console.dir(args, { depth: null });
-				},
-				warn: console.warn,
-				state: console.dir,
-				orchestration: console.dir,
-				execution: console.dir,
-			};
-
-			const clients: DefaultClients<M, Funnels> = {
-				http,
-				browser,
-				assertion,
-				metrics,
-				log,
-			};
-
-			const context: Context = {} as unknown as Context;
-
-			harnessDebug(
-				{
-					message: "Running test",
-					name: this.options.name,
-					entry: this.options.entry(),
-				},
-				{ context, clients },
-			);
-
-			return this.run(clients, context, workQueue, executionTable).then(
-				(result) => {
-					console.log({
-						Test: {
-							name: this.options.name,
-							hash: hash.toString(),
-						},
-						Result: result,
-					});
-					return result;
-				},
-			);
+		await this.allReady();
+		const [workQueue] = [WorkQueueClient].map((table) => {
+			return new table({
+				test: this.options.name,
+				hash: hash.toString(),
+			});
 		});
+
+		const { executionTable } = workQueue;
+		const http = {
+			fetch: fetch,
+		};
+		const browser: DefaultClients<M, Funnels>["browser"] = {
+			screenshots: {
+				capture: (name: Funnels, data: string, metric?: M) => {
+					console.log({
+						Test: {
+							name: this.options.name,
+							hash: hash.toString(),
+						},
+						Screenshot: {
+							name,
+							data,
+							metric,
+						},
+					});
+				},
+			},
+		};
+		const assertion = {
+			ok: (condition: boolean, message: string) => {
+				if (!condition) {
+					throw new Error(message);
+				}
+			},
+		};
+		const metrics = {
+			increment: (name: M) => {
+				console.log({
+					Test: {
+						name: this.options.name,
+						hash: hash.toString(),
+					},
+					Metric: {
+						name,
+					},
+				});
+			},
+		};
+		const log = {
+			debug: (args: unknown) => {
+				console.dir(args, { depth: null });
+			},
+			warn: console.warn,
+			state: console.dir,
+			orchestration: console.dir,
+			execution: console.dir,
+		};
+		const clients: DefaultClients<M, Funnels> = {
+			http,
+			browser,
+			assertion,
+			metrics,
+			log,
+		};
+		const context: Context = {} as unknown as Context;
+		harnessDebug(
+			{
+				message: "Running test",
+				name: this.options.name,
+				entry: this.options.entry(),
+			},
+			{ context, clients },
+		);
+
+		const result = await this.run(clients, context, workQueue, executionTable);
+		console.log({
+			Test: {
+				name: this.options.name,
+				hash: hash.toString(),
+			},
+			Result: result,
+		});
+
+		return {
+			statusCode: 200,
+			body: JSON.stringify(result),
+		};
 	};
 
 	public async run(
