@@ -26,7 +26,7 @@ import { BucketObjectv2 } from "@pulumi/aws/s3/bucketObjectv2";
 import { BucketPublicAccessBlock } from "@pulumi/aws/s3/bucketPublicAccessBlock";
 import { BucketVersioningV2 } from "@pulumi/aws/s3/bucketVersioningV2";
 import { Image } from "@pulumi/docker-build";
-import { all, getStack } from "@pulumi/pulumi";
+import { Output, all, getStack } from "@pulumi/pulumi";
 import { stringify } from "yaml";
 import { $ref, $val } from "../Stack";
 import { PalomaCodestarStackExportsZod } from "../codestar/exports";
@@ -612,7 +612,7 @@ export = async () => {
 		const { name } = __codestar.ecr.repository;
 
 		const EcrImageAction = (() => {
-			const rule = new EventRule(_("event-rule-ecr-push"), {
+			const rule = new EventRule(_("event-ecr-push-rule"), {
 				description: `(${getStack()}) ECR push event rule`,
 				state: "ENABLED",
 				eventPattern: JSON.stringify({
@@ -626,7 +626,7 @@ export = async () => {
 					},
 				}),
 			});
-			const pipeline = new EventTarget(_("event-target-pipeline"), {
+			const pipeline = new EventTarget(_("event-ecr-push-target-pipeline"), {
 				rule: rule.name,
 				arn: codepipeline.pipeline.arn,
 				roleArn: farRole.arn,
@@ -640,39 +640,56 @@ export = async () => {
 			};
 		})();
 
-		const OnSchedule = (() => {
-			const rule = new EventRule(_("event-rule-schedule"), {
-				description: `(${getStack()}) Schedule event rule`,
-				state: "ENABLED",
-				scheduleExpression: "rate(8 minutes)",
-			});
+		// Max 5 targets per rule
+		let groups = Object.entries(canary)
+			.reduce(
+				(acc, key) => {
+					const [name, handler] = key;
+					let last = acc[acc.length - 1];
+					if (last.length === 5) {
+						last = [];
+						acc.push(last);
+					}
+					last.push([name, handler.lambda]);
 
+					return acc;
+				},
+				[[]] as Array<[string, typeof canary.harness.lambda][]>,
+			)
+			.filter((group) => group.length > 0);
+
+		const OnSchedule = (() => {
 			const targets = Object.fromEntries(
-				Object.entries(canary).map(([key, handler]) => {
-					const target = new EventTarget(_(`event-target-schedule-${key}`), {
-						rule: rule.name,
-						arn: handler.lambda.alias.arn,
+				groups.flatMap((group, idx) => {
+					const rule = new EventRule(_(`schedule-${idx}`), {
+						description: `(${getStack()}) Schedule event rule ${idx}`,
+						state: "ENABLED",
+						scheduleExpression: "rate(8 minutes)",
 					});
 
-					const permission = new Permission(
-						_(`event-permission-schedule-${key}`),
-						{
+					return group.map(([key, handler]) => {
+						const target = new EventTarget(_(`schedule-${idx}-${key}`), {
+							rule: rule.name,
+							arn: handler.alias.arn,
+						});
+
+						const permission = new Permission(_(`schedule-${idx}-${key}-iam`), {
 							action: "lambda:InvokeFunction",
-							function: handler.lambda.arn,
 							principal: "events.amazonaws.com",
 							sourceArn: rule.arn,
-						},
-					);
+							function: handler.arn,
+							qualifier: handler.alias.name,
+						});
 
-					return [key, { target, permission }] as const;
+						return [key, { rule, target, permission }] as const;
+					});
 				}),
 			) as Record<
 				keyof typeof canary,
-				{ target: EventTarget; permission: Permission }
+				{ target: EventTarget; permission: Permission; rule: EventRule }
 			>;
 
 			return {
-				rule,
 				targets,
 			};
 		})();
@@ -689,20 +706,50 @@ export = async () => {
 		s3.build.bucket,
 		s3.deploy.bucket,
 		cloudwatch.loggroup.arn,
-		canary.harness.role.arn,
-		canary.harness.role.name,
-		canary.harness.lambda.arn,
-		canary.harness.lambda.version.version,
-		canary.harness.lambda.alias.arn,
-		canary.harness.lambda.alias.name,
-		canary.harness.lambda.alias.functionVersion,
-		canary.server.role.arn,
-		canary.server.role.name,
-		canary.server.lambda.arn,
-		canary.server.lambda.version.version,
-		canary.server.lambda.alias.arn,
-		canary.server.lambda.alias.name,
-		canary.server.lambda.alias.functionVersion,
+		Output.create(
+			Object.fromEntries(
+				Object.entries(canary).map(([key, handler]) => {
+					return [
+						key,
+						all([
+							handler.role.arn,
+							handler.role.name,
+							handler.lambda.arn,
+							handler.lambda.version.version,
+							handler.lambda.alias.arn,
+							handler.lambda.alias.name,
+							handler.lambda.alias.functionVersion,
+						]).apply(
+							([
+								roleArn,
+								roleName,
+								lambdaArn,
+								lambdaVersion,
+								aliasArn,
+								aliasName,
+								aliasVersion,
+							]) => ({
+								role: {
+									arn: roleArn,
+									name: roleName,
+								},
+								lambda: {
+									arn: lambdaArn,
+									version: {
+										version: lambdaVersion,
+									},
+									alias: {
+										arn: aliasArn,
+										name: aliasName,
+										functionVersion: aliasVersion,
+									},
+								},
+							}),
+						),
+					];
+				}),
+			),
+		).apply((r) => JSON.stringify(r)),
 		codebuild.project.arn,
 		codebuild.project.name,
 		codepipeline.pipeline.arn,
@@ -711,12 +758,30 @@ export = async () => {
 		eventbridge.EcrImageAction.rule.name,
 		eventbridge.EcrImageAction.targets.pipeline.arn,
 		eventbridge.EcrImageAction.targets.pipeline.targetId,
-		eventbridge.OnSchedule.rule.arn,
-		eventbridge.OnSchedule.rule.name,
-		eventbridge.OnSchedule.targets.harness.target.arn,
-		eventbridge.OnSchedule.targets.harness.target.targetId,
-		eventbridge.OnSchedule.targets.server.target.arn,
-		eventbridge.OnSchedule.targets.server.target.targetId,
+		Output.create(
+			Object.fromEntries(
+				Object.entries(eventbridge.OnSchedule.targets).map(([key, target]) => {
+					return [
+						key,
+						all([
+							target.rule.arn,
+							target.rule.name,
+							target.target.arn,
+							target.target.targetId,
+						]).apply(([ruleArn, ruleName, targetArn, targetId]) => ({
+							rule: {
+								arn: ruleArn,
+								name: ruleName,
+							},
+							target: {
+								arn: targetArn,
+								targetId: targetId,
+							},
+						})),
+					];
+				}),
+			),
+		).apply((r) => JSON.stringify(r)),
 	]).apply(
 		([
 			artifactStoreBucket,
@@ -724,20 +789,7 @@ export = async () => {
 			buildBucket,
 			deployBucket,
 			cloudwatchLoggroupArn,
-			canaryHarnessRoleArn,
-			canaryHarnessRoleName,
-			canaryHarnessScheduleArn,
-			canaryHarnessScheduleInitialVersion,
-			canaryHarnessAliasArn,
-			canaryHarnessAliasName,
-			canaryHarnessAliasVersion,
-			canaryServerRoleArn,
-			canaryServerRoleName,
-			canaryServerScheduleArn,
-			canaryServerScheduleInitialVersion,
-			canaryServerAliasArn,
-			canaryServerAliasName,
-			canaryServerAliasVersion,
+			canaryLambdas,
 			codebuildProjectArn,
 			codebuildProjectName,
 			pipelineArn,
@@ -746,21 +798,16 @@ export = async () => {
 			ecrImageEventRuleName,
 			ecrImageEventTargetArn,
 			ecrImageEventTargetId,
-			scheduleEventRuleArn,
-			scheduleEventRuleName,
-			scheduleEventTargetHarnessArn,
-			scheduleEventTargetHarnessId,
-			scheduleEventTargetServerArn,
-			scheduleEventTargetServerId,
+			scheduleEventRules,
 		]) => {
 			return {
-				_PALOMA_MONITORING_IMPORTS: {
+				_PALOMA_MONITOR_IMPORTS: {
 					paloma: {
 						codestar: __codestar,
 						datalayer: __datalayer,
 					},
 				},
-				paloma_monitoring_s3: {
+				paloma_monitor_s3: {
 					build: {
 						bucket: buildBucket,
 					},
@@ -774,56 +821,25 @@ export = async () => {
 						bucket: assetsBucket,
 					},
 				},
-				paloma_monitoring_cloudwatch: {
+				paloma_monitor_cloudwatch: {
 					loggroup: {
 						arn: cloudwatchLoggroupArn,
 					},
 				},
-				paloma_monitoring_canary: {
-					harness: {
-						role: {
-							arn: canaryHarnessRoleArn,
-							name: canaryHarnessRoleName,
-						},
-						lambda: {
-							arn: canaryHarnessScheduleArn,
-							initialVersion: canaryHarnessScheduleInitialVersion,
-							alias: {
-								arn: canaryHarnessAliasArn,
-								name: canaryHarnessAliasName,
-								version: canaryHarnessAliasVersion,
-							},
-						},
-					},
-					server: {
-						role: {
-							arn: canaryServerRoleArn,
-							name: canaryServerRoleName,
-						},
-						lambda: {
-							arn: canaryServerScheduleArn,
-							initialVersion: canaryServerScheduleInitialVersion,
-							alias: {
-								arn: canaryServerAliasArn,
-								name: canaryServerAliasName,
-								version: canaryServerAliasVersion,
-							},
-						},
-					},
-				},
-				paloma_monitoring_codebuild: {
+				paloma_monitor_canary: JSON.parse(canaryLambdas),
+				paloma_monitor_codebuild: {
 					project: {
 						arn: codebuildProjectArn,
 						name: codebuildProjectName,
 					},
 				},
-				paloma_monitoring_pipeline: {
+				paloma_monitor_pipeline: {
 					pipeline: {
 						arn: pipelineArn,
 						name: pipelineName,
 					},
 				},
-				paloma_monitoring_eventbridge: {
+				paloma_monitor_eventbridge: {
 					EcrImageAction: {
 						rule: {
 							arn: ecrImageEventRuleArn,
@@ -836,22 +852,7 @@ export = async () => {
 							},
 						},
 					},
-					OnSchedule: {
-						rule: {
-							arn: scheduleEventRuleArn,
-							name: scheduleEventRuleName,
-						},
-						targets: {
-							harness: {
-								arn: scheduleEventTargetHarnessArn,
-								targetId: scheduleEventTargetHarnessId,
-							},
-							server: {
-								arn: scheduleEventTargetServerArn,
-								targetId: scheduleEventTargetServerId,
-							},
-						},
-					},
+					OnSchedule: JSON.parse(scheduleEventRules),
 				},
 			};
 		},

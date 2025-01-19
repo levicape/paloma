@@ -11,6 +11,10 @@ Triggers:
   - Type: PUSH
     Branches:
       - main
+  - Type: SCHEDULE
+    Expression: 0 0 * * ? *
+    Branches:
+      - main
 Actions:
   Integration:
     Actions:
@@ -43,6 +47,8 @@ Actions:
           Sources:
             - WorkflowSource
           Variables:
+            - Name: NODEJS_VERSION
+              Value: "23"
             - Name: NPM_REGISTRY_PROTOCOL
               Value: https
             - Name: NPM_REGISTRY_HOST
@@ -57,6 +63,8 @@ Actions:
               Value: heroku/heroku:24
             - Name: PULUMI_VERSION
               Value: 3.144.1
+            - Name: PYTHON_VERSION
+              Value: "3.11"
         Configuration:
           Container:
             Registry: CODECATALYST
@@ -68,7 +76,7 @@ Actions:
             - Run: npm root -g
             - Run: npm install --g pnpm
             - Run: npm install --g n
-            - Run: npm exec n 23
+            - Run: npm exec n $NODEJS_VERSION
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
             - Run: npm exec pnpm install --ignore-scripts
             - Run: mkdir -p /tmp/npm-global
@@ -96,8 +104,8 @@ Actions:
             - Run: eval "$(pyenv init -)"
             - Run: git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
             - Run: pyenv update || true
-            - Run: pyenv install 3.11 || true
-            - Run: pyenv global 3.11 || true
+            - Run: pyenv install $PYTHON_VERSION || true
+            - Run: pyenv global $PYTHON_VERSION || true
             - Run: pyenv versions || true
             - Run: python3 -m pip install -r requirements.txt
       Compile:
@@ -123,6 +131,8 @@ Actions:
           Sources:
             - WorkflowSource
           Variables:
+            - Name: NODEJS_VERSION
+              Value: "23"
             - Name: NPM_REGISTRY_PROTOCOL
               Value: https
             - Name: NPM_REGISTRY_HOST
@@ -143,10 +153,9 @@ Actions:
             - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL://$NPM_REGISTRY_HOST --location project
             - Run: npm config set //$NPM_REGISTRY_HOST/:_authToken=$NODE_AUTH_TOKEN --location project
             - Run: npm config set prefix=/tmp/npm-global
-            - Run: npm exec n 23
+            - Run: npm exec n $NODEJS_VERSION
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
             - Run: npm exec pnpm install --prefer-offline --ignore-scripts
-            - Run: which python3 || true
             - Run: python3 -c "print('ok')" || true
             - Run: npm rebuild node-gyp
             - Run: npm rebuild knex better-sqlite3
@@ -181,6 +190,8 @@ Actions:
           Sources:
             - WorkflowSource
           Variables:
+            - Name: NODEJS_VERSION
+              Value: "23"
             - Name: NPM_REGISTRY_PROTOCOL
               Value: https
             - Name: NPM_REGISTRY_HOST
@@ -208,7 +219,7 @@ Actions:
             - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL://$NPM_REGISTRY_HOST --location project
             - Run: npm config set //$NPM_REGISTRY_HOST/:_authToken=$NODE_AUTH_TOKEN --location project
             - Run: npm config set prefix=/tmp/npm-global
-            - Run: npm exec n 23
+            - Run: npm exec n $NODEJS_VERSION
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
             - Run: npm exec pnpm install --prefer-offline --ignore-scripts
             - Run: npm rebuild node-gyp
@@ -242,6 +253,8 @@ Actions:
           Sources:
             - WorkflowSource
           Variables:
+            - Name: NODEJS_VERSION
+              Value: "23"
             - Name: NPM_REGISTRY_PROTOCOL
               Value: https
             - Name: NPM_REGISTRY_HOST
@@ -274,7 +287,7 @@ Actions:
             - Run: npm config set //$NPM_REGISTRY_HOST/:_authToken=$NODE_AUTH_TOKEN --location project
             - Run: npm config set prefix=/tmp/npm-global
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
-            - Run: npm exec n 23
+            - Run: npm exec n $NODEJS_VERSION
             - Run: npm exec pnpm install --prefer-offline --ignore-scripts
             - Run: aws ssm get-parameter --name /fourtwo/_principal/pulumi/backend/StateBackendCommandReference
             - Run: npm exec pnpm exec fourtwo aws pulumi ci -- --region $AWS_REGION > .pulumi-ci
@@ -311,20 +324,20 @@ Actions:
             - Run: cat _pulumi/datalayer.json
             - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/datalayer --shell > $(pwd)/_pulumi/datalayer.sh
             - Run: cat _pulumi/datalayer.sh
-            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-monitoring.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/monitoring || true
-            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-monitoring.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/monitoring || true
-            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/monitoring
-            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/monitoring
-            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/monitoring
-            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/monitoring
-            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/monitoring
-            - Run: /tmp/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/monitoring --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
-            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/monitoring  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
-            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/monitoring --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
-            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitoring --json > $(pwd)/_pulumi/monitoring.json
-            - Run: cat _pulumi/monitoring.json
-            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitoring --shell > $(pwd)/_pulumi/monitoring.sh
-            - Run: cat _pulumi/monitoring.sh
+            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-monitor.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/monitor || true
+            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-monitor.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/monitor || true
+            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/monitor
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/monitor
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/monitor
+            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/monitor
+            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/monitor
+            - Run: /tmp/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/monitor --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
+            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/monitor  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
+            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/monitor --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitor --json > $(pwd)/_pulumi/monitor.json
+            - Run: cat _pulumi/monitor.json
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitor --shell > $(pwd)/_pulumi/monitor.sh
+            - Run: cat _pulumi/monitor.sh
             - Run: du -sh _pulumi
   Deployment:
     DependsOn:
@@ -349,6 +362,8 @@ Actions:
           Sources:
             - WorkflowSource
           Variables:
+            - Name: NODEJS_VERSION
+              Value: "23"
             - Name: NPM_REGISTRY_PROTOCOL
               Value: https
             - Name: NPM_REGISTRY_HOST
@@ -373,7 +388,7 @@ Actions:
             - Run: npm config set //$NPM_REGISTRY_HOST/:_authToken=$NODE_AUTH_TOKEN --location project
             - Run: npm config set prefix=/tmp/npm-global
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
-            - Run: npm exec n 23
+            - Run: npm exec n $NODEJS_VERSION
             - Run: npm exec pnpm install --prefer-offline --ignore-scripts
             - Run: ls -la $CATALYST_SOURCE_DIR_images/_images
             - Run: docker load --input $CATALYST_SOURCE_DIR_images/_images/application.tar.gz
@@ -383,11 +398,11 @@ Actions:
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
-            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitoring.sh
-            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitoring.sh
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
             - Run: env
             - Run: |-
-                NODE_NO_WARNINGS=1 node -e '(function(){let imports=JSON.parse(process.env["_PALOMA_MONITORING_IMPORTS"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":imports.paloma.codestar.ecr.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
+                NODE_NO_WARNINGS=1 node -e '(function(){let imports=JSON.parse(process.env["_PALOMA_MONITOR_IMPORTS"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":imports.paloma.codestar.ecr.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
                 `)})})()' > .ci-env
             - Run: cat .ci-env
             - Run: source .ci-env
@@ -406,9 +421,9 @@ Actions:
 
 ########################################
 ########################################
-#**:_$~- {"$$":"head","filename":"[push(b:main)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
+#**:_$~- {"$$":"head","filename":"[push(b:main)][schedule(0_0_*_*_?_*)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"4d6ce3e5515764e04ef0a8fb4456c26c673a9beb65e6d610c4eeb4bd718b7be4"}
-#**:_$~- {"$$":"footer","started":"2025-01-19T06:41:47.052Z","now":"2025-01-19T06:41:47.061Z","elapsed":"9ms"}
+#**:_$~- {"$$":"body","hashed":"f6b91d496001715c1472ee0042d2247ae35ce0d668a65d682f3314005b43f237"}
+#**:_$~- {"$$":"footer","started":"2025-01-20T00:07:25.114Z","now":"2025-01-20T00:07:25.123Z","elapsed":"9ms"}
 # END OF GENERATED FILE
 

@@ -90,7 +90,7 @@ export const PULUMI_STACKS = [
 	// "http",
 	// "queue",
 	// "stream",
-	"monitoring",
+	"monitor",
 	// "observability",
 	// "websiteinternal",
 	// "websitefrontend",
@@ -118,6 +118,11 @@ export default async () => {
 					Type: "PUSH",
 					Branches: ["main"],
 				},
+				{
+					Type: "SCHEDULE",
+					Expression: "0 0 * * ? *",
+					Branches: ["main"],
+				},
 			]}
 		>
 			{{
@@ -130,6 +135,7 @@ export default async () => {
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
+											register("NODEJS_VERSION", "23"),
 											register("NPM_REGISTRY_PROTOCOL", "https"),
 											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
 											register(
@@ -140,6 +146,7 @@ export default async () => {
 											register("PAKETO_BUILDER_IMAGE", "heroku/builder:24"),
 											register("PAKETO_LAUNCHER_IMAGE", "heroku/heroku:24"),
 											register("PULUMI_VERSION", "3.144.1"),
+											register("PYTHON_VERSION", "3.11"),
 										],
 									}}
 									caching={FileCaching({
@@ -164,7 +171,7 @@ export default async () => {
 											{["pnpm", "n"].map((pkg: string) => (
 												<CodeCatalystStepX run={`npm install --g ${pkg}`} />
 											))}
-											<CodeCatalystStepX run="npm exec n 23" />
+											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
 											<CodeCatalystStepX
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
@@ -210,8 +217,8 @@ export default async () => {
 											<CodeCatalystStepX run={'eval "$(pyenv init -)"'} />
 											<CodeCatalystStepX run="git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update" />
 											<CodeCatalystStepX run="pyenv update || true" />
-											<CodeCatalystStepX run="pyenv install 3.11 || true" />
-											<CodeCatalystStepX run="pyenv global 3.11 || true" />
+											<CodeCatalystStepX run="pyenv install $PYTHON_VERSION || true" />
+											<CodeCatalystStepX run="pyenv global $PYTHON_VERSION || true" />
 											<CodeCatalystStepX run="pyenv versions || true" />
 											<CodeCatalystStepX run="python3 -m pip install -r requirements.txt" />
 										</>
@@ -228,6 +235,7 @@ export default async () => {
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
+											register("NODEJS_VERSION", "23"),
 											register("NPM_REGISTRY_PROTOCOL", "https"),
 											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
 											register(
@@ -255,12 +263,11 @@ export default async () => {
 											<CodeCatalystStepX
 												run={`npm config set prefix=${NPM_GLOBAL_CACHE}`}
 											/>
-											<CodeCatalystStepX run="npm exec n 23" />
+											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
 											<CodeCatalystStepX
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
 											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
-											<CodeCatalystStepX run="which python3 || true" />
 											<CodeCatalystStepX
 												run={`python3 -c "print('ok')" || true`}
 											/>
@@ -285,6 +292,7 @@ export default async () => {
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
+											register("NODEJS_VERSION", "23"),
 											register("NPM_REGISTRY_PROTOCOL", "https"),
 											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
 											register(
@@ -325,7 +333,7 @@ export default async () => {
 											<CodeCatalystStepX
 												run={`npm config set prefix=${NPM_GLOBAL_CACHE}`}
 											/>
-											<CodeCatalystStepX run="npm exec n 23" />
+											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
 											<CodeCatalystStepX
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
@@ -363,6 +371,7 @@ export default async () => {
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
+											register("NODEJS_VERSION", "23"),
 											register("NPM_REGISTRY_PROTOCOL", "https"),
 											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
 											register(
@@ -402,7 +411,7 @@ export default async () => {
 											<CodeCatalystStepX
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
-											<CodeCatalystStepX run="npm exec n 23" />
+											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
 											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
 											<CodeCatalystStepX
 												run={`aws ssm get-parameter --name ${AwsStateBackendCommandsParameter()}`}
@@ -488,6 +497,7 @@ export default async () => {
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
+											register("NODEJS_VERSION", "23"),
 											register("NPM_REGISTRY_PROTOCOL", "https"),
 											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
 											register(
@@ -517,7 +527,7 @@ export default async () => {
 											<CodeCatalystStepX
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
-											<CodeCatalystStepX run="npm exec n 23" />
+											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
 											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
 											<CodeCatalystStepX
 												run={`ls -la ${input(OUTPUT_IMAGES_PATH)}`}
@@ -568,7 +578,7 @@ export default async () => {
 															"<APPLICATION_IMAGE_NAME>",
 															APPLICATION.toUpperCase(),
 														)
-														.replaceAll("<STACK_NAME>", "MONITORING")
+														.replaceAll("<STACK_NAME>", "MONITOR")
 												})()' > .ci-env`}
 											/>
 											<CodeCatalystStepX run={"cat .ci-env"} />

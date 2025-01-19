@@ -1,4 +1,4 @@
-name: paloma-monitoring
+name: paloma-monitor
 description: | 
   Lambda scheduled canary handlers
 runtime:
