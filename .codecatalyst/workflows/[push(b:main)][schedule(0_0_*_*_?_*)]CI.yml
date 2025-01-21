@@ -20,7 +20,7 @@ Actions:
     Actions:
       Install:
         Identifier: aws/build@v1.0.0
-        Timeout: 9
+        Timeout: 12
         Caching:
           FileCaching:
             a64_npm_global:
@@ -112,7 +112,7 @@ Actions:
         Identifier: aws/build@v1.0.0
         DependsOn:
           - Install
-        Timeout: 8
+        Timeout: 9
         Caching:
           FileCaching:
             a64_npm_global:
@@ -156,6 +156,7 @@ Actions:
             - Run: npm exec n $NODEJS_VERSION
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
             - Run: npm exec pnpm install --prefer-offline --ignore-scripts
+            - Run: sudo yum install -y g++ make cmake unzip libcurl-devel automake autoconf libtool
             - Run: python3 -c "print('ok')" || true
             - Run: npm rebuild node-gyp
             - Run: npm rebuild knex better-sqlite3
@@ -167,7 +168,7 @@ Actions:
         Identifier: aws/build@v1.0.0
         DependsOn:
           - Install
-        Timeout: 10
+        Timeout: 15
         Caching:
           FileCaching:
             a64_npm_global:
@@ -222,7 +223,9 @@ Actions:
             - Run: npm exec n $NODEJS_VERSION
             - Run: npm exec pnpm config set store-dir /tmp/pnpm-store
             - Run: npm exec pnpm install --prefer-offline --ignore-scripts
+            - Run: sudo yum install -y g++ make cmake unzip libcurl-devel automake autoconf libtool
             - Run: npm rebuild node-gyp
+            - Run: sudo npm install --global aws-lambda-ric
             - Run: npm rebuild knex better-sqlite3
             - Run: npm exec pnpm exec nx pack:build iac-images-application --verbose
             - Run: docker save $APPLICATION_IMAGE_NAME | gzip > _images/application.tar.gz
@@ -232,7 +235,7 @@ Actions:
         Identifier: aws/build@v1.0.0
         DependsOn:
           - Install
-        Timeout: 10
+        Timeout: 14
         Environment:
           Name: current
         Caching:
@@ -343,7 +346,7 @@ Actions:
     DependsOn:
       - Integration
     Actions:
-      Lambda:
+      PushImage:
         Identifier: aws/build@v1.0.0
         Timeout: 10
         Environment:
@@ -423,7 +426,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"[push(b:main)][schedule(0_0_*_*_?_*)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"f6b91d496001715c1472ee0042d2247ae35ce0d668a65d682f3314005b43f237"}
-#**:_$~- {"$$":"footer","started":"2025-01-20T00:07:25.114Z","now":"2025-01-20T00:07:25.123Z","elapsed":"9ms"}
+#**:_$~- {"$$":"body","hashed":"8d6e786b85c6c1dec6f2a92a7ff9e56eeb4ebf77dd6bdc8b2d3b54540ba75836"}
+#**:_$~- {"$$":"footer","started":"2025-01-23T08:25:59.321Z","now":"2025-01-23T08:25:59.329Z","elapsed":"8ms"}
 # END OF GENERATED FILE
 

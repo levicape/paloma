@@ -84,18 +84,28 @@ export const OUTPUT_IMAGES = [
 	["application.tar.gz", "$APPLICATION_IMAGE_NAME"],
 ] as const;
 
-export const PULUMI_STACKS = [
-	"codestar",
-	"datalayer",
-	// "http",
-	// "queue",
-	// "stream",
-	"monitor",
+type Stack = {
+	stack: string;
+	output: string;
+	name?: string;
+};
+export const PULUMI_STACKS: Stack[] = [
+	{
+		stack: "codestar",
+	},
+	{
+		stack: "datalayer",
+	},
+	{
+		stack: "monitor",
+	},
+	// {
+	// 	stack: "domains/ui-nevada/web",
+	// 	name: "ui-nevada-web",
+	// },
 	// "observability",
-	// "websiteinternal",
-	// "websitefrontend",
-	// "websitemarketing",
-] as const;
+	// "wwwroot"
+].map((stack) => ({ ...stack, output: stack.stack.replaceAll("/", "_") }));
 
 const input = (name: `_${string}`) => `$CATALYST_SOURCE_DIR${name}/${name}`;
 
@@ -154,7 +164,7 @@ export default async () => {
 										pulumi: true,
 										python: true,
 									})}
-									timeout={9}
+									timeout={12}
 									steps={
 										<>
 											{/* Node */}
@@ -251,7 +261,7 @@ export default async () => {
 											ReportNamePrefix: "junit",
 										},
 									}}
-									timeout={8}
+									timeout={9}
 									steps={
 										<>
 											<CodeCatalystStepX
@@ -268,6 +278,7 @@ export default async () => {
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
 											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
+											<CodeCatalystStepX run="sudo yum install -y g++ make cmake unzip libcurl-devel automake autoconf libtool" />
 											<CodeCatalystStepX
 												run={`python3 -c "print('ok')" || true`}
 											/>
@@ -288,7 +299,7 @@ export default async () => {
 									dependsOn={["Install"]}
 									architecture={"arm64"}
 									caching={FileCaching({ docker: true, python: true })}
-									timeout={10}
+									timeout={15}
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
@@ -338,7 +349,9 @@ export default async () => {
 												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
 											/>
 											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
+											<CodeCatalystStepX run="sudo yum install -y g++ make cmake unzip libcurl-devel automake autoconf libtool" />
 											<CodeCatalystStepX run="npm rebuild node-gyp" />
+											<CodeCatalystStepX run="sudo npm install --global aws-lambda-ric" />
 											<CodeCatalystStepX run="npm rebuild knex better-sqlite3" />
 											<CodeCatalystStepX
 												run={
@@ -367,7 +380,7 @@ export default async () => {
 									dependsOn={["Install"]}
 									architecture={"arm64"}
 									caching={FileCaching({ pulumi: true })}
-									timeout={10}
+									timeout={14}
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
@@ -431,13 +444,13 @@ export default async () => {
 											<CodeCatalystStepX run={"cat .export-cd"} />
 											<CodeCatalystStepX run={`source .export-cd`} />
 											<CodeCatalystStepX run={`mkdir ${OUTPUT_PULUMI_PATH}`} />
-											{...PULUMI_STACKS.flatMap((stack) => (
+											{...PULUMI_STACKS.flatMap(({ stack, name, output }) => (
 												<>
 													<CodeCatalystStepX
-														run={`${PULUMI_CACHE}/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-${stack}.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/${stack} || true`}
+														run={`${PULUMI_CACHE}/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-${name ?? stack}.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/${stack} || true`}
 													/>
 													<CodeCatalystStepX
-														run={`${PULUMI_CACHE}/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-${stack}.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/${stack} || true`}
+														run={`${PULUMI_CACHE}/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-${name ?? stack}.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/${stack} || true`}
 													/>
 													<CodeCatalystStepX
 														run={`${PULUMI_CACHE}/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/${stack}`}
@@ -464,16 +477,16 @@ export default async () => {
 														run={`${PULUMI_CACHE}/bin/pulumi up -C $(pwd)/iac/stacks/src/${stack} --yes --suppress-progress --non-interactive --diff --message "${_$_("WorkflowSource.BranchName")}-${_$_("WorkflowSource.CommitId")}-up"`}
 													/>
 													<CodeCatalystStepX
-														run={`${PULUMI_CACHE}/bin/pulumi stack output -C $(pwd)/iac/stacks/src/${stack} --json > $(pwd)/${OUTPUT_PULUMI_PATH}/${stack}.json`}
+														run={`${PULUMI_CACHE}/bin/pulumi stack output -C $(pwd)/iac/stacks/src/${stack} --json > $(pwd)/${OUTPUT_PULUMI_PATH}/${output}.json`}
 													/>
 													<CodeCatalystStepX
-														run={`cat ${OUTPUT_PULUMI_PATH}/${stack}.json`}
+														run={`cat ${OUTPUT_PULUMI_PATH}/${output}.json`}
 													/>
 													<CodeCatalystStepX
-														run={`${PULUMI_CACHE}/bin/pulumi stack output -C $(pwd)/iac/stacks/src/${stack} --shell > $(pwd)/${OUTPUT_PULUMI_PATH}/${stack}.sh`}
+														run={`${PULUMI_CACHE}/bin/pulumi stack output -C $(pwd)/iac/stacks/src/${stack} --shell > $(pwd)/${OUTPUT_PULUMI_PATH}/${output}.sh`}
 													/>
 													<CodeCatalystStepX
-														run={`cat ${OUTPUT_PULUMI_PATH}/${stack}.sh`}
+														run={`cat ${OUTPUT_PULUMI_PATH}/${output}.sh`}
 													/>
 												</>
 											))}
@@ -489,7 +502,7 @@ export default async () => {
 				Deployment: (
 					<CodeCatalystActionGroupX dependsOn={["Integration"]}>
 						{{
-							Lambda: (
+							PushImage: (
 								<CodeCatalystBuildX
 									architecture={"arm64"}
 									caching={FileCaching()}
@@ -541,13 +554,13 @@ export default async () => {
 											<CodeCatalystStepX
 												run={`ls -la ${input(OUTPUT_PULUMI_PATH)}`}
 											/>
-											{...PULUMI_STACKS.flatMap((stack) => (
+											{...PULUMI_STACKS.flatMap(({ output }) => (
 												<>
 													<CodeCatalystStepX
-														run={`cat ${input(OUTPUT_PULUMI_PATH)}/${stack}.sh`}
+														run={`cat ${input(OUTPUT_PULUMI_PATH)}/${output}.sh`}
 													/>
 													<CodeCatalystStepX
-														run={`source ${input(OUTPUT_PULUMI_PATH)}/${stack}.sh`}
+														run={`source ${input(OUTPUT_PULUMI_PATH)}/${output}.sh`}
 													/>
 												</>
 											))}

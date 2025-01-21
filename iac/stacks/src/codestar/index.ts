@@ -94,21 +94,9 @@ export = async () => {
 					},
 		});
 
-		const deploymentGroup = new DeploymentGroup(_("deployment-group"), {
-			appName: application.name,
-			deploymentGroupName: _("deployment-group"),
-			serviceRoleArn: farRole.arn,
-			deploymentConfigName: deploymentConfig.id,
-			deploymentStyle: {
-				deploymentOption: "WITH_TRAFFIC_CONTROL",
-				deploymentType: "BLUE_GREEN",
-			},
-		});
-
 		return {
 			application,
 			deploymentConfig,
-			deploymentGroup,
 		};
 	})();
 
@@ -120,8 +108,6 @@ export = async () => {
 		codedeploy.application.name,
 		codedeploy.deploymentConfig.arn,
 		codedeploy.deploymentConfig.deploymentConfigName,
-		codedeploy.deploymentGroup.arn,
-		codedeploy.deploymentGroup.deploymentGroupName,
 	]).apply(
 		([
 			ecrRepositoryArn,
@@ -131,8 +117,6 @@ export = async () => {
 			codedeployApplicationName,
 			codedeployDeploymentConfigArn,
 			codedeployDeploymentConfigName,
-			codedeployDeploymentGroupArn,
-			codedeployDeploymentGroupName,
 		]) => {
 			return {
 				paloma_codestar_ecr: {
@@ -150,10 +134,6 @@ export = async () => {
 					deploymentConfig: {
 						arn: codedeployDeploymentConfigArn,
 						name: codedeployDeploymentConfigName,
-					},
-					deploymentGroup: {
-						arn: codedeployDeploymentGroupArn,
-						name: codedeployDeploymentGroupName,
 					},
 				},
 			};

@@ -11,6 +11,7 @@ import { Version } from "@pulumi/aws-native/lambda";
 import { EventRule, EventTarget } from "@pulumi/aws/cloudwatch";
 import { LogGroup } from "@pulumi/aws/cloudwatch/logGroup";
 import { Project } from "@pulumi/aws/codebuild";
+import { DeploymentGroup } from "@pulumi/aws/codedeploy/deploymentGroup";
 import { Pipeline } from "@pulumi/aws/codepipeline";
 import { getAuthorizationToken } from "@pulumi/aws/ecr/getAuthorizationToken";
 import { ManagedPolicy } from "@pulumi/aws/iam";
@@ -35,8 +36,7 @@ import { PalomaDatalayerStackExportsZod } from "../datalayer/exports";
 export = async () => {
 	const context = await Context.fromConfig();
 	const _ = (name: string) => `${context.prefix}-${name}`;
-	// TODO: From $CI_ENVIRONMENT
-	const stage = "current";
+	const stage = process.env.CI_ENVIRONMENT ?? "unknown";
 	const farRole = await getRole({ name: "FourtwoAccessRole" });
 
 	// Stack references
@@ -241,7 +241,6 @@ export = async () => {
 				imageUri: `${codestar.ecr.repository.url}:kickstart`,
 				imageConfig: {
 					entryPoints: [entrypoint],
-					// "canaryserver"],
 				},
 				vpcConfig: {
 					securityGroupIds: datalayer.props.lambda.vpcConfig.securityGroupIds,
@@ -287,6 +286,17 @@ export = async () => {
 			},
 		);
 
+		const deploymentGroup = new DeploymentGroup(_(`${name}-deployment-group`), {
+			appName: codestar.codedeploy.application.name,
+			deploymentGroupName: `${name}-deployment-group`,
+			serviceRoleArn: farRole.arn,
+			deploymentConfigName: codestar.codedeploy.deploymentConfig.name,
+			deploymentStyle: {
+				deploymentOption: "WITH_TRAFFIC_CONTROL",
+				deploymentType: "BLUE_GREEN",
+			},
+		});
+
 		return {
 			role: datalayer.props.lambda.role,
 			lambda: {
@@ -294,6 +304,10 @@ export = async () => {
 				name: lambda.name,
 				alias,
 				version,
+			},
+			codedeploy: {
+				application: codestar.codedeploy.application,
+				deploymentGroup,
 			},
 		};
 	};
@@ -306,7 +320,7 @@ export = async () => {
 	const canary = {
 		harness: await handler(
 			{
-				entrypoint: "canaryharness",
+				entrypoint: "example-canary-harness-monitor",
 				name: "canaryharness",
 			},
 			deps,
@@ -314,7 +328,7 @@ export = async () => {
 		),
 		server: await handler(
 			{
-				entrypoint: "canaryserver",
+				entrypoint: "example-canary-server-monitor",
 				name: "canaryserver",
 			},
 			deps,
@@ -518,18 +532,16 @@ export = async () => {
 					name: "ScheduleCanary",
 					actions: [
 						{
-							canary: canary.harness.lambda,
+							canary: canary.harness,
 							prefix: "Harness",
 							artifactPrefix: "schedulecanaryharness",
-							deployOrder: 2,
 						},
 						{
-							canary: canary.server.lambda,
+							canary: canary.server,
 							prefix: "Server",
 							artifactPrefix: "schedulecanaryserver",
-							deployOrder: 3,
 						},
-					].flatMap(({ canary, prefix, artifactPrefix, deployOrder }) => {
+					].flatMap(({ canary, prefix, artifactPrefix }) => {
 						return [
 							{
 								runOrder: 1,
@@ -543,8 +555,8 @@ export = async () => {
 								outputArtifacts: [artifactPrefix],
 								configuration: all([
 									codebuild.project.name,
-									canary.name,
-									canary.alias.name,
+									canary.lambda.name,
+									canary.lambda.alias.name,
 								]).apply(([projectName, functionName, aliasName]) => {
 									return {
 										ProjectName: projectName,
@@ -574,7 +586,7 @@ export = async () => {
 								}),
 							},
 							{
-								runOrder: deployOrder,
+								runOrder: 2,
 								name: `Cutover${prefix}`,
 								category: "Deploy",
 								owner: "AWS",
@@ -582,8 +594,8 @@ export = async () => {
 								version: "1",
 								inputArtifacts: [artifactPrefix],
 								configuration: all([
-									__codestar.codedeploy.application.name,
-									__codestar.codedeploy.deploymentGroup.name,
+									canary.codedeploy.application.name,
+									canary.codedeploy.deploymentGroup.deploymentGroupName,
 								]).apply(([applicationName, deploymentGroupName]) => {
 									return {
 										ApplicationName: applicationName,
@@ -719,6 +731,10 @@ export = async () => {
 							handler.lambda.alias.arn,
 							handler.lambda.alias.name,
 							handler.lambda.alias.functionVersion,
+							handler.codedeploy.application.arn,
+							handler.codedeploy.application.name,
+							handler.codedeploy.deploymentGroup.arn,
+							handler.codedeploy.deploymentGroup.deploymentGroupName,
 						]).apply(
 							([
 								roleArn,
@@ -728,6 +744,10 @@ export = async () => {
 								aliasArn,
 								aliasName,
 								aliasVersion,
+								applicationArn,
+								applicationName,
+								deploymentGroupArn,
+								deploymentGroupName,
 							]) => ({
 								role: {
 									arn: roleArn,
@@ -742,6 +762,16 @@ export = async () => {
 										arn: aliasArn,
 										name: aliasName,
 										functionVersion: aliasVersion,
+									},
+								},
+								codedeploy: {
+									application: {
+										arn: applicationArn,
+										name: applicationName,
+									},
+									deploymentGroup: {
+										arn: deploymentGroupArn,
+										deploymentGroupName: deploymentGroupName,
 									},
 								},
 							}),

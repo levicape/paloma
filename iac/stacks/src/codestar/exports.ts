@@ -17,9 +17,5 @@ export const PalomaCodestarStackExportsZod = z.object({
 			arn: z.string(),
 			name: z.string(),
 		}),
-		deploymentGroup: z.object({
-			arn: z.string(),
-			name: z.string(),
-		}),
 	}),
 });
