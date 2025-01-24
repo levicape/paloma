@@ -1,0 +1,19 @@
+{
+	"name": "@levicape/paloma-ui-nevada-server",
+	"targets": {
+		"nx:compile": {
+			"dependsOn": ["nx:resolve"]
+		},
+		"nx:resolve": {
+			"dependsOn": ["resolve:modules:http"]
+		},
+		"resolve:modules:http": {
+			"executor": "nx:run-commands",
+			"dependsOn": ["@levicape/paloma-ui-nevada:build:http"],
+			"options": {
+				"cwd": "packages/ui-nevada",
+				"commands": ["true"]
+			}
+		}
+	}
+}

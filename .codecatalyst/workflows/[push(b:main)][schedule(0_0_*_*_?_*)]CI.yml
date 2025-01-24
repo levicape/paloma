@@ -341,6 +341,20 @@ Actions:
             - Run: cat _pulumi/monitor.json
             - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitor --shell > $(pwd)/_pulumi/monitor.sh
             - Run: cat _pulumi/monitor.sh
+            - Run: /tmp/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-ui-nevada-web.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/domains/ui-nevada/web || true
+            - Run: /tmp/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-ui-nevada-web.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/domains/ui-nevada/web || true
+            - Run: /tmp/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/ui-nevada/web
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/ui-nevada/web
+            - Run: /tmp/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/ui-nevada/web
+            - Run: /tmp/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/domains/ui-nevada/web
+            - Run: /tmp/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/ui-nevada/web
+            - Run: /tmp/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/domains/ui-nevada/web --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
+            - Run: /tmp/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/domains/ui-nevada/web  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
+            - Run: /tmp/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/domains/ui-nevada/web --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/ui-nevada/web --json > $(pwd)/_pulumi/domains_ui-nevada_web.json
+            - Run: cat _pulumi/domains_ui-nevada_web.json
+            - Run: /tmp/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/ui-nevada/web --shell > $(pwd)/_pulumi/domains_ui-nevada_web.sh
+            - Run: cat _pulumi/domains_ui-nevada_web.sh
             - Run: du -sh _pulumi
   Deployment:
     DependsOn:
@@ -403,6 +417,8 @@ Actions:
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_ui-nevada_web.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_ui-nevada_web.sh
             - Run: env
             - Run: |-
                 NODE_NO_WARNINGS=1 node -e '(function(){let imports=JSON.parse(process.env["_PALOMA_MONITOR_IMPORTS"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":imports.paloma.codestar.ecr.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
@@ -426,7 +442,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"[push(b:main)][schedule(0_0_*_*_?_*)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"8d6e786b85c6c1dec6f2a92a7ff9e56eeb4ebf77dd6bdc8b2d3b54540ba75836"}
-#**:_$~- {"$$":"footer","started":"2025-01-23T08:25:59.321Z","now":"2025-01-23T08:25:59.329Z","elapsed":"8ms"}
+#**:_$~- {"$$":"body","hashed":"d5819746951cb6207ad573bfd8da27a87be99dd8f90dc388673e680473bfc986"}
+#**:_$~- {"$$":"footer","started":"2025-01-24T06:30:14.540Z","now":"2025-01-24T06:30:14.548Z","elapsed":"8ms"}
 # END OF GENERATED FILE
 

@@ -25,6 +25,9 @@
     "syncpack": "catalog:package",
     "typescript": "catalog:dev"
   },
+  "files": [
+    "module"
+  ],
   "nx": {
     "targets": {
       "dx:precommit": {

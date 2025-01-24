@@ -53,8 +53,13 @@
       "dx:precommit": {
         "dependsOn": [
           "dx:prepublish",
-          "nx:test",
-          "@levicape/paloma-iac-stacks:dx:precommit"
+          "nx:test"
+        ]
+      },
+      "dx:prepublish": {
+        "dependsOn": [
+          "@levicape/paloma-iac-stacks:dx:precommit",
+          "@levicape/paloma-ui-nevada:dx:precommit"
         ]
       },
       "dx:test": {
@@ -66,7 +71,8 @@
       "nx:compile": {
         "dependsOn": [
           "build:tsc",
-          "@levicape/paloma-examples:nx:compile"
+          "@levicape/paloma-examples:nx:compile",
+          "@levicape/paloma-ui-nevada:nx:compile"
         ]
       },
       "nx:sync": {
@@ -77,7 +83,8 @@
       "nx:test": {
         "dependsOn": [
           "test:unit",
-          "@levicape/paloma-examples:nx:test"
+          "@levicape/paloma-examples:nx:test",
+          "@levicape/paloma-ui-nevada:nx:test"
         ]
       }
     }

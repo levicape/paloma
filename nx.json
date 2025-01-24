@@ -9,9 +9,9 @@
       "outputs": [
         "{projectRoot}/module",
         "{projectRoot}/commonjs",
-        "{projectRoot}/.vinxi",
-        "{projectRoot}/.build",
-        "{projectRoot}/public",
+        "{projectRoot}/build-http",
+        "{projectRoot}/build-staticwww",
+        "{projectRoot}/build-unknown",
         "{projectRoot}/gen"
       ]
     }

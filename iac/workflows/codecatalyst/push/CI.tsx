@@ -99,12 +99,10 @@ export const PULUMI_STACKS: Stack[] = [
 	{
 		stack: "monitor",
 	},
-	// {
-	// 	stack: "domains/ui-nevada/web",
-	// 	name: "ui-nevada-web",
-	// },
-	// "observability",
-	// "wwwroot"
+	{
+		stack: "domains/ui-nevada/web",
+		name: "ui-nevada-web",
+	},
 ].map((stack) => ({ ...stack, output: stack.stack.replaceAll("/", "_") }));
 
 const input = (name: `_${string}`) => `$CATALYST_SOURCE_DIR${name}/${name}`;
