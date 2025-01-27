@@ -1,5 +1,6 @@
 {
-  "name": "@levicape/paloma-examples",
+  "name": "@levicape/paloma-examples-canaryexecution",
+  "version": "0.0.0-local.0",
   "config": {
     "packagemanager": "pnpm",
     "packageexecutor": "pnpm exec",
@@ -14,7 +15,6 @@
   "dependencies": {
     "@bufbuild/protobuf": "catalog:protobuf",
     "@levicape/paloma": "workspace:",
-    "aws-lambda-ric": "catalog:aws",
     "ksuid": "catalog:id",
     "ts-proto": "catalog:protobuf"
   },
@@ -30,10 +30,43 @@
   ],
   "nx": {
     "targets": {
+      "build:module": {
+        "dependsOn": [
+          "build:tsc"
+        ]
+      },
+      "build:tsc": {
+        "dependsOn": [
+          "@levicape/paloma:build:module"
+        ]
+      },
+      "canary:harness": {
+        "dependsOn": [
+          "build:module"
+        ]
+      },
+      "canary:server": {
+        "dependsOn": [
+          "build:module"
+        ]
+      },
       "dx:precommit": {
         "dependsOn": [
           "dx:prepublish",
-          "nx:test"
+          "dx:test"
+        ]
+      },
+      "dx:prepublish": {
+        "dependsOn": [
+          "dx:prepublish:pre",
+          "dx:lint"
+        ]
+      },
+      "dx:lint": {
+        "dependsOn": [
+          "nx:compile",
+          "lint:format",
+          "package:format"
         ]
       },
       "dx:test": {
@@ -42,25 +75,20 @@
           "nx:test"
         ]
       },
+      "nx:clean": {
+        "dependsOn": [
+          "clean:module"
+        ]
+      },
       "nx:compile": {
         "dependsOn": [
-          "build:tsc"
+          "build:module"
         ]
       },
       "nx:test": {
         "dependsOn": [
           "canary:harness",
           "canary:server"
-        ]
-      },
-      "build:tsc": {
-        "dependsOn": [
-          "@levicape/paloma:build:tsc"
-        ]
-      },
-      "handler": {
-        "dependsOn": [
-          "nx:compile"
         ]
       }
     }
@@ -75,16 +103,14 @@
     "build:tsc": "$npm_package_config_packageexecutor tsc",
     "canary:harness": "node $npm_package_config_canaryharness",
     "canary:server": "nohup node $npm_package_config_canaryserverhttp & node $npm_package_config_canaryserver",
-    "clean": "rm -rf $npm_package_config_outpaths || true",
+    "clean": "$npm_package_config_packageexecutor nx nx:clean",
+    "clean:module": "rm -rf $npm_package_config_outpaths || true",
     "dx:config:post": "$npm_package_config_packagemanager config set recursive-install true",
     "dx:config:pre": "$npm_package_config_packagemanager config set recursive-install false",
-    "dx:lint": "$npm_package_config_packageexecutor nx nx:compile && $npm_package_config_packageexecutor nx lint:format && $npm_package_config_packageexecutor nx package:format",
     "dx:precommit": "$npm_package_config_packageexecutor nx dx:precommit:pre && $npm_package_config_packageexecutor nx package:deps",
     "dx:precommit:pre": "echo \"Starting precommit dx. This will check package.json dependencies.\"",
-    "dx:prepublish": "$npm_package_config_packageexecutor nx dx:prepublish:pre && $npm_package_config_packageexecutor nx dx:lint && $npm_package_config_packageexecutor nx prepublish",
+    "dx:prepublish": "$npm_package_config_packageexecutor nx prepublish",
     "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
-    "handler:canary:harness:lambda": "$npm_package_config_packageexecutor aws-lambda-ric $npm_package_config_lambdacanaryharness",
-    "handler:canary:server:lambda": "nohup node $npm_package_config_canaryserverhttp & $npm_package_config_packageexecutor aws-lambda-ric $npm_package_config_lambdacanaryserver",
     "lint": "$npm_package_config_packageexecutor nx exec -- biome check $npm_package_config_lintpaths",
     "lint:format": "$npm_package_config_packageexecutor nx exec -- biome check --write $npm_package_config_lintpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor nx exec -- biome check --write --unsafe $npm_package_config_lintpaths",
@@ -93,6 +119,7 @@
     "package:format": "$npm_package_config_packageexecutor nx exec -- syncpack format",
     "package:update": "$npm_package_config_packageexecutor nx exec -- syncpack update",
     "precommit": "$npm_package_config_packageexecutor nx dx:prepublish --no-cloud --verbose",
+    "predx:lint": "$npm_package_config_packageexecutor nx clean",
     "prelint": "$npm_package_config_packageexecutor nx exec -- biome format $npm_package_config_lintpaths",
     "prepublish": "$npm_package_config_packageexecutor publint --strict",
     "test": "$npm_package_config_packageexecutor nx nx:test --no-cloud --verbose"

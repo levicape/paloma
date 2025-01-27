@@ -1,5 +1,5 @@
 {
-  "name": "@levicape/paloma-ui-nevada",
+  "name": "@levicape/paloma-nevada-ui",
   "description": "Dashboard UI for Paloma",
   "version": "0.0.0-local.0",
   "author": "Pedro Cardona",
@@ -7,10 +7,10 @@
     "packagemanager": "pnpm",
     "packagebin": "corepack pnpm",
     "packageexecutor": "corepack pnpm exec",
-    "outpaths": "./build-http ./build-staticwww",
+    "outpaths": "./output",
     "lintpaths": "./app ./server",
     "protocols": "./src/_protocols",
-    "server": "./build-http/server/index.js"
+    "server": "./output/http/server/index.js"
   },
   "dependencies": {
     "@react-router/node": "catalog:web-react-router",
@@ -33,30 +33,47 @@
     "vite-tsconfig-paths": "catalog:web-vite"
   },
   "files": [
-    "build-http",
-    "build-staticwww"
+    "output"
   ],
   "nx": {
     "targets": {
-      "build:staticwww": {
-        "dependsOn": [
-          "build:tsc"
-        ]
-      },
       "build:http": {
         "dependsOn": [
           "build:staticwww"
         ]
       },
-      "dx:test": {
+      "build:module": {
         "dependsOn": [
-          "dx:lint",
-          "nx:test"
+          "build:tsc"
+        ]
+      },
+      "build:staticwww": {
+        "dependsOn": [
+          "build:module"
+        ]
+      },
+      "dx:lint": {
+        "dependsOn": [
+          "nx:compile",
+          "lint:format",
+          "package:format"
         ]
       },
       "dx:precommit": {
         "dependsOn": [
           "dx:prepublish",
+          "nx:test"
+        ]
+      },
+      "dx:prepublish": {
+        "dependsOn": [
+          "dx:prepublish:pre",
+          "dx:lint"
+        ]
+      },
+      "dx:test": {
+        "dependsOn": [
+          "dx:lint",
           "nx:test"
         ]
       },
@@ -67,33 +84,35 @@
       },
       "nx:compile": {
         "dependsOn": [
-          "build:tsc",
           "build:http",
           "build:staticwww",
-          "@levicape/paloma-ui-nevada-server:nx:compile"
+          "@levicape/paloma-nevada-ui-server:nx:compile"
         ]
       },
       "nx:test": {
         "dependsOn": [
           "test:module"
         ]
+      },
+      "test:module": {
+        "dependsOn": [
+          "build:module"
+        ]
       }
     }
   },
   "scripts": {
     "build": "$npm_package_config_packageexecutor nx nx:compile --verbose",
-    "build:http": "ROUTER_BUILD=build-http ROUTER_SSR=1 $npm_package_config_packageexecutor react-router build --sourcemapClient inline --sourcemapServer inline",
-    "build:staticwww": "ROUTER_BUILD=build-staticwww ROUTER_SSR=0 $npm_package_config_packageexecutor react-router build",
+    "build:http": "ROUTER_BUILD=output/http ROUTER_SSR=1 $npm_package_config_packageexecutor react-router build --sourcemapClient inline --sourcemapServer inline",
+    "build:staticwww": "ROUTER_BUILD=output/staticwww ROUTER_SSR=0 $npm_package_config_packageexecutor react-router build",
     "build:tsc": "$npm_package_config_packageexecutor react-router typegen && $npm_package_config_packageexecutor tsc",
     "clean": "$npm_package_config_packageexecutor nx nx:clean --verbose",
     "clean:module": "rm -rf $npm_package_config_outpaths || true",
     "dev": "$npm_package_config_packageexecutor react-router dev",
-    "dx:lint": "$npm_package_config_packageexecutor nx build && $npm_package_config_packageexecutor nx lint:format && $npm_package_config_packageexecutor nx package:format",
     "dx:precommit": "$npm_package_config_packageexecutor nx dx:precommit:pre && $npm_package_config_packageexecutor nx package:deps",
     "dx:precommit:pre": "echo \"Starting precommit dx. This will check package.json dependencies.\"",
-    "dx:prepublish": "$npm_package_config_packageexecutor nx dx:prepublish:pre && $npm_package_config_packageexecutor nx dx:lint && $npm_package_config_packageexecutor nx prepublish",
+    "dx:prepublish": "$npm_package_config_packageexecutor nx prepublish",
     "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
-    "dx:test": "$npm_package_config_packagebin run clean && $npm_package_config_packagebin run build && $npm_package_config_packagebin run test",
     "lint": "$npm_package_config_packageexecutor nx exec -- biome check $npm_package_config_lintpaths",
     "lint:format": "$npm_package_config_packageexecutor nx exec -- biome check --write $npm_package_config_lintpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor nx exec -- biome check --write --unsafe $npm_package_config_lintpaths",

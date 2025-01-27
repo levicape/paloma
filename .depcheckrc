@@ -1,1 +1,12 @@
-ignores: ["@levicape/*", "tsx", "nx", "@bufbuild/protobuf", "ts-proto", "aws-lambda-ric"]
+ignores: 
+- "@bufbuild/protobuf"
+- "@levicape/*"
+- "aws4fetch"
+- "better-sqlite3"
+- "expect"
+- "jsonc-parser"
+- "knex"
+- "nx" 
+- "tslib"
+- "tsx" 
+- "ts-proto"

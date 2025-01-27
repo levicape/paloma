@@ -47,6 +47,7 @@ export const DebugEnabledFlags =
 		return { enabled: false };
 	};
 
+// TODO: Set this up in lambda handler, lambda will run fn handler directly, cli will start the server similar to spork
 const isLambdaEnabled =
 	process.env.LEAF_CONTEXT?.toLowerCase().includes("lambda");
 export const DebugLog = (

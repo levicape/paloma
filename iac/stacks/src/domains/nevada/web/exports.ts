@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const PalomaUiNevadaWebStackExportsZod = z.object({
-	paloma_uinevada_web_s3: z.object({
+export const PalomaNevadaWebStackExportsZod = z.object({
+	paloma_nevada_web_s3: z.object({
 		artifactStore: z.object({
 			bucket: z.string(),
 		}),
@@ -18,19 +18,19 @@ export const PalomaUiNevadaWebStackExportsZod = z.object({
 			}),
 		}),
 	}),
-	paloma_uinevada_web_codebuild: z.object({
+	paloma_nevada_web_codebuild: z.object({
 		project: z.object({
 			arn: z.string(),
 			name: z.string(),
 		}),
 	}),
-	paloma_uinevada_web_pipeline: z.object({
+	paloma_nevada_web_pipeline: z.object({
 		pipeline: z.object({
 			arn: z.string(),
 			name: z.string(),
 		}),
 	}),
-	paloma_uinevada_web_eventbridge: z.object({
+	paloma_nevada_web_eventbridge: z.object({
 		EcrImageAction: z.object({
 			rule: z.object({
 				arn: z.string(),

@@ -10,6 +10,10 @@ import {
 } from "@levicape/fourtwo/x/codecatalyst";
 import { CodeCatalystBuildX } from "@levicape/fourtwo/x/codecatalyst/actions/aws";
 
+const APPLICATION = "paloma";
+const CI_ENVIRONMENT = "current";
+const PUSH_IMAGE_ECR_STACK_OUTPUT = "paloma_codestar_ecr";
+
 let FileCaching = ({
 	docker,
 	pulumi,
@@ -20,20 +24,16 @@ let FileCaching = ({
 	python?: boolean;
 } = {}) => ({
 	FileCaching: {
-		a64_npm_global: {
-			Path: "/tmp/npm-global",
-			RestoreKeys: ["npminstall"],
-		},
 		...{
-			a64_pnpm_store: {
-				Path: "/tmp/pnpm-store",
-				RestoreKeys: ["pnpminstall"],
+			a64_nodejs: {
+				Path: "/cc/cache/nodejs",
+				RestoreKeys: ["nodejs"],
 			},
 		},
 		...(docker
 			? {
 					a64_docker: {
-						Path: "/tmp/docker-cache",
+						Path: "/cc/cache/docker",
 						RestoreKeys: ["docker"],
 					},
 				}
@@ -41,7 +41,7 @@ let FileCaching = ({
 		...(pulumi
 			? {
 					a64_pulumi: {
-						Path: "/tmp/pulumi",
+						Path: "/cc/cache/pulumi",
 						RestoreKeys: ["pulumi"],
 					},
 				}
@@ -49,7 +49,7 @@ let FileCaching = ({
 		...(python
 			? {
 					a64_python: {
-						Path: "/root/.pyenv",
+						Path: "/cc/cache/pyenv",
 						RestoreKeys: ["python"],
 					},
 				}
@@ -60,12 +60,27 @@ let FileCaching = ({
 export const PULUMI_CACHE = FileCaching({ pulumi: true }).FileCaching.a64_pulumi
 	?.Path as string;
 
-export const NPM_GLOBAL_CACHE = FileCaching().FileCaching.a64_npm_global.Path;
+export const COREPACK_GLOBAL_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/corepack`;
+export const NPM_GLOBAL_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/npm`;
+export const PNPM_DLX_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/pnpmcache`;
+export const PNPM_STORE_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/pnpmstore`;
+export const PNPM_GLOBAL_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/pnpmglobal`;
+export const NX_CACHE_DIR = `${FileCaching().FileCaching.a64_nodejs.Path}/nxcache`;
 
-export const PNP_STORE = FileCaching().FileCaching.a64_pnpm_store.Path;
+const NODEJS_CACHES = [
+	COREPACK_GLOBAL_CACHE,
+	NPM_GLOBAL_CACHE,
+	PNPM_DLX_CACHE,
+	PNPM_STORE_CACHE,
+	PNPM_GLOBAL_CACHE,
+	NX_CACHE_DIR,
+];
 
 export const DOCKER_CACHE = FileCaching({ docker: true }).FileCaching.a64_docker
 	?.Path as string;
+
+export const PYENV_ROOT = FileCaching({ python: true }).FileCaching.a64_python
+	?.Path;
 
 export const ALL_CACHES = Object.values(
 	FileCaching({ docker: true, pulumi: true }),
@@ -84,12 +99,11 @@ export const OUTPUT_IMAGES = [
 	["application.tar.gz", "$APPLICATION_IMAGE_NAME"],
 ] as const;
 
-type Stack = {
+export const PULUMI_STACKS: Array<{
 	stack: string;
 	output: string;
 	name?: string;
-};
-export const PULUMI_STACKS: Stack[] = [
+}> = [
 	{
 		stack: "codestar",
 	},
@@ -100,8 +114,8 @@ export const PULUMI_STACKS: Stack[] = [
 		stack: "monitor",
 	},
 	{
-		stack: "domains/ui-nevada/web",
-		name: "ui-nevada-web",
+		stack: "domains/nevada/web",
+		name: "nevada-web",
 	},
 ].map((stack) => ({ ...stack, output: stack.stack.replaceAll("/", "_") }));
 
@@ -112,7 +126,74 @@ export default async () => {
 		current: { register, context: _$_, env, secret },
 	} = CodeCatalystWorkflowExpressions;
 
-	const APPLICATION = "paloma";
+	const PNPM_ENVIRONMENT = [
+		register("COREPACK_HOME", COREPACK_GLOBAL_CACHE),
+		register("PNPM_VERSION", "pnpm@9"),
+		register("NODEJS_VERSION", "22"),
+		register("NODE_AUTH_TOKEN", _$_("Secrets.GITHUB_LEVICAPE_PAT")),
+		register("NPM_REGISTRY_PROTOCOL", "https"),
+		register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
+		register("NX_CACHE_DIRECTORY", NX_CACHE_DIR),
+	];
+
+	const PULUMI_ENVIRONMENT = [
+		register("AWS_REGION", "us-west-2"),
+		register("FRONTEND_HOSTNAME", `${APPLICATION}.levicape.cloud`),
+		register("PULUMI_CONFIG_PASSPHRASE", secret("PULUMI_CONFIG_PASSPHRASE")),
+		register("PULUMI_HOME", PULUMI_CACHE),
+		register("PULUMI_VERSION", "3.147.0"),
+	];
+
+	const PYTHON_ENVIRONMENT = [
+		register("PYTHON", `${PYENV_ROOT}/shims/python3`),
+		register("PYENV_ROOT", PYENV_ROOT as string),
+		register("PYTHON_VERSION", "3.11.6"),
+	];
+
+	const PAKETO_ENVIRONMENT = [
+		register("PAKETO_CLI_IMAGE", "buildpacksio/pack:latest"),
+		register("PAKETO_BUILDER_IMAGE", "heroku/builder:24"),
+		register("PAKETO_LAUNCHER_IMAGE", "heroku/heroku:24"),
+	];
+	const PNPM_NODE_INSTALL_STEPS = (
+		<>
+			<CodeCatalystStepX
+				run={`npm config set @levicape:registry=${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")} --location project`}
+			/>
+			<CodeCatalystStepX
+				run={`npm config set //${env("NPM_REGISTRY_HOST")}/:_authToken=${env("NODE_AUTH_TOKEN")} --location project`}
+			/>
+			{...(
+				<>
+					{["sudo ", ""]
+						.flatMap((su) => [
+							`${su}npm config set prefix=${NPM_GLOBAL_CACHE}`,
+							`${su}corepack -g install $PNPM_VERSION`,
+							`${su}corepack enable pnpm`,
+							`${su}pnpm config set cache-dir ${PNPM_DLX_CACHE}`,
+							`${su}pnpm config set global-dir ${PNPM_GLOBAL_CACHE}`,
+							`${su}pnpm config set store-dir ${PNPM_STORE_CACHE}`,
+							`${su}pnpx n $NODEJS_VERSION`,
+						])
+						.flatMap((run) => (
+							<CodeCatalystStepX run={run} />
+						))}
+				</>
+			)}
+		</>
+	);
+
+	const MAKE_DEPENDENCY_INSTALL_STEPS = [
+		"make cmake zip unzip automake autoconf",
+		"zlib bzip2",
+		"g++ libcurl-devel libtool",
+		"protobuf protobuf-devel protobuf-compiler",
+		"sqlite sqlite-devel sqlite-libs sqlite-tools",
+		"jq",
+	].map((dependency) => (
+		<CodeCatalystStepX run={`sudo yum install -y ${dependency} || true`} />
+	));
+
 	return (
 		<CodeCatalystWorkflowX
 			name="main_OnPush__CI_CD"
@@ -143,18 +224,10 @@ export default async () => {
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
-											register("NODEJS_VERSION", "23"),
-											register("NPM_REGISTRY_PROTOCOL", "https"),
-											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
-											register(
-												"NODE_AUTH_TOKEN",
-												_$_("Secrets.GITHUB_LEVICAPE_PAT"),
-											),
-											register("PAKETO_CLI_IMAGE", "buildpacksio/pack:latest"),
-											register("PAKETO_BUILDER_IMAGE", "heroku/builder:24"),
-											register("PAKETO_LAUNCHER_IMAGE", "heroku/heroku:24"),
-											register("PULUMI_VERSION", "3.144.1"),
-											register("PYTHON_VERSION", "3.11"),
+											...PNPM_ENVIRONMENT,
+											...PULUMI_ENVIRONMENT,
+											...PYTHON_ENVIRONMENT,
+											...PAKETO_ENVIRONMENT,
 										],
 									}}
 									caching={FileCaching({
@@ -162,51 +235,63 @@ export default async () => {
 										pulumi: true,
 										python: true,
 									})}
-									timeout={12}
+									timeout={23}
 									steps={
 										<>
-											{/* Node */}
-											<CodeCatalystStepX
-												run={`npm config set @levicape:registry=${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set //${env("NPM_REGISTRY_HOST")}/:_authToken=${env("NODE_AUTH_TOKEN")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set prefix=${NPM_GLOBAL_CACHE}`}
-											/>
-											<CodeCatalystStepX run="npm root -g" />
-											{["pnpm", "n"].map((pkg: string) => (
-												<CodeCatalystStepX run={`npm install --g ${pkg}`} />
+											{...[
+												...ALL_CACHES,
+												...NODEJS_CACHES,
+												`${DOCKER_CACHE}/images`,
+											].flatMap((cache) => (
+												<>
+													<CodeCatalystStepX run={`mkdir -p ${cache}`} />
+												</>
 											))}
-											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
-											<CodeCatalystStepX
-												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
-											/>
-											<CodeCatalystStepX run="npm exec pnpm install --ignore-scripts" />
-											{/* Docker */}
-											{...[...ALL_CACHES, `${DOCKER_CACHE}/images`].flatMap(
-												(cache) => {
-													return (
-														<>
-															<CodeCatalystStepX run={`mkdir -p ${cache}`} />
-														</>
-													);
-												},
+											{/* Node */}
+											{...PNPM_NODE_INSTALL_STEPS}
+											<CodeCatalystStepX run="sudo npm root -g" />
+											<CodeCatalystStepX run="pnpm install --ignore-scripts" />
+											<CodeCatalystStepX run="echo $PNPM_HOME" />
+											<CodeCatalystStepX run="pnpm list" />
+											{...["node_modules", ...NODEJS_CACHES].flatMap(
+												(cache) => (
+													<>
+														<CodeCatalystStepX
+															run={`du -sh ${cache} || true`}
+														/>
+														<CodeCatalystStepX
+															run={`ls -la ${cache} || true `}
+														/>
+													</>
+												),
 											)}
+											{/* Python */}
+											<CodeCatalystStepX run="curl -fsSL https://pyenv.run | bash || true" />
+											<CodeCatalystStepX run='[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' />
+											<CodeCatalystStepX run="which pyenv || true" />
+											<CodeCatalystStepX
+												run={'eval "$(pyenv init - || true)"'}
+											/>
+											<CodeCatalystStepX run="git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update || true" />
+											<CodeCatalystStepX run="pyenv update || true" />
+											<CodeCatalystStepX run="pyenv install $PYTHON_VERSION || true" />
+											<CodeCatalystStepX run="pyenv global $PYTHON_VERSION || true" />
+											<CodeCatalystStepX run="pyenv versions || true" />
+											<CodeCatalystStepX run="du -sh $PYENV_ROOT" />
+											<CodeCatalystStepX run="python3 -m pip install -r requirements.txt" />
+											{/* Docker */}
 											{...DOCKER_IMAGES.flatMap(([file, image]) => {
 												return (
 													<>
 														<CodeCatalystStepX
 															run={`docker load --input ${DOCKER_CACHE}/images/${file} || true`}
 														/>
-														{/* TODO: Check if zip is same, if it is then don't copy*/}
 														<CodeCatalystStepX run={`docker pull ${image}`} />
 														<CodeCatalystStepX
 															run={`docker save ${image} | gzip > ${DOCKER_CACHE}/images/${file}`}
 														/>
 														<CodeCatalystStepX
-															run={`du -sh ${DOCKER_CACHE}/images/${file}`}
+															run={`du -sh ${DOCKER_CACHE}/images/${file} || true`}
 														/>
 													</>
 												);
@@ -216,19 +301,6 @@ export default async () => {
 												run={`[ -f ${PULUMI_CACHE}/bin/pulumi ] && ${PULUMI_CACHE}/bin/pulumi version | grep $PULUMI_VERSION || curl -fsSL https://get.pulumi.com | sh -s -- --version $PULUMI_VERSION --install-root ${PULUMI_CACHE}`}
 											/>
 											<CodeCatalystStepX run={`du -sh ${PULUMI_CACHE}`} />
-											<CodeCatalystStepX run="npm exec pnpm list" />
-											<CodeCatalystStepX
-												run={`du -sh node_modules ${NPM_GLOBAL_CACHE} ${PNP_STORE}`}
-											/>
-											{/* Python */}
-											<CodeCatalystStepX run="which pyenv" />
-											<CodeCatalystStepX run={'eval "$(pyenv init -)"'} />
-											<CodeCatalystStepX run="git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update" />
-											<CodeCatalystStepX run="pyenv update || true" />
-											<CodeCatalystStepX run="pyenv install $PYTHON_VERSION || true" />
-											<CodeCatalystStepX run="pyenv global $PYTHON_VERSION || true" />
-											<CodeCatalystStepX run="pyenv versions || true" />
-											<CodeCatalystStepX run="python3 -m pip install -r requirements.txt" />
 										</>
 									}
 								/>
@@ -242,16 +314,7 @@ export default async () => {
 									})}
 									inputs={{
 										Sources: ["WorkflowSource"],
-										Variables: [
-											register("NODEJS_VERSION", "23"),
-											register("NPM_REGISTRY_PROTOCOL", "https"),
-											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
-											register(
-												"NODE_AUTH_TOKEN",
-												_$_("Secrets.GITHUB_LEVICAPE_PAT"),
-											),
-											register("PYTHON", "/root/.pyenv/shims/python3"),
-										],
+										Variables: [...PNPM_ENVIRONMENT, ...PYTHON_ENVIRONMENT],
 									}}
 									outputs={{
 										AutoDiscoverReports: {
@@ -259,35 +322,26 @@ export default async () => {
 											ReportNamePrefix: "junit",
 										},
 									}}
-									timeout={9}
+									timeout={19}
 									steps={
 										<>
-											<CodeCatalystStepX
-												run={`npm config set @levicape:registry=${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set //${env("NPM_REGISTRY_HOST")}/:_authToken=${env("NODE_AUTH_TOKEN")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set prefix=${NPM_GLOBAL_CACHE}`}
-											/>
-											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
-											<CodeCatalystStepX
-												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
-											/>
-											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
-											<CodeCatalystStepX run="sudo yum install -y g++ make cmake unzip libcurl-devel automake autoconf libtool" />
+											{...PNPM_NODE_INSTALL_STEPS}
+											<CodeCatalystStepX run="pnpm install --prefer-offline --ignore-scripts" />
+											{...MAKE_DEPENDENCY_INSTALL_STEPS.flatMap(
+												(dependency) => <></>,
+											)}
 											<CodeCatalystStepX
 												run={`python3 -c "print('ok')" || true`}
 											/>
-											<CodeCatalystStepX run="npm rebuild node-gyp" />
-											<CodeCatalystStepX run="npm rebuild knex better-sqlite3" />
-											<CodeCatalystStepX run="npm exec pnpm build" />
-											<CodeCatalystStepX run="npm exec pnpm lint" />
-											<CodeCatalystStepX run="npm exec pnpm test" />
-											<CodeCatalystStepX
-												run={`du -sh $(pwd)/**/module $(pwd)/**/commonjs || true`}
-											/>
+											<CodeCatalystStepX run="pnpm rebuild || true" />
+											<CodeCatalystStepX run="pnpm build" />
+											<CodeCatalystStepX run="pnpm lint" />
+											<CodeCatalystStepX run="pnpm test" />
+											{["module", "commonjs", "gen", "output"].map((path) => (
+												<CodeCatalystStepX
+													run={`du -sh $(pwd)/**/${path} || true`}
+												/>
+											))}
 										</>
 									}
 								/>
@@ -297,19 +351,13 @@ export default async () => {
 									dependsOn={["Install"]}
 									architecture={"arm64"}
 									caching={FileCaching({ docker: true, python: true })}
-									timeout={15}
+									timeout={19}
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
-											register("NODEJS_VERSION", "23"),
-											register("NPM_REGISTRY_PROTOCOL", "https"),
-											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
-											register(
-												"NODE_AUTH_TOKEN",
-												_$_("Secrets.GITHUB_LEVICAPE_PAT"),
-											),
+											...PNPM_ENVIRONMENT,
+											...PYTHON_ENVIRONMENT,
 											register("APPLICATION_IMAGE_NAME", APPLICATION),
-											register("PYTHON", "/root/.pyenv/shims/python3"),
 										],
 									}}
 									outputs={{
@@ -330,31 +378,17 @@ export default async () => {
 													);
 												},
 											)}
-											<CodeCatalystStepX
-												run={`mkdir -p ${OUTPUT_IMAGES_PATH}`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set @levicape:registry=${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set //${env("NPM_REGISTRY_HOST")}/:_authToken=${env("NODE_AUTH_TOKEN")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set prefix=${NPM_GLOBAL_CACHE}`}
-											/>
-											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
-											<CodeCatalystStepX
-												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
-											/>
-											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
-											<CodeCatalystStepX run="sudo yum install -y g++ make cmake unzip libcurl-devel automake autoconf libtool" />
-											<CodeCatalystStepX run="npm rebuild node-gyp" />
-											<CodeCatalystStepX run="sudo npm install --global aws-lambda-ric" />
-											<CodeCatalystStepX run="npm rebuild knex better-sqlite3" />
+											{...PNPM_NODE_INSTALL_STEPS}
+											<CodeCatalystStepX run="pnpm install --prefer-offline --ignore-scripts" />
+											{...MAKE_DEPENDENCY_INSTALL_STEPS}
+											<CodeCatalystStepX run="pnpm rebuild || true" />
 											<CodeCatalystStepX
 												run={
-													"npm exec pnpm exec nx pack:build iac-images-application --verbose"
+													"pnpm exec nx pack:build iac-images-application --verbose"
 												}
+											/>
+											<CodeCatalystStepX
+												run={`mkdir -p ${OUTPUT_IMAGES_PATH}`}
 											/>
 											{...OUTPUT_IMAGES.flatMap(([file, image]) => {
 												return (
@@ -373,31 +407,19 @@ export default async () => {
 									}
 								/>
 							),
-							Current: (
+							[`Infrastructure_${CI_ENVIRONMENT}`]: (
 								<CodeCatalystBuildX
 									dependsOn={["Install"]}
 									architecture={"arm64"}
 									caching={FileCaching({ pulumi: true })}
-									timeout={14}
+									timeout={19}
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
-											register("NODEJS_VERSION", "23"),
-											register("NPM_REGISTRY_PROTOCOL", "https"),
-											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
-											register(
-												"NODE_AUTH_TOKEN",
-												_$_("Secrets.GITHUB_LEVICAPE_PAT"),
-											),
+											...PNPM_ENVIRONMENT,
+											...PULUMI_ENVIRONMENT,
 											register("APPLICATION_IMAGE_NAME", APPLICATION),
-											register("CI_ENVIRONMENT", "current"),
-											register("AWS_REGION", "us-west-2"),
-											register("FRONTEND_HOSTNAME", "paloma.levicape.cloud"),
-											register("PULUMI_HOME", PULUMI_CACHE),
-											register(
-												"PULUMI_CONFIG_PASSPHRASE",
-												secret("PULUMI_CONFIG_PASSPHRASE"),
-											),
+											register("CI_ENVIRONMENT", CI_ENVIRONMENT),
 										],
 									}}
 									outputs={{
@@ -406,30 +428,18 @@ export default async () => {
 										],
 									}}
 									environment={{
-										Name: "current",
+										Name: CI_ENVIRONMENT,
 									}}
 									steps={
 										<>
-											<CodeCatalystStepX
-												run={`npm config set @levicape:registry=${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set //${env("NPM_REGISTRY_HOST")}/:_authToken=${env("NODE_AUTH_TOKEN")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set prefix=${NPM_GLOBAL_CACHE}`}
-											/>
-											<CodeCatalystStepX
-												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
-											/>
-											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
-											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
+											{...PNPM_NODE_INSTALL_STEPS}
+											<CodeCatalystStepX run="pnpm install --prefer-offline --ignore-scripts" />
 											<CodeCatalystStepX
 												run={`aws ssm get-parameter --name ${AwsStateBackendCommandsParameter()}`}
 											/>
 											<CodeCatalystStepX
 												run={[
-													"npm exec pnpm exec fourtwo aws pulumi ci -- --region $AWS_REGION",
+													"pnpm exec fourtwo aws pulumi ci --region $AWS_REGION",
 													"> .pulumi-ci",
 												]
 													.map((x) => x.trim())
@@ -500,46 +510,28 @@ export default async () => {
 				Deployment: (
 					<CodeCatalystActionGroupX dependsOn={["Integration"]}>
 						{{
-							PushImage: (
+							Push_Image: (
 								<CodeCatalystBuildX
 									architecture={"arm64"}
 									caching={FileCaching()}
-									timeout={10}
+									timeout={19}
 									inputs={{
 										Sources: ["WorkflowSource"],
 										Variables: [
-											register("NODEJS_VERSION", "23"),
-											register("NPM_REGISTRY_PROTOCOL", "https"),
-											register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
-											register(
-												"NODE_AUTH_TOKEN",
-												_$_("Secrets.GITHUB_LEVICAPE_PAT"),
-											),
+											...PNPM_ENVIRONMENT,
 											register("APPLICATION_IMAGE_NAME", APPLICATION),
 											register("AWS_REGION", "us-west-2"),
-											register("CI_ENVIRONMENT", "current"),
+											register("CI_ENVIRONMENT", CI_ENVIRONMENT),
 										],
 										Artifacts: ["images", "pulumi"],
 									}}
 									environment={{
-										Name: "current",
+										Name: CI_ENVIRONMENT,
 									}}
 									steps={
 										<>
-											<CodeCatalystStepX
-												run={`npm config set @levicape:registry=${env("NPM_REGISTRY_PROTOCOL")}://${env("NPM_REGISTRY_HOST")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set //${env("NPM_REGISTRY_HOST")}/:_authToken=${env("NODE_AUTH_TOKEN")} --location project`}
-											/>
-											<CodeCatalystStepX
-												run={`npm config set prefix=${NPM_GLOBAL_CACHE}`}
-											/>
-											<CodeCatalystStepX
-												run={`npm exec pnpm config set store-dir ${PNP_STORE}`}
-											/>
-											<CodeCatalystStepX run="npm exec n $NODEJS_VERSION" />
-											<CodeCatalystStepX run="npm exec pnpm install --prefer-offline --ignore-scripts" />
+											{...PNPM_NODE_INSTALL_STEPS}
+											<CodeCatalystStepX run="pnpm install --prefer-offline --ignore-scripts" />
 											<CodeCatalystStepX
 												run={`ls -la ${input(OUTPUT_IMAGES_PATH)}`}
 											/>
@@ -567,15 +559,13 @@ export default async () => {
 												run={`NODE_NO_WARNINGS=1 node -e '(${
 													// biome-ignore lint/complexity/useArrowFunction:
 													function () {
-														let imports = JSON.parse(
-															process.env[
-																"_<APPLICATION_IMAGE_NAME>_<STACK_NAME>_IMPORTS"
-															] ?? "",
+														let outputs = JSON.parse(
+															process.env["<STACK_OUTPUT_PATH>"] ?? "",
 														);
 
 														let envs = {
 															"_<APPLICATION_IMAGE_NAME>_CODE_REPOSITORY_URL":
-																imports.paloma.codestar.ecr.repository.url,
+																outputs.repository.url,
 														};
 
 														Object.entries(envs).forEach(([key, value]) => {
@@ -589,7 +579,10 @@ export default async () => {
 															"<APPLICATION_IMAGE_NAME>",
 															APPLICATION.toUpperCase(),
 														)
-														.replaceAll("<STACK_NAME>", "MONITOR")
+														.replaceAll(
+															"<STACK_OUTPUT_PATH>",
+															PUSH_IMAGE_ECR_STACK_OUTPUT,
+														)
 												})()' > .ci-env`}
 											/>
 											<CodeCatalystStepX run={"cat .ci-env"} />
@@ -620,7 +613,8 @@ export default async () => {
 													/>
 												</>
 											))}
-											<CodeCatalystStepX run={`npm exec pnpm store prune`} />
+											<CodeCatalystStepX run={`pnpm store prune`} />
+											<CodeCatalystStepX run={`corepack cache clean`} />
 										</>
 									}
 								/>

@@ -28,8 +28,8 @@ import { PalomaCodestarStackExportsZod } from "../../../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
 
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? "paloma";
-const EXTRACT_ENTRYPOINT = "deploy-paloma-ui-nevada";
-const ARTIFACT_ROOT = "/tmp/paloma-ui-nevada/build-staticwww/client" as const;
+const PACKAGE_NAME = "@levicape/paloma-nevada-ui" as const;
+const ARTIFACT_ROOT = "/tmp/paloma-nevada-ui/output/staticwww/client" as const;
 
 export = async () => {
 	const context = await Context.fromConfig();
@@ -229,7 +229,16 @@ export = async () => {
 								`aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $STACKREF_CODESTAR_ECR_REPOSITORY_URL`,
 								"docker pull $SOURCE_IMAGE_URI",
 								"docker images",
-								`docker run --detach --entrypoint ${EXTRACT_ENTRYPOINT} $SOURCE_IMAGE_URI > .container`,
+								[
+									"docker run",
+									"--detach",
+									"--entrypoint",
+									"deploy",
+									`-e DEPLOY_FILTER=${PACKAGE_NAME}`,
+									`-e DEPLOY_OUTPUT=${ARTIFACT_ROOT}`,
+									"$SOURCE_IMAGE_URI",
+									"> .container",
+								].join(" "),
 								"docker ps -al",
 								"cat .container",
 								"sleep 10s",
@@ -519,13 +528,13 @@ export = async () => {
 			eventTargetId,
 		]) => {
 			return {
-				_paloma_uinevada_WEB_IMPORTS: {
+				_paloma_nevada_WEB_IMPORTS: {
 					fourtwo: {
 						codestar,
 						datalayer,
 					},
 				},
-				paloma_uinevada_web_s3: {
+				paloma_nevada_web_s3: {
 					artifactStore: {
 						bucket: artifactStoreBucket,
 					},
@@ -542,19 +551,19 @@ export = async () => {
 						},
 					},
 				},
-				paloma_uinevada_web_codebuild: {
+				paloma_nevada_web_codebuild: {
 					project: {
 						arn: codebuildProjectArn,
 						name: codebuildProjectName,
 					},
 				},
-				paloma_uinevada_web_pipeline: {
+				paloma_nevada_web_pipeline: {
 					pipeline: {
 						arn: pipelineArn,
 						name: pipelineName,
 					},
 				},
-				paloma_uinevada_web_eventbridge: {
+				paloma_nevada_web_eventbridge: {
 					EcrImageAction: {
 						rule: {
 							arn: eventRuleArn,

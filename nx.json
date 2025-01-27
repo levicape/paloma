@@ -1,18 +1,25 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultBase": "main",
-  "parallel": 1,
-  "cacheDirectory": "/tmp/npm-global/nx-cache",
   "targetDefaults": {
-    "build": {
+    "build:http": {
       "cache": true,
       "outputs": [
-        "{projectRoot}/module",
+        "{projectRoot}/output/http"
+      ]
+    },
+    "build:staticwww": {
+      "cache": true,
+      "outputs": [
+        "{projectRoot}/output/staticwww"
+      ]
+    },    
+    "build:tsc": {
+      "cache": true,
+      "outputs": [
         "{projectRoot}/commonjs",
-        "{projectRoot}/build-http",
-        "{projectRoot}/build-staticwww",
-        "{projectRoot}/build-unknown",
-        "{projectRoot}/gen"
+        "{projectRoot}/gen",
+        "{projectRoot}/module"
       ]
     }
   }

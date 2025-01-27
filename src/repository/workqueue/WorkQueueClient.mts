@@ -1,7 +1,7 @@
 import Sqlite3 from "better-sqlite3";
 import createQueryBuilder from "knex";
 import { DebugLog } from "../../debug/DebugLog.mjs";
-import type { TestAction } from "../../harness/TestAction.mjs";
+import type { TestAction } from "../../execution/TestAction.mjs";
 import { WorkQueueExecutionTable } from "./WorkQueueExecutionTable.mjs";
 import { WorkQueueFilesystem } from "./WorkQueueFilesystem.mjs";
 

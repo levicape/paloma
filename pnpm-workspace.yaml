@@ -2,7 +2,7 @@ packages:
   - .
   - iac/*
   - iac/images/*
-  - examples
+  - examples/*
   - packages/*
 catalog:
   "@levicape/fourtwo": "0.6.3-main.10"
@@ -46,6 +46,8 @@ catalogs:
   cli:
     "@stricli/core": "^1.1.1"
     "enquirer": "^2.4.1"
+  compression:
+    "archiver": "^7.0.1"
   core:
     "fast-xml-parser": "^4.5.0"
     "ini": "^5.0.0"
@@ -62,11 +64,13 @@ catalogs:
     "crypto-js": "^4.2.0"
     "crypto.js": "^3.2.2"
     "jsonwebtoken": "^9.0.2"
-  database:
-    "better-sqlite3": "^11.6.0"
-    "knex": "^3.1.0"
+  database-postgres:
     "pg": "^8.13.1"
+  database-sql:
+    "knex": "^3.1.0"
     "slonik": "^46.4.0"
+  database-sqlite:
+    "better-sqlite3": "^11.6.0"
   dev:
     "typescript": "^5.7.3"
     "tsx": "^4.19.2"
@@ -104,14 +108,14 @@ catalogs:
     "@bufbuild/buf": "^1.44.0"
     "ts-proto": "^2.6.1"
   pulumi:
-    "@pulumi/aws": "^6.64.0"
-    "@pulumi/awsx": "^2.19.0"
-    "@pulumi/aws-native": "1.24.0"
+    "@pulumi/aws": "^6.67.0"
+    "@pulumi/awsx": "^2.21.0"
+    "@pulumi/aws-native": "^1.24.0"
     "@pulumi/command": "^1.0.1"
     "@pulumi/docker": "^4.5.7"
-    "@pulumi/docker-build": "^0.0.7"
+    "@pulumi/docker-build": "^0.0.9"
     "@pulumi/kubernetes": "^4.18.4"
-    "@pulumi/pulumi": "^3.142.0"
+    "@pulumi/pulumi": "^3.147.0"
     "@pulumi/random": "^4.16.7"
     "@pulumi/synced-folder": "^0.11.1"
     "@pulumiverse/time": "^0.1.0"

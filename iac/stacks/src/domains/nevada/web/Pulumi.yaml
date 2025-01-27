@@ -1,4 +1,4 @@
-name: paloma-ui-nevada-web
+name: paloma-nevada-web
 description: | 
   Public S3 bucket and deployment pipeline
 runtime:
