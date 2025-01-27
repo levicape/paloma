@@ -66,8 +66,8 @@
           "dx:prepublish:pre",
           "dx:lint",
           "@levicape/paloma-examples-canaryexecution:dx:precommit",
-          "@levicape/paloma-iac-stacks:dx:precommit",
-          "@levicape/paloma-nevada-ui:dx:precommit"
+          "@levicape/paloma-nevada-ui:dx:precommit",
+          "@levicape/paloma-iac-stacks:dx:precommit"
         ]
       },
       "dx:lint": {
@@ -135,6 +135,7 @@
     "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
     "dx:sync": "$npm_package_config_packageexecutor nx dx:sync:pre && $npm_package_config_packageexecutor nx nx:sync --verbose",
     "dx:sync:pre": "echo \"Starting sync dx. This will generate all the workflows and sync them with the repository.\"",
+    "heroku-prebuild": "$npm_package_config_packagemanager rebuild || true",
     "lint": "$npm_package_config_packageexecutor nx exec -- biome check $npm_package_config_lintpaths",
     "lint:format": "$npm_package_config_packageexecutor nx exec -- biome check --write $npm_package_config_lintpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor nx exec -- biome check --write --unsafe $npm_package_config_lintpaths",

@@ -42,11 +42,11 @@ import { PalomaDatalayerStackExportsZod } from "../datalayer/exports";
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? "paloma";
 const CANARY_PATHS = [
 	{
-		name: "register",
+		name: "execution",
 		packageName: "@levicape/paloma-examples-canaryexecution",
-		root: "paloma-example-canary-register",
+		root: "paloma-example-canary-execution",
 		handler:
-			"paloma-example-canary-register/module/canary/harness.LambdaHandler",
+			"paloma-example-canary-execution/module/canary/harness.LambdaHandler",
 	},
 	// {
 	// 	name: "server",
@@ -300,6 +300,7 @@ export = async () => {
 		const lambda = new LambdaFn(
 			_(`${name}-fn`),
 			{
+				description: `(${getStack()}) Lambda function for ${packageName} ${name}`,
 				role: roleArn,
 				architectures: ["arm64"],
 				memorySize: Number.parseInt(context.environment.isProd ? "512" : "256"),
@@ -339,13 +340,14 @@ export = async () => {
 		);
 
 		const version = new Version(_(`${name}-version`), {
+			description: `(${getStack()}) Version ${stage} for ${packageName} ${name}`,
 			functionName: lambda.name,
-			description: `(${getStack()}) Version ${stage}`,
 		});
 
 		const alias = new Alias(
 			_(`${name}-alias`),
 			{
+				description: `(${getStack()}) Alias ${stage} for ${packageName} ${name}`,
 				name: stage,
 				functionName: lambda.name,
 				functionVersion: version.version,
@@ -357,7 +359,7 @@ export = async () => {
 
 		const deploymentGroup = new DeploymentGroup(_(`${name}-deployment-group`), {
 			appName: codestar.codedeploy.application.name,
-			deploymentGroupName: _("deployment-group"),
+			deploymentGroupName: _(`${name}-deployment-group`),
 			serviceRoleArn: farRole.arn,
 			deploymentConfigName: codestar.codedeploy.deploymentConfig.name,
 			deploymentStyle: {
@@ -507,15 +509,17 @@ export = async () => {
 								"cat .container",
 								"sleep 10s",
 								`docker container logs $(cat .container)`,
+								"sleep 9s",
+								`docker container logs $(cat .container)`,
+								"sleep 8s",
+								`docker container logs $(cat .container)`,
 								"mkdir -p $CODEBUILD_SRC_DIR/.extractimage || true",
 								`docker cp $(cat .container):/tmp/$ARTIFACT_ROOT $CODEBUILD_SRC_DIR/.extractimage`,
 								"ls -al $CODEBUILD_SRC_DIR/.extractimage || true",
 								"ls -al $CODEBUILD_SRC_DIR/.extractimage/$ARTIFACT_ROOT || true",
-								"du -sh $CODEBUILD_SRC_DIR/.extractimage/$ARTIFACT_ROOT || true",
-								"sudo corepack -g install pnpm@9 || true",
-								"sudo pnpm -C $CODEBUILD_SRC_DIR/.extractimage install --offline --prod --ignore-scripts --node-linker=hoisted || true",
+								"corepack -g install pnpm@9 || true",
+								"pnpm -C $CODEBUILD_SRC_DIR/.extractimage/$ARTIFACT_ROOT install --offline --prod --ignore-scripts --node-linker=hoisted || true",
 								"ls -al $CODEBUILD_SRC_DIR/.extractimage/$ARTIFACT_ROOT/node_modules || true",
-								"du -al $CODEBUILD_SRC_DIR/.extractimage/$ARTIFACT_ROOT/node_modules || true",
 								`NODE_NO_WARNINGS=1 node -e '(${(
 									// biome-ignore lint/complexity/useArrowFunction:
 									function () {
@@ -1054,7 +1058,7 @@ export = async () => {
 
 		const EcrImageAction = (() => {
 			const rule = new EventRule(_("event-rule-ecr-push"), {
-				description: `(${getStack()}) ECR push event rule`,
+				description: `(${getStack()}) ECR push event rule for @levicape/paloma`,
 				state: "ENABLED",
 				eventPattern: JSON.stringify({
 					source: ["aws.ecr"],
@@ -1105,7 +1109,7 @@ export = async () => {
 			const targets = Object.fromEntries(
 				groups.flatMap((group, idx) => {
 					const rule = new EventRule(_(`schedule-${idx}`), {
-						description: `(${getStack()}) Schedule event rule ${idx}`,
+						description: `(${getStack()}) Schedule event rule ${idx} for `,
 						state: "ENABLED",
 						scheduleExpression: `rate(${context.environment.isProd ? "4" : "12"} minutes)`,
 					});

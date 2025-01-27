@@ -5,9 +5,9 @@ packages:
   - examples/*
   - packages/*
 catalog:
-  "@levicape/fourtwo": "0.6.3-main.10"
-  "@levicape/fourtwo-pulumi": "0.6.3-main.10"
-  "@levicape/fourtwo-builders": "0.6.3-main.10"
+  "@levicape/fourtwo": "0.6.4-main.13"
+  "@levicape/fourtwo-pulumi": "0.6.4-main.13"
+  "@levicape/fourtwo-builders": "0.6.4-main.13"
 
 
 

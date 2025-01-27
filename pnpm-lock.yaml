@@ -26,14 +26,14 @@ catalogs:
       version: 11.7.2
   default:
     '@levicape/fourtwo':
-      specifier: 0.6.3-main.10
-      version: 0.6.3-main.10
+      specifier: 0.6.4-main.13
+      version: 0.6.4-main.13
     '@levicape/fourtwo-builders':
-      specifier: 0.6.3-main.10
-      version: 0.6.3-main.10
+      specifier: 0.6.4-main.13
+      version: 0.6.4-main.13
     '@levicape/fourtwo-pulumi':
-      specifier: 0.6.3-main.10
-      version: 0.6.3-main.10
+      specifier: 0.6.4-main.13
+      version: 0.6.4-main.13
   dev:
     tsx:
       specifier: ^4.19.2
@@ -159,7 +159,7 @@ importers:
         version: 1.9.4
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.6.3-main.10(projen@0.71.163)
+        version: 0.6.4-main.13(projen@0.71.163)
       '@types/better-sqlite3':
         specifier: catalog:types
         version: 7.6.12
@@ -220,7 +220,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.6.3-main.10(projen@0.71.163)
+        version: 0.6.4-main.13(projen@0.71.163)
       yaml:
         specifier: catalog:core
         version: 2.7.0
@@ -229,13 +229,13 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.6.3-main.10(projen@0.71.163)
+        version: 0.6.4-main.13(projen@0.71.163)
       '@levicape/fourtwo-builders':
         specifier: 'catalog:'
-        version: 0.6.3-main.10(projen@0.71.163)
+        version: 0.6.4-main.13(projen@0.71.163)
       '@levicape/fourtwo-pulumi':
         specifier: 'catalog:'
-        version: 0.6.3-main.10(typescript@5.7.3)
+        version: 0.6.4-main.13(typescript@5.7.3)
       '@pulumi/aws':
         specifier: catalog:pulumi
         version: 6.67.0(typescript@5.7.3)
@@ -269,7 +269,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.6.3-main.10(projen@0.71.163)
+        version: 0.6.4-main.13(projen@0.71.163)
 
   packages/nevada-ui:
     dependencies:
@@ -1020,17 +1020,17 @@ packages:
     resolution: {integrity: sha512-rsfF5t3sd5c+3ejUgcy8q0cVG2/BxT064L4Xz+CuKEe014u8T4MtFZiWjWZFpfMXSGKzFYEA6DJYm9CqjmIfZg==}
     engines: {node: '>=14'}
 
-  '@levicape/fourtwo-builders@0.6.3-main.10':
-    resolution: {integrity: sha512-IXbMVo2ytZnMYhtY/2fFIcl+qgi4+s6yaBrUuQvg0Ad8u59orAnogJsGS7NCUql5bR1U9nugam/vzr/vd4jz/Q==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.6.3-main.10/f989de513b09017dc0d480b61dc0384c759faab6}
-    engines: {node: '>=23.5.0'}
+  '@levicape/fourtwo-builders@0.6.4-main.13':
+    resolution: {integrity: sha512-ll/ZvXzDhuu0ydh+k5+UAeTIIHEGu6UDbyqJv/1+JHb/bcdl4f2G5A3LQ0+9K9zGx1e9NUJ0fcOS+sG3SHxA8Q==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.6.4-main.13/0acc8ca7497e4350b69c06d5ebc35d2c31be724d}
+    engines: {node: '22'}
 
-  '@levicape/fourtwo-pulumi@0.6.3-main.10':
-    resolution: {integrity: sha512-6Z622sWNtFl0TsTBZUJoZJk0idhexkzUKvgtj4ywJUzWGn0VBOQ0m99gm332r1nsw6opHcrN6KvUQPSR6R07dw==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.6.3-main.10/be9cbd16546f7968a67a7ce859e4fabbb13d5dd7}
-    engines: {node: '>=22.0.0'}
+  '@levicape/fourtwo-pulumi@0.6.4-main.13':
+    resolution: {integrity: sha512-RGHegDTbwCFANzMm5xk/J+iTTlo7nyp9FeZduIB6iEt8fJ09D0TJ6McjitPREsyyQ8LWur1jQZT3Qizeh3bt0Q==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.6.4-main.13/a36d7b519dd5ff9f3a2bd088290f65f346f5f8f7}
+    engines: {node: '22'}
 
-  '@levicape/fourtwo@0.6.3-main.10':
-    resolution: {integrity: sha512-CJDtRN0DD0YsPvuFHOMPP0hxt7TvqwZAdbo1UYZlRvpMmPcuEB2m1TpUq+KH75vXaYQEpFp3HGID2BldNxFeGQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.6.3-main.10/e5406aec4a6b9947a4b3ace50419696201890f14}
-    engines: {node: '>=23.5.0'}
+  '@levicape/fourtwo@0.6.4-main.13':
+    resolution: {integrity: sha512-9yauYwaF2zm6tMaFbvfBxVjgw0OREAGK61X9VsravYJVgZ8eyWEbzFSQqFOsjlBSWZrgDfRwwdbKz9ZA3XZtbw==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.6.4-main.13/f5e1f4541538bd0dfb3e6ace187cfee78dce47a0}
+    engines: {node: '22'}
     hasBin: true
 
   '@logdna/tail-file@2.2.0':
@@ -1311,9 +1311,6 @@ packages:
   '@pulumi/command@1.0.1':
     resolution: {integrity: sha512-PqqcMp80Y9dc7Lt0epXqvqha76S4XF08NB8lpMA0zJ9zWvkkssQ8lq8XdHuZOrAGHXj7gKBs6JBrhhltoovUTQ==}
 
-  '@pulumi/docker-build@0.0.7':
-    resolution: {integrity: sha512-yiPvQefRS3Z+5NtG5VK2pYTds0pCQh21INpoWY8gKFrqs166ZFVrPrMXelmsjABnmkG5ZNlkHanU7HqAExn55Q==}
-
   '@pulumi/docker-build@0.0.8':
     resolution: {integrity: sha512-tS6UUgmDjQ+LVekMXGC/6ND7riY75h3oO9fLiVOrvNafCBumxK+Cjm6ZZ9tUChLYvw6H+rZRExZEhfC8F/SQgQ==}
 
@@ -1322,9 +1319,6 @@ packages:
 
   '@pulumi/docker@3.6.1':
     resolution: {integrity: sha512-BZME50QkT556v+LvmTXPT8ssB2xxNkp9+msB5xYFEnUnWcdGAx5yUysQw70RJCb+U0GbkJSbxtlgMJgOQf/now==}
-
-  '@pulumi/docker@4.5.8':
-    resolution: {integrity: sha512-h5ZfsXTt5GaqenOmleNAJT/zXLErYXYMftgFNbTS4Z1n1gQXwBewxZ/p7nEqKZkh0JjZZuoDlRN1+lkosM5W6w==}
 
   '@pulumi/docker@4.6.1':
     resolution: {integrity: sha512-csJWLgwq+kAQzJSNbCknXydxDXz9xhss7nI6Crq3hbz/TYifrUImpV22rNSp0dieJz7vGx2QoW+8vxjIBs+HnA==}
@@ -5289,20 +5283,27 @@ snapshots:
     optionalDependencies:
       re2-wasm: 1.0.2
 
-  '@levicape/fourtwo-builders@0.6.3-main.10(projen@0.71.163)':
+  '@levicape/fourtwo-builders@0.6.4-main.13(projen@0.71.163)':
     dependencies:
-      '@levicape/fourtwo': 0.6.3-main.10(projen@0.71.163)
+      '@levicape/fourtwo': 0.6.4-main.13(projen@0.71.163)
     transitivePeerDependencies:
+      - mysql
+      - mysql2
+      - pg
+      - pg-native
       - projen
+      - sqlite3
+      - supports-color
+      - tedious
 
-  '@levicape/fourtwo-pulumi@0.6.3-main.10(typescript@5.7.3)':
+  '@levicape/fourtwo-pulumi@0.6.4-main.13(typescript@5.7.3)':
     dependencies:
       '@kubernetes-models/postgres-operator': 0.4.2
       '@pulumi/aws': 6.67.0(typescript@5.7.3)
       '@pulumi/awsx': 2.21.0(typescript@5.7.3)
       '@pulumi/command': 1.0.1(typescript@5.7.3)
-      '@pulumi/docker': 4.5.8(typescript@5.7.3)
-      '@pulumi/docker-build': 0.0.7(typescript@5.7.3)
+      '@pulumi/docker': 4.6.1(typescript@5.7.3)
+      '@pulumi/docker-build': 0.0.9(typescript@5.7.3)
       '@pulumi/kubernetes': 4.19.0(typescript@5.7.3)
       '@pulumi/pulumi': 3.147.0(typescript@5.7.3)
       '@pulumi/random': 4.16.8(typescript@5.7.3)
@@ -5315,21 +5316,30 @@ snapshots:
       - ts-node
       - typescript
 
-  '@levicape/fourtwo@0.6.3-main.10(projen@0.71.163)':
+  '@levicape/fourtwo@0.6.4-main.13(projen@0.71.163)':
     dependencies:
       '@aws/codecatalyst-workflows-sdk': 0.1.5-preview.6(projen@0.71.163)
       '@stricli/core': 1.1.1
       aws4fetch: 1.0.20
+      better-sqlite3: 11.7.2
       enquirer: 2.4.1
       fast-xml-parser: 4.5.1
       ini: 5.0.0
       js-yaml: 4.1.0
+      knex: 3.1.0(better-sqlite3@11.7.2)
       pretty-ms: 9.2.0
       verror: 1.10.1
       yaml: 2.7.0
       zod: 3.24.1
     transitivePeerDependencies:
+      - mysql
+      - mysql2
+      - pg
+      - pg-native
       - projen
+      - sqlite3
+      - supports-color
+      - tedious
 
   '@logdna/tail-file@2.2.0': {}
 
@@ -5695,15 +5705,6 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/docker-build@0.0.7(typescript@5.7.3)':
-    dependencies:
-      '@pulumi/pulumi': 3.147.0(typescript@5.7.3)
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-      - ts-node
-      - typescript
-
   '@pulumi/docker-build@0.0.8(typescript@5.7.3)':
     dependencies:
       '@pulumi/pulumi': 3.147.0(typescript@5.7.3)
@@ -5723,16 +5724,6 @@ snapshots:
       - typescript
 
   '@pulumi/docker@3.6.1(typescript@5.7.3)':
-    dependencies:
-      '@pulumi/pulumi': 3.147.0(typescript@5.7.3)
-      semver: 5.7.2
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-      - ts-node
-      - typescript
-
-  '@pulumi/docker@4.5.8(typescript@5.7.3)':
     dependencies:
       '@pulumi/pulumi': 3.147.0(typescript@5.7.3)
       semver: 5.7.2

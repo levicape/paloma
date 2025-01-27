@@ -26,7 +26,7 @@ let FileCaching = ({
 	FileCaching: {
 		...{
 			a64_nodejs: {
-				Path: "/cc/cache/nodejs",
+				Path: "/layers/heroku_nodejs-pnpm-install",
 				RestoreKeys: ["nodejs"],
 			},
 		},
@@ -63,7 +63,7 @@ export const PULUMI_CACHE = FileCaching({ pulumi: true }).FileCaching.a64_pulumi
 export const COREPACK_GLOBAL_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/corepack`;
 export const NPM_GLOBAL_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/npm`;
 export const PNPM_DLX_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/pnpmcache`;
-export const PNPM_STORE_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/pnpmstore`;
+export const PNPM_STORE_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/addressable`;
 export const PNPM_GLOBAL_CACHE = `${FileCaching().FileCaching.a64_nodejs.Path}/pnpmglobal`;
 export const NX_CACHE_DIR = `${FileCaching().FileCaching.a64_nodejs.Path}/nxcache`;
 
