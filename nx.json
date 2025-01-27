@@ -13,7 +13,7 @@
       "outputs": [
         "{projectRoot}/output/staticwww"
       ]
-    },    
+    },
     "build:tsc": {
       "cache": true,
       "outputs": [

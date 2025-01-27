@@ -83,7 +83,7 @@ export class Alltest<
 		},
 		private options: AlltestOptions<S>,
 	) {
-		if (process.env.NO_AUTORUN === undefined) {
+		if (process.env._HANDLER === undefined) {
 			setTimeout(() => {
 				if (!this.started) {
 					this.handler({} as HandlerEvent, {} as HandlerContext);

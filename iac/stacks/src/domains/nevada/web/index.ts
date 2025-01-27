@@ -23,14 +23,34 @@ import { BucketVersioningV2 } from "@pulumi/aws/s3/bucketVersioningV2";
 import { BucketWebsiteConfigurationV2 } from "@pulumi/aws/s3/bucketWebsiteConfigurationV2";
 import { all, getStack } from "@pulumi/pulumi";
 import { stringify } from "yaml";
-import { $ref, $val } from "../../../Stack";
+import type { z } from "zod";
+import { deref } from "../../../Stack";
 import { PalomaCodestarStackExportsZod } from "../../../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
+import { PalomaNevadaWebStackExportsZod } from "./exports";
+
+const PACKAGE_NAME = "@levicape/paloma-nevada-ui" as const;
+const ARTIFACT_ROOT = "paloma-nevada-ui" as const;
+const DEPLOY_DIRECTORY = "output/staticwww/client" as const;
 
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? "paloma";
-const PACKAGE_NAME = "@levicape/paloma-nevada-ui" as const;
-const ARTIFACT_ROOT = "/tmp/paloma-nevada-ui/output/staticwww/client" as const;
-
+const STACKREF_CONFIG = {
+	[STACKREF_ROOT]: {
+		codestar: {
+			refs: {
+				codedeploy:
+					PalomaCodestarStackExportsZod.shape.paloma_codestar_codedeploy,
+				ecr: PalomaCodestarStackExportsZod.shape.paloma_codestar_ecr,
+			},
+		},
+		datalayer: {
+			refs: {
+				props: PalomaDatalayerStackExportsZod.shape.paloma_datalayer_props,
+				iam: PalomaDatalayerStackExportsZod.shape.paloma_datalayer_iam,
+			},
+		},
+	},
+};
 export = async () => {
 	const context = await Context.fromConfig();
 	const _ = (name: string) => `${context.prefix}-${name}`;
@@ -38,34 +58,7 @@ export = async () => {
 	const farRole = await getRole({ name: "FourtwoAccessRole" });
 
 	// Stack references
-	const codestar = await (async () => {
-		const code = $ref(`${STACKREF_ROOT}-codestar`);
-		return {
-			ecr: $val(
-				(await code.getOutputDetails(`${STACKREF_ROOT}_codestar_ecr`)).value,
-				PalomaCodestarStackExportsZod.shape.paloma_codestar_ecr,
-			),
-		};
-	})();
-
-	const datalayer = await (async () => {
-		const data = $ref(`${STACKREF_ROOT}-datalayer`);
-		return {
-			props: $val(
-				(
-					await data.getOutputDetails(
-						`_${STACKREF_ROOT.toUpperCase()}_DATALAYER_PROPS`,
-					)
-				).value,
-				PalomaDatalayerStackExportsZod.shape._PALOMA_DATALAYER_PROPS,
-			),
-			iam: $val(
-				(await data.getOutputDetails(`${STACKREF_ROOT}_datalayer_iam`)).value,
-				PalomaDatalayerStackExportsZod.shape.paloma_datalayer_iam,
-			),
-		};
-	})();
-	//
+	const { codestar, datalayer } = await deref(STACKREF_CONFIG);
 
 	// Object Store
 	const s3 = (() => {
@@ -205,7 +198,7 @@ export = async () => {
 					.setArtifacts(
 						new CodeBuildBuildspecArtifactsBuilder()
 							.setFiles(["**/*"])
-							.setBaseDirectory(".extractimage")
+							.setBaseDirectory(`.extractimage/${DEPLOY_DIRECTORY}`)
 							.setName("staticwww_extractimage"),
 					)
 					.setEnv(
@@ -235,7 +228,7 @@ export = async () => {
 									"--entrypoint",
 									"deploy",
 									`-e DEPLOY_FILTER=${PACKAGE_NAME}`,
-									`-e DEPLOY_OUTPUT=${ARTIFACT_ROOT}`,
+									`-e DEPLOY_OUTPUT=/tmp/${ARTIFACT_ROOT}`,
 									"$SOURCE_IMAGE_URI",
 									"> .container",
 								].join(" "),
@@ -243,9 +236,12 @@ export = async () => {
 								"cat .container",
 								"sleep 10s",
 								`docker container logs $(cat .container)`,
-								`docker cp $(cat .container):${ARTIFACT_ROOT} $CODEBUILD_SRC_DIR/.extractimage`,
+								"sleep 10s",
+								`docker container logs $(cat .container)`,
+								`docker cp $(cat .container):/tmp/${ARTIFACT_ROOT} $CODEBUILD_SRC_DIR/.extractimage`,
 								"ls -al $CODEBUILD_SRC_DIR/.extractimage || true",
-								"du -sh $CODEBUILD_SRC_DIR/.extractimage || true",
+								`ls -al $CODEBUILD_SRC_DIR/.extractimage/${DEPLOY_DIRECTORY} || true`,
+								`du -sh $CODEBUILD_SRC_DIR/.extractimage/${DEPLOY_DIRECTORY} || true`,
 								"aws s3 ls s3://$S3_STATICWWW_BUCKET",
 							]),
 					})
@@ -265,55 +261,61 @@ export = async () => {
 		})();
 
 		const project = (() => {
-			const project = new Project(_("project"), {
-				description: `(${getStack()}) CodeBuild project`,
-				buildTimeout: 8,
-				serviceRole: farRole.arn,
-				artifacts: {
-					type: "CODEPIPELINE",
-					artifactIdentifier: "staticwww_extractimage",
+			const project = new Project(
+				_("project"),
+				{
+					description: `(${getStack()}) CodeBuild project for @${PACKAGE_NAME}:${STACKREF_ROOT}`,
+					buildTimeout: 14,
+					serviceRole: farRole.arn,
+					artifacts: {
+						type: "CODEPIPELINE",
+						artifactIdentifier: "staticwww_extractimage",
+					},
+					environment: {
+						type: "ARM_CONTAINER",
+						computeType: "BUILD_GENERAL1_MEDIUM",
+						image: "aws/codebuild/amazonlinux-aarch64-standard:3.0",
+						environmentVariables: [
+							{
+								name: "STACKREF_CODESTAR_ECR_REPOSITORY_ARN",
+								value: codestar.ecr.repository.arn,
+								type: "PLAINTEXT",
+							},
+							{
+								name: "STACKREF_CODESTAR_ECR_REPOSITORY_NAME",
+								value: codestar.ecr.repository.name,
+								type: "PLAINTEXT",
+							},
+							{
+								name: "STACKREF_CODESTAR_ECR_REPOSITORY_URL",
+								value: codestar.ecr.repository.url,
+							},
+							{
+								name: "SOURCE_IMAGE_REPOSITORY",
+								value: "SourceImage.RepositoryName",
+								type: "PLAINTEXT",
+							},
+							{
+								name: "SOURCE_IMAGE_URI",
+								value: "SourceImage.ImageUri",
+								type: "PLAINTEXT",
+							},
+							{
+								name: "S3_STATICWWW_BUCKET",
+								value: s3.staticwww.bucket.bucket,
+								type: "PLAINTEXT",
+							},
+						],
+					},
+					source: {
+						type: "CODEPIPELINE",
+						buildspec: buildspec.content,
+					},
 				},
-				environment: {
-					type: "ARM_CONTAINER",
-					computeType: "BUILD_GENERAL1_MEDIUM",
-					image: "aws/codebuild/amazonlinux-aarch64-standard:3.0",
-					environmentVariables: [
-						{
-							name: "STACKREF_CODESTAR_ECR_REPOSITORY_ARN",
-							value: codestar.ecr.repository.arn,
-							type: "PLAINTEXT",
-						},
-						{
-							name: "STACKREF_CODESTAR_ECR_REPOSITORY_NAME",
-							value: codestar.ecr.repository.name,
-							type: "PLAINTEXT",
-						},
-						{
-							name: "STACKREF_CODESTAR_ECR_REPOSITORY_URL",
-							value: codestar.ecr.repository.url,
-						},
-						{
-							name: "SOURCE_IMAGE_REPOSITORY",
-							value: "SourceImage.RepositoryName",
-							type: "PLAINTEXT",
-						},
-						{
-							name: "SOURCE_IMAGE_URI",
-							value: "SourceImage.ImageUri",
-							type: "PLAINTEXT",
-						},
-						{
-							name: "S3_STATICWWW_BUCKET",
-							value: s3.staticwww.bucket.bucket,
-							type: "PLAINTEXT",
-						},
-					],
+				{
+					dependsOn: [buildspec.upload, s3.staticwww.bucket],
 				},
-				source: {
-					type: "CODEPIPELINE",
-					buildspec: buildspec.content,
-				},
-			});
+			);
 
 			return {
 				project,
@@ -329,7 +331,7 @@ export = async () => {
 	})();
 
 	const codepipeline = (() => {
-		const pipeline = new Pipeline(_("web-pipeline"), {
+		const pipeline = new Pipeline(_("deploy"), {
 			pipelineType: "V2",
 			roleArn: farRole.arn,
 			executionMode: "QUEUED",
@@ -463,8 +465,8 @@ export = async () => {
 	const eventbridge = (() => {
 		const { name } = codestar.ecr.repository;
 
-		const rule = new EventRule(_("event-rule-ecr-push"), {
-			description: `(${getStack()}) ECR push event rule`,
+		const rule = new EventRule(_("on-ecr"), {
+			description: `(${getStack()}) ECR push event rule @${PACKAGE_NAME}:${STACKREF_ROOT}`,
 			state: "ENABLED",
 			eventPattern: JSON.stringify({
 				source: ["aws.ecr"],
@@ -477,7 +479,7 @@ export = async () => {
 				},
 			}),
 		});
-		const pipeline = new EventTarget(_("event-target-pipeline-web"), {
+		const pipeline = new EventTarget(_("on-ecr-deploy"), {
 			rule: rule.name,
 			arn: codepipeline.pipeline.arn,
 			roleArn: farRole.arn,
@@ -527,8 +529,8 @@ export = async () => {
 			eventTargetArn,
 			eventTargetId,
 		]) => {
-			return {
-				_paloma_nevada_WEB_IMPORTS: {
+			const exported = {
+				paloma_nevada_web_imports: {
 					fourtwo: {
 						codestar,
 						datalayer,
@@ -577,7 +579,23 @@ export = async () => {
 						},
 					},
 				},
+			} satisfies z.infer<typeof PalomaNevadaWebStackExportsZod> & {
+				paloma_nevada_web_imports: {
+					fourtwo: {
+						codestar: typeof codestar;
+						datalayer: typeof datalayer;
+					};
+				};
 			};
+
+			const validate = PalomaNevadaWebStackExportsZod.safeParse(exported);
+			if (!validate.success) {
+				process.stderr.write(
+					`Validation failed: ${JSON.stringify(validate.error, null, 2)}`,
+				);
+			}
+
+			return exported;
 		},
 	);
 };

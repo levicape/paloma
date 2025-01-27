@@ -1,18 +1,16 @@
 import { Context } from "@levicape/fourtwo-pulumi";
 import { Application } from "@pulumi/aws/codedeploy";
 import { DeploymentConfig } from "@pulumi/aws/codedeploy/deploymentConfig";
-import { DeploymentGroup } from "@pulumi/aws/codedeploy/deploymentGroup";
 import { Repository as ECRRepository, LifecyclePolicy } from "@pulumi/aws/ecr";
 import { getLifecyclePolicyDocument } from "@pulumi/aws/ecr/getLifecyclePolicyDocument";
 import { RepositoryPolicy } from "@pulumi/aws/ecr/repositoryPolicy";
-import { getRole } from "@pulumi/aws/iam/getRole";
 import { all } from "@pulumi/pulumi/output";
+import type { z } from "zod";
+import { PalomaCodestarStackExportsZod } from "./exports";
 
 export = async () => {
 	const context = await Context.fromConfig();
 	const _ = (name: string) => `${context.prefix}-${name}`;
-
-	const farRole = await getRole({ name: "FourtwoAccessRole" });
 
 	const ecr = await (async () => {
 		const repository = new ECRRepository(_("binaries"));
@@ -118,7 +116,7 @@ export = async () => {
 			codedeployDeploymentConfigArn,
 			codedeployDeploymentConfigName,
 		]) => {
-			return {
+			const exported = {
 				paloma_codestar_ecr: {
 					repository: {
 						arn: ecrRepositoryArn,
@@ -136,7 +134,16 @@ export = async () => {
 						name: codedeployDeploymentConfigName,
 					},
 				},
-			};
+			} satisfies z.infer<typeof PalomaCodestarStackExportsZod>;
+
+			const validate = PalomaCodestarStackExportsZod.safeParse(exported);
+			if (!validate.success) {
+				process.stderr.write(
+					`Validation failed: ${JSON.stringify(validate.error, null, 2)}`,
+				);
+			}
+
+			return exported;
 		},
 	);
 };

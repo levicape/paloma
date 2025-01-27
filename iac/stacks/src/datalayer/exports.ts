@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const PalomaDatalayerStackExportsZod = z.object({
-	_PALOMA_DATALAYER_PROPS: z.object({
+	paloma_datalayer_props: z.object({
 		lambda: z.object({
 			role: z.object({
 				arn: z.string(),
