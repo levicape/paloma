@@ -1,11 +1,16 @@
 import { createHash } from "node:crypto";
-import { DebugLog } from "../debug/DebugLog.mjs";
+import { Context, Effect } from "effect";
+import VError from "verror";
 import {
 	type PrimitiveObject,
 	WorkQueueClient,
 } from "../repository/workqueue/WorkQueueClient.mjs";
 import type { WorkQueueExecutionTable } from "../repository/workqueue/WorkQueueExecutionTable.mjs";
 import { WorkQueueFilesystem } from "../repository/workqueue/WorkQueueFilesystem.mjs";
+import {
+	LoggingContext,
+	withStructuredLogging,
+} from "../server/loglayer/LoggingContext.mjs";
 import type { AlltestOptions } from "./AlltestOptions.mjs";
 import type { AlltestSetup } from "./AlltestSetup.mjs";
 import type { Funnel } from "./Funnel.mjs";
@@ -37,17 +42,22 @@ type DefaultClients<M extends string, Funnels extends string> = {
 	};
 };
 
-const harnessDebug = DebugLog("HARNESS", (message: unknown) => ({
-	Alltest: {
-		harness: message,
-	},
-}));
-
-const stateDebug = DebugLog("STATE", (message: unknown) => ({
-	Alltest: {
-		state: message,
-	},
-}));
+const { work, execution } = await Effect.runPromise(
+	Effect.provide(
+		Effect.gen(function* () {
+			const logging = yield* LoggingContext;
+			return {
+				work: (yield* logging.logger).withContext({
+					event: "work",
+				}),
+				execution: (yield* logging.logger).withContext({
+					event: "execution",
+				}),
+			};
+		}),
+		Context.empty().pipe(withStructuredLogging({ prefix: "ExecutionPlan" })),
+	),
+);
 
 export type DefaultHandlerEvent = Record<string, unknown>;
 export type DefaultHandlerContext = Record<string, unknown>;
@@ -101,7 +111,7 @@ export class Alltest<
 		_handlercontext: HandlerContext,
 	) => {
 		if (this.started) {
-			throw new Error("Alltest handler already started");
+			throw new VError("Alltest handler already started");
 		}
 		this.started = true;
 		const hash = createHash("md5")
@@ -128,14 +138,12 @@ export class Alltest<
 			)
 			.digest("hex");
 
-		harnessDebug(
-			{
-				message: "AllTest handler",
+		execution
+			.withContext({
 				name: this.options.name,
 				hash: hash.toString(),
-			},
-			this.options,
-		);
+			})
+			.debug("Starting AllTest handler");
 
 		await this.allReady();
 		const [workQueue] = [WorkQueueClient].map((table) => {
@@ -169,7 +177,7 @@ export class Alltest<
 		const assertion = {
 			ok: (condition: boolean, message: string) => {
 				if (!condition) {
-					throw new Error(message);
+					throw new VError(message);
 				}
 			},
 		};
@@ -186,6 +194,7 @@ export class Alltest<
 				});
 			},
 		};
+		// TODO: Loglayer
 		const log = {
 			debug: (args: unknown) => {
 				console.dir(args, { depth: null });
@@ -203,24 +212,25 @@ export class Alltest<
 			log,
 		};
 		const context: Context = {} as unknown as Context;
-		harnessDebug(
-			{
-				message: "Running test",
-				name: this.options.name,
-				entry: this.options.entry(),
-			},
-			{ context, clients },
-		);
+		execution
+			.withMetadata({
+				ExecutionPlan: {
+					entry: this.options.entry(),
+					context,
+					clients,
+				},
+			})
+			.debug("Starting");
 
 		const result = await this.run(clients, context, workQueue, executionTable);
-		console.log({
-			Test: {
-				name: this.options.name,
-				hash: hash.toString(),
-			},
-			Result: result,
-		});
 
+		work
+			.withMetadata({
+				ExecutionPlan: {
+					result,
+				},
+			})
+			.info("Completed");
 		return {
 			statusCode: 200,
 			body: JSON.stringify(result),
@@ -251,6 +261,24 @@ export class Alltest<
 	) {
 		let workItem = workQueue.dequeue();
 		let prepared: Prepared | undefined;
+		let logbuilder = execution
+			.withContext({
+				workId: workItem?.workId,
+				action: workItem?.action,
+				state: workItem?.stateFn,
+			})
+			.withMetadata({
+				ExecutionPlan: {
+					work: {
+						name: this.options.name,
+						prepared: workItem?.prepared,
+						result: workItem?.result,
+						completed: workItem?.completed,
+						processing: workItem?.processing,
+						created: workItem?.created,
+					},
+				},
+			});
 		if (!workItem) {
 			const maxConcurrent = this.options.maxConcurrent ?? 1;
 			if (maxConcurrent > 1) {
@@ -273,23 +301,10 @@ export class Alltest<
 				},
 			});
 			workItem = workQueue.dequeue();
-			harnessDebug(
-				{
-					message: "Running test",
-					name: this.options.name,
-					entry: this.options.entry(),
-				},
-				workItem,
-			);
+			logbuilder.debug("Running test");
 		} else {
-			harnessDebug(
-				{
-					message: "Resuming test",
-					name: this.options.name,
-					workId: workItem.workId,
-				},
-				workItem,
-			);
+			logbuilder.debug("Resuming test");
+
 			prepared = (workItem.prepared as Prepared) ?? ({} as Prepared);
 		}
 
@@ -321,28 +336,36 @@ export class Alltest<
 				`State ${workItem.stateFn} does not have a handler`,
 			);
 
-			harnessDebug(
-				{
-					message: "Resolving",
-					state: workItem.stateFn,
+			execution
+				.withContext({
 					workId: workItem.workId,
-				},
-				{ context, clients },
-			);
+					action: workItem.action,
+					state: workItem.stateFn,
+				})
+				.debug("Work item");
 
-			stateDebug(
-				{
-					message: "Running",
-					state: workItem.stateFn,
+			work
+				.withContext({
 					workId: workItem.workId,
-					previousExecutionId,
-				},
-				{
-					previousAction,
-					prepared,
-					resolved,
-				},
-			);
+					action: workItem.action,
+					state: workItem.stateFn,
+				})
+				.withMetadata({
+					ExecutionPlan: {
+						previous: previousWorkId
+							? {
+									workId: previousWorkId,
+									executionId: previousExecutionId,
+									action: previousAction,
+								}
+							: undefined,
+						work: {
+							prepared,
+							resolved,
+						},
+					},
+				})
+				.debug("Resolving");
 
 			const action: TestAction<S, Previous, PrimitiveObject> = await handler({
 				actions: {
@@ -373,24 +396,46 @@ export class Alltest<
 				execution: { log: [] },
 				funnel: [] as unknown as FunnelData,
 			});
+
 			previousAction = action;
-
-			stateDebug(
-				{
-					message: "Completed",
-					workId: workItem.workId,
-					state: workItem.stateFn,
-					previousExecutionId,
-				},
-				{
-					action,
-				},
-				"INFO",
-			);
-
 			if (previousWorkId !== workItem.workId) {
 				previousExecutionId = undefined;
 			}
+
+			work
+				.withContext({
+					action,
+				})
+				.withMetadata({
+					ExecutionPlan: {
+						previous: {
+							executionId: previousExecutionId,
+							action: previousAction,
+						},
+						work: {
+							state: workItem.stateFn,
+							action: workItem.action,
+						},
+					},
+				})
+				.info("Completed");
+
+			execution
+				.withContext({
+					action,
+				})
+				.withMetadata({
+					ExecutionPlan: {
+						previous: {
+							executionId: previousExecutionId,
+							action: previousAction,
+						},
+						work: {
+							result: action,
+						},
+					},
+				})
+				.debug("Executing Action results");
 
 			const { workExecutionId } = await executionTable.upsert(workItem, {
 				created: new Date().toISOString(),
@@ -398,12 +443,26 @@ export class Alltest<
 				previousExecutionId,
 				result: action as PrimitiveObject,
 				resolved: resolved as PrimitiveObject,
-				// meta:
 			});
 
-			const { workId, action: previous } = workItem;
+			const { workId, action: previousWorkAction } = workItem;
+			const actionlog = work
+				.withContext({
+					workId,
+					workExecutionId,
+					state: action.to ?? this.options.entry(),
+				})
+				.withMetadata({
+					ExecutionPlan: {
+						execution: {
+							executionId: previousExecutionId,
+							action: previousWorkAction,
+						},
+					},
+				});
 			switch (action.kind) {
 				case "continue": {
+					actionlog.debug("Continuing");
 					await workQueue.enqueue({
 						workId,
 						stateFn: action.to ?? this.options.entry(),
@@ -413,7 +472,7 @@ export class Alltest<
 					break;
 				}
 				case "retry": {
-					const previousAction = previous as unknown as TestAction<
+					const previousAction = previousWorkAction as unknown as TestAction<
 						S,
 						Previous,
 						PrimitiveObject
@@ -426,6 +485,8 @@ export class Alltest<
 						// });
 					}
 
+					actionlog.debug("Retrying");
+
 					await workQueue.enqueue({
 						workId,
 						stateFn: action.to ?? this.options.entry(),
@@ -435,6 +496,16 @@ export class Alltest<
 					break;
 				}
 			}
+
+			execution
+				.withContext({
+					workId,
+					action,
+					workExecutionId,
+					state: action.to ?? this.options.entry(),
+				})
+				.debug("Completing work Action");
+
 			await executionTable.upsert(workItem, {
 				workExecutionId,
 				completed: new Date().toISOString(),
@@ -443,7 +514,8 @@ export class Alltest<
 			switch (action.kind) {
 				// @biomejs-ignore lint/suspicious/noFallthroughSwitchClause:
 				case "fail": {
-					stateDebug(`Failed: ${action.message}`, action);
+					work.warn("Failed");
+
 					workQueue.complete({
 						workId,
 						result: action as PrimitiveObject,
@@ -451,16 +523,14 @@ export class Alltest<
 					return { success: false };
 				}
 				case "pass": {
-					stateDebug("Passed", action);
-					workQueue.complete({
-						workId,
-						result: action as PrimitiveObject,
-					});
+					work.info("Succeeded");
 					return { success: true };
 				}
 			}
 			previousExecutionId = workExecutionId;
 			previousWorkId = workItem.workId;
+
+			execution.debug("Dequeueing work item");
 
 			workItem = workQueue.dequeue();
 		}

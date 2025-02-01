@@ -27,8 +27,13 @@ export type TestAction<
 	Next extends PrimitiveObject | undefined = undefined,
 > =
 	| (ContinueAction<S, Next> & { kind: "continue" })
-	| { kind: "fail"; message?: string; previous?: Previous }
-	| { kind: "pass"; result: Record<string, unknown>; previous?: Previous }
-	| { kind: "skip" }
-	| { kind: "noop" }
+	| { kind: "fail"; message?: string; previous?: Previous; to?: never }
+	| {
+			kind: "pass";
+			result: Record<string, unknown>;
+			previous?: Previous;
+			to?: never;
+	  }
+	| { kind: "skip"; to?: never }
+	| { kind: "noop"; to?: never }
 	| { kind: "retry"; to?: S; data?: Previous; afterIso?: string };

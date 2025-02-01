@@ -1,7 +1,12 @@
 import Sqlite3 from "better-sqlite3";
+import { destr } from "destr";
+import { Context, Effect } from "effect";
 import createQueryBuilder from "knex";
-import { DebugLog } from "../../debug/DebugLog.mjs";
 import type { TestAction } from "../../execution/TestAction.mjs";
+import {
+	LoggingContext,
+	withStructuredLogging,
+} from "../../server/loglayer/LoggingContext.mjs";
 import { WorkQueueExecutionTable } from "./WorkQueueExecutionTable.mjs";
 import { WorkQueueFilesystem } from "./WorkQueueFilesystem.mjs";
 
@@ -21,17 +26,30 @@ const { schema } = createQueryBuilder({
 	useNullAsDefault: true,
 });
 
-const r = DebugLog("REPOSITORY", (message) => ({
-	WorkQueue: {
-		client: message,
-	},
-}));
-
-const s = DebugLog("SQL", (message) => ({
-	WorkQueue: {
-		repository: message,
-	},
-}));
+const { logsql, trace } = await Effect.runPromise(
+	Effect.provide(
+		Effect.gen(function* () {
+			const logging = yield* LoggingContext;
+			return {
+				logsql: logging.stream(
+					(yield* logging.logger).withContext({
+						event: "logsql",
+					}),
+					(logger, message) =>
+						logger.metadataOnly({
+							WorkQueueClient: {
+								sql: message,
+							},
+						}),
+				),
+				trace: (yield* logging.logger).withContext({
+					event: "trace",
+				}),
+			};
+		}),
+		Context.empty().pipe(withStructuredLogging({ prefix: "WorkQueueClient" })),
+	),
+);
 
 const knex = createQueryBuilder<typeof WorkQueueClient.CREATE_WORK.table>({
 	client: "sqlite3",
@@ -58,9 +76,11 @@ export class WorkQueueCountRow {
 
 export type Primitive = string | number | boolean;
 export interface PrimitiveObject
-	extends Record<
-		string,
-		PrimitiveObject | PrimitiveObject[] | Primitive | Primitive[]
+	extends Partial<
+		Record<
+			string,
+			PrimitiveObject | PrimitiveObject[] | Primitive | Primitive[]
+		>
 	> {}
 export class WorkQueueClient {
 	db: Sqlite3.Database;
@@ -93,8 +113,20 @@ export class WorkQueueClient {
 		const fs = new WorkQueueFilesystem(test, hash);
 		const db = new Sqlite3(fs.sqlite());
 		const props = { test, hash };
-		db.exec(s(WorkQueueClient.CREATE_WORK.toQuery(), props));
-		db.exec(s(WorkQueueExecutionTable.CREATE_WORK_EXECUTION.toQuery(), props));
+		trace
+			.withContext({
+				Execution: {
+					...props,
+				},
+			})
+			.withMetadata({
+				WorkQueueClient: {
+					db: db.name,
+				},
+			})
+			.debug("Creating database");
+		db.exec(logsql(WorkQueueClient.CREATE_WORK.toQuery()));
+		db.exec(logsql(WorkQueueExecutionTable.CREATE_WORK_EXECUTION.toQuery()));
 		return db;
 	};
 
@@ -155,11 +187,13 @@ export class WorkQueueClient {
 		workId: number;
 	}): WorkQueueRow | undefined {
 		const row = this.db
-			.prepare<[], WorkQueueRow>(s(knex("work").where({ workId }).toQuery()))
+			.prepare<[], WorkQueueRow>(
+				logsql(knex("work").where({ workId }).toQuery()),
+			)
 			.get();
 
 		if (row?.prepared) {
-			row.prepared = JSON.parse(row.prepared);
+			row.prepared = destr(row.prepared);
 		}
 		return row;
 	}
@@ -180,7 +214,7 @@ export class WorkQueueClient {
 		if (workId) {
 			this.db
 				.prepare(
-					s(
+					logsql(
 						knex("work")
 							.where({ workId })
 							.update({
@@ -191,7 +225,6 @@ export class WorkQueueClient {
 								completed: null,
 							})
 							.toQuery(),
-						this.props,
 					),
 				)
 				.run();
@@ -200,12 +233,11 @@ export class WorkQueueClient {
 
 		return this.db
 			.prepare(
-				s(
+				logsql(
 					knex("work")
 						.insert({ prepared, stateFn, action })
 						.returning("workId")
 						.toQuery(),
-					this.props,
 				),
 			)
 			.get();
@@ -214,14 +246,13 @@ export class WorkQueueClient {
 	dequeue(): WorkQueueRow | undefined {
 		const result: WorkQueueRow | undefined = this.db
 			.prepare<[], WorkQueueRow>(
-				s(
+				logsql(
 					knex("work")
 						.select("*")
 						.whereNull("completed")
 						.orderBy("processing", "asc", "first")
 						.limit(1)
 						.toQuery(),
-					this.props,
 				),
 			)
 			.get();
@@ -230,29 +261,35 @@ export class WorkQueueClient {
 			return;
 		}
 
-		r({
-			Dequeue: {
-				result,
-			},
-		});
+		trace
+			.withContext({
+				workId: result.workId,
+				action: result.action,
+				stateFn: result.stateFn,
+			})
+			.withMetadata({
+				WorkQueueClient: {
+					row: result,
+				},
+			})
+			.debug("Dequeueing work");
 
 		if (result.action) {
-			result.action = JSON.parse(result.action);
+			result.action = destr(result.action);
 		}
 
 		if (result.prepared) {
-			result.prepared = JSON.parse(result.prepared);
+			result.prepared = destr(result.prepared);
 		}
 
 		this.db.exec(
-			s(
+			logsql(
 				knex("work")
 					.where({
 						workId: result.workId,
 					})
 					.update({ processing: knex.raw("datetime()") })
 					.toQuery(),
-				this.props,
 			),
 		);
 
@@ -261,7 +298,7 @@ export class WorkQueueClient {
 
 	complete({ workId, result }: { workId: number; result: PrimitiveObject }) {
 		this.db.exec(
-			s(
+			logsql(
 				knex<typeof WorkQueueClient.CREATE_WORK.table>("work")
 					.where({ workId })
 					.update({
@@ -269,7 +306,6 @@ export class WorkQueueClient {
 						completed: knex.raw("datetime()"),
 					})
 					.toQuery(),
-				this.props,
 			),
 		);
 	}

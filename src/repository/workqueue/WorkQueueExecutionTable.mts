@@ -1,7 +1,11 @@
 import type { Database } from "better-sqlite3";
+import { Context, Effect } from "effect";
 import createQueryBuilder from "knex";
 import KSUID from "ksuid";
-import { DebugLog } from "../../debug/DebugLog.mjs";
+import {
+	LoggingContext,
+	withStructuredLogging,
+} from "../../server/loglayer/LoggingContext.mjs";
 import type { PrimitiveObject, WorkQueueRow } from "./WorkQueueClient.mjs";
 
 const { schema } = createQueryBuilder({
@@ -20,17 +24,35 @@ const { schema } = createQueryBuilder({
 	useNullAsDefault: true,
 });
 
-const l = DebugLog("REPOSITORY", (message) => ({
-	WorkQueueExecutionTable: {
-		repository: message,
-	},
-}));
+const { logsql, trace } = await Effect.runPromise(
+	Effect.provide(
+		Effect.gen(function* () {
+			const logging = yield* LoggingContext;
+			return {
+				logsql: logging.stream(
+					(yield* logging.logger).withContext({
+						event: "logsql",
+					}),
+					(logger, message) =>
+						logger
+							.withMetadata({
+								WorkQueueExecutionTable: {
+									sql: message,
+								},
+							})
+							.debug("SQL query"),
+				),
+				trace: (yield* logging.logger).withContext({
+					event: "trace",
+				}),
+			};
+		}),
+		Context.empty().pipe(
+			withStructuredLogging({ prefix: "WorkQueueExecutionTable" }),
+		),
+	),
+);
 
-const t = DebugLog("REPOSITORY", (message) => ({
-	WorkQueueExecutionTable: {
-		trace: message,
-	},
-}));
 const knex = createQueryBuilder<
 	typeof WorkQueueExecutionTable.CREATE_WORK_EXECUTION.table
 >({
@@ -122,12 +144,27 @@ export class WorkQueueExecutionTable {
 			JSON.stringify(resolved),
 		);
 
-		t("ExecutionRow", executionRow, "TRACE");
+		trace
+			.withContext({
+				WorkQueueExecutionRow: {
+					row: executionRow,
+				},
+			})
+			.withMetadata({
+				upsert: {
+					workId,
+					workExecutionId,
+				},
+			})
+			.debug("Upserting work execution");
+
 		if (workExecutionId === undefined) {
-			this.db.exec(l(knex("work_execution").insert(executionRow).toString()));
+			this.db.exec(
+				logsql(knex("work_execution").insert(executionRow).toString()),
+			);
 		} else {
 			this.db.exec(
-				l(
+				logsql(
 					knex("work_execution")
 						.where({ workId, workExecutionId })
 						.update(executionRow)

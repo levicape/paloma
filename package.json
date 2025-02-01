@@ -17,17 +17,18 @@
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "catalog:log-awspowertools",
-    "@effect/platform": "catalog:effect",
-    "@effect/platform-node": "catalog:effect",
     "@loglayer/transport-aws-lambda-powertools": "catalog:log-loglayer",
     "@loglayer/transport-consola": "catalog:log-loglayer",
     "@stricli/core": "catalog:cli",
     "better-sqlite3": "catalog:database-sqlite",
     "consola": "catalog:log-consola",
+    "db0": "catalog:database-sql",
+    "destr": "catalog:parse-json",
     "effect": "catalog:effect",
     "knex": "catalog:database-sql",
     "ksuid": "catalog:id",
     "loglayer": "catalog:log-loglayer",
+    "pathe": "catalog:parse-path",
     "serialize-error": "catalog:error",
     "std-env": "catalog:core",
     "ulidx": "catalog:id",
@@ -51,11 +52,11 @@
   },
   "exports": {
     ".": "./module/execution/index.mjs",
-    "./bootstrap": "./module/bootstrap/index.mjs",
-    "./materials": "./module/materials/index.mjs",
+    "./execution": "./module/execution/index.mjs",
     "./cli": "./module/cli/index.mjs",
-    "./debug": "./module/debug/index.mjs",
-    "./repository": "./module/repository/index.mjs"
+    "./materials": "./module/materials/index.mjs",
+    "./repository": "./module/repository/index.mjs",
+    "./server": "./module/server/index.mjs"
   },
   "files": [
     "iac",
@@ -177,7 +178,7 @@
     "prepublish": "$npm_package_config_packageexecutor publint --strict",
     "test": "$npm_package_config_packageexecutor nx nx:test --verbose",
     "test:unit": "node --experimental-strip-types --experimental-test-coverage --test --test-reporter junit --test-reporter-destination test-unit.junit.xml  \"module/**/*.test.(mjs|cjs|js)\"",
-    "xx:workflow": "$npm_package_config_packageexecutor nx run-many -t build,lint,test --parallel=1 --verbose --no-cloud"
+    "xx:workflow": "$npm_package_config_packageexecutor nx run-many -t build,lint,test,prepublish --parallel=1 --verbose --no-cloud"
   },
   "type": "module",
   "types": "./module/index.d.mts"

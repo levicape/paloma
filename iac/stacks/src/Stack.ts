@@ -1,4 +1,5 @@
 import { StackReference, getStack } from "@pulumi/pulumi";
+import { destr } from "destr";
 import { VError } from "verror";
 import type { SomeZodObject, z } from "zod";
 import { JsonParseException } from "./Exception";
@@ -17,7 +18,7 @@ export const $val = <Z extends z.AnyZodObject>(
 			return schema.parse(json);
 		}
 
-		return schema.parse(JSON.parse(json));
+		return schema.parse(destr(json));
 	} catch (e) {
 		throw new JsonParseException(e, json);
 	}
@@ -36,7 +37,7 @@ type DereferencedOutput<T extends DereferenceConfig> = {
 	};
 };
 
-export const deref = async <T extends DereferenceConfig>(
+export const $deref = async <T extends DereferenceConfig>(
 	config: T,
 ): Promise<DereferencedOutput<T>[string]> => {
 	const dereferencedRoots = {} as DereferencedOutput<T>;
