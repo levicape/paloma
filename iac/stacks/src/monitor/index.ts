@@ -31,12 +31,12 @@ import {
 import { BucketObjectv2 } from "@pulumi/aws/s3/bucketObjectv2";
 import { BucketPublicAccessBlock } from "@pulumi/aws/s3/bucketPublicAccessBlock";
 import { BucketVersioningV2 } from "@pulumi/aws/s3/bucketVersioningV2";
-import { Output, all, getStack } from "@pulumi/pulumi";
+import { Output, all } from "@pulumi/pulumi";
 import { AssetArchive } from "@pulumi/pulumi/asset/archive";
 import { StringAsset } from "@pulumi/pulumi/asset/asset";
 import { stringify } from "yaml";
 import type { z } from "zod";
-import { deref } from "../Stack";
+import { $deref } from "../Stack";
 import { PalomaCodestarStackExportsZod } from "../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../datalayer/exports";
 import { PalomaNevadaMonitorStackExportsZod } from "./exports";
@@ -45,16 +45,14 @@ const PACKAGE_NAME = "@levicape/paloma";
 const CANARY_PATHS = [
 	{
 		name: "execution",
+		description: "Tests basic Paloma state machine execution",
 		packageName: "@levicape/paloma-examples-canaryexecution",
-		root: "paloma-example-canary-execution",
-		handler:
-			"paloma-example-canary-execution/module/canary/harness.LambdaHandler",
+		handler: "module/canary/execution.LambdaHandler",
 	},
 	// {
 	// 	name: "server",
 	// 	packageName: "@levicape/paloma-example",
-	// 	root: "tmp/paloma-example-canary-http",
-	// 	handler: "paloma-example-canary-http/module/canary/server.handler",
+	// 	handler: "module/canary/server.handler",
 	// },
 ] as const;
 const LLRT_ARCH: string | undefined = process.env["LLRT_ARCH"]; //"lambda-arm64-full-sdk";
@@ -87,13 +85,14 @@ const STACKREF_CONFIG = {
 
 export = async () => {
 	const context = await Context.fromConfig();
-	const _ = (name: string) => `${context.prefix}-${name}`;
+	const _ = (name?: string) =>
+		name ? `${context.prefix}-${name}` : context.prefix;
 	const stage = CI.CI_ENVIRONMENT;
 	const farRole = await getRole({ name: CI.CI_ACCESS_ROLE });
 
 	// Stack references
 	const { codestar: __codestar, datalayer: __datalayer } =
-		await deref(STACKREF_CONFIG);
+		await $deref(STACKREF_CONFIG);
 
 	// Object Store
 	const s3 = (() => {
@@ -102,6 +101,9 @@ export = async () => {
 				acl: "private",
 				tags: {
 					Name: _(name),
+					StackRef: STACKREF_ROOT,
+					PackageName: PACKAGE_NAME,
+					Key: name,
 				},
 			});
 
@@ -158,8 +160,13 @@ export = async () => {
 
 	// Logging
 	const cloudwatch = (() => {
-		const loggroup = new LogGroup(_("loggroup"), {
-			retentionInDays: 365,
+		const loggroup = new LogGroup(_("logs"), {
+			retentionInDays: context.environment.isProd ? 14 : 180,
+			tags: {
+				Name: _("logs"),
+				StackRef: STACKREF_ROOT,
+				PackageName: PACKAGE_NAME,
+			},
 		});
 
 		return {
@@ -169,7 +176,7 @@ export = async () => {
 
 	// Compute
 	const handler = async (
-		{ name, root, packageName, handler }: (typeof CANARY_PATHS)[number],
+		{ name, description, packageName, handler }: (typeof CANARY_PATHS)[number],
 		{
 			datalayer,
 			codestar,
@@ -280,13 +287,14 @@ export = async () => {
 			key: "monitor.zip",
 			tags: {
 				Name: _(`${name}-monitor`),
+				StackRef: STACKREF_ROOT,
 			},
 		});
 
 		const lambda = new LambdaFn(
 			_(`${name}`),
 			{
-				description: `(${getStack()}) ${name} in ${packageName}:${STACKREF_ROOT}`,
+				description: `(${packageName}) "${description ?? `Monitor lambda ${name}`}" in #${stage}`,
 				role: roleArn,
 				architectures: ["arm64"],
 				memorySize: Number.parseInt(context.environment.isProd ? "512" : "256"),
@@ -309,7 +317,7 @@ export = async () => {
 				loggingConfig: {
 					logFormat: "JSON",
 					logGroup: cloudwatch.loggroup.name,
-					applicationLogLevel: "DEBUG",
+					applicationLogLevel: context.environment.isProd ? "INFO" : "DEBUG",
 				},
 				environment: all([cloudmapEnvironment]).apply(([cloudmapEnv]) => {
 					return {
@@ -320,6 +328,13 @@ export = async () => {
 						},
 					};
 				}),
+				tags: {
+					Name: _(name),
+					StackRef: STACKREF_ROOT,
+					Handler: "Monitor",
+					Monitor: name,
+					PackageName: packageName,
+				},
 			},
 			{
 				dependsOn: zip,
@@ -328,15 +343,15 @@ export = async () => {
 		);
 
 		const version = new Version(_(`${name}-version`), {
-			description: `(${getStack()}) ${stage} ${name} monitor @${packageName}:${STACKREF_ROOT}`,
+			description: `(${packageName}) Version for ${stage}`,
 			functionName: lambda.name,
 		});
 
 		const alias = new Alias(
 			_(`${name}-alias`),
 			{
-				description: `(${getStack()}) ${stage} ${name} monitor @${packageName}:${STACKREF_ROOT}`,
 				name: stage,
+				description: `(${packageName}) Alias for ${stage}`,
 				functionName: lambda.name,
 				functionVersion: version.version,
 			},
@@ -348,12 +363,12 @@ export = async () => {
 		const deploymentGroup = new DeploymentGroup(
 			_(`${name}-deployment-group`),
 			{
-				appName: codestar.codedeploy.application.name,
 				deploymentGroupName: lambda.arn.apply((arn) =>
 					_(`${name}-deploybg-${arn.slice(-5)}`),
 				),
-				serviceRoleArn: farRole.arn,
+				appName: codestar.codedeploy.application.name,
 				deploymentConfigName: codestar.codedeploy.deploymentConfig.name,
+				serviceRoleArn: farRole.arn,
 				deploymentStyle: {
 					deploymentOption: "WITH_TRAFFIC_CONTROL",
 					deploymentType: "BLUE_GREEN",
@@ -423,7 +438,6 @@ export = async () => {
 							S3_DEPLOY_KEY: "<S3_DEPLOY_KEY>",
 							CANARY_NAME: "<CANARY_NAME>",
 							PACKAGE_NAME: "<PACKAGE_NAME>",
-							ARTIFACT_ROOT: "<ARTIFACT_ROOT>",
 						},
 						exportedVariables: [
 							"STACKREF_CODESTAR_ECR_REPOSITORY_ARN",
@@ -435,7 +449,7 @@ export = async () => {
 						] as string[],
 						environment: {
 							type: "ARM_CONTAINER",
-							computeType: "BUILD_GENERAL1_MEDIUM",
+							computeType: "BUILD_GENERAL1_SMALL",
 							image: "aws/codebuild/amazonlinux-aarch64-standard:3.0",
 							environmentVariables: [
 								{
@@ -483,11 +497,6 @@ export = async () => {
 									value: "<PACKAGE_NAME>",
 									type: "PLAINTEXT",
 								},
-								{
-									name: "ARTIFACT_ROOT",
-									value: "<ARTIFACT_ROOT>",
-									type: "PLAINTEXT",
-								},
 							] as { name: string; value: string; type: "PLAINTEXT" }[],
 						},
 						phases: {
@@ -503,7 +512,7 @@ export = async () => {
 									"--entrypoint",
 									"deploy",
 									`-e DEPLOY_FILTER=$PACKAGE_NAME`,
-									`-e DEPLOY_OUTPUT=/tmp/$ARTIFACT_ROOT`,
+									`-e DEPLOY_OUTPUT=/tmp/monitorhandler`,
 									"$SOURCE_IMAGE_URI",
 									"> .container",
 								].join(" "),
@@ -516,12 +525,12 @@ export = async () => {
 								"sleep 8s",
 								`docker container logs $(cat .container)`,
 								"mkdir -p $CODEBUILD_SRC_DIR/.extractimage || true",
-								`docker cp $(cat .container):/tmp/$ARTIFACT_ROOT $CODEBUILD_SRC_DIR/.extractimage`,
+								`docker cp $(cat .container):/tmp/monitorhandler $CODEBUILD_SRC_DIR/.extractimage`,
 								"ls -al $CODEBUILD_SRC_DIR/.extractimage || true",
-								"ls -al $CODEBUILD_SRC_DIR/.extractimage/$ARTIFACT_ROOT || true",
+								"ls -al $CODEBUILD_SRC_DIR/.extractimage/monitorhandler || true",
 								"corepack -g install pnpm@9 || true",
-								"pnpm -C $CODEBUILD_SRC_DIR/.extractimage/$ARTIFACT_ROOT install --offline --prod --ignore-scripts --node-linker=hoisted || true",
-								"ls -al $CODEBUILD_SRC_DIR/.extractimage/$ARTIFACT_ROOT/node_modules || true",
+								"pnpm -C $CODEBUILD_SRC_DIR/.extractimage/monitorhandler install --offline --prod --ignore-scripts --node-linker=hoisted || true",
+								"ls -al $CODEBUILD_SRC_DIR/.extractimage/monitorhandler/node_modules || true",
 								`NODE_NO_WARNINGS=1 node -e '(${(
 									// biome-ignore lint/complexity/useArrowFunction:
 									function () {
@@ -717,9 +726,9 @@ export = async () => {
 							);
 
 							const project = new Project(
-								_(`${artifact.name}-project`),
+								_(`${artifact.name}`),
 								{
-									description: `(${getStack()}) ${stage} ${name} ${action} @${packageName}:${STACKREF_ROOT}`,
+									description: `(${packageName}) Deploy "${stage}" pipeline "${name}" stage: "${action}"`,
 									buildTimeout: 12,
 									serviceRole: farRole.arn,
 									artifacts: {
@@ -730,6 +739,14 @@ export = async () => {
 									source: {
 										type: "CODEPIPELINE",
 										buildspec: content,
+									},
+									tags: {
+										Name: _(artifact.name),
+										StackRef: STACKREF_ROOT,
+										PackageName: packageName,
+										Monitor: name,
+										DeployStage: stage,
+										Action: action,
 									},
 								},
 								{
@@ -782,7 +799,6 @@ export = async () => {
 			environment: {
 				CANARY_NAME: name,
 				PACKAGE_NAME: packageName,
-				ARTIFACT_ROOT: root,
 				LAMBDA_HANDLER: handler,
 			},
 			lambda: {
@@ -849,7 +865,7 @@ export = async () => {
 						],
 					},
 					{
-						name: "ScheduleCanary",
+						name: "MonitorHandler",
 						actions: Object.entries(canary).flatMap(
 							([name, { codebuild, lambda, codedeploy, environment }]) => {
 								return [
@@ -925,11 +941,6 @@ export = async () => {
 														{
 															name: "PACKAGE_NAME",
 															value: environment.PACKAGE_NAME,
-															type: "PLAINTEXT",
-														},
-														{
-															name: "ARTIFACT_ROOT",
-															value: environment.ARTIFACT_ROOT,
 															type: "PLAINTEXT",
 														},
 													]),
@@ -1017,7 +1028,7 @@ export = async () => {
 														},
 														{
 															name: "LAMBDA_HANDLER",
-															value: environment.LAMBDA_HANDLER,
+															value: `monitorhandler/${environment.LAMBDA_HANDLER}`,
 															type: "PLAINTEXT",
 														},
 													]),
@@ -1048,6 +1059,11 @@ export = async () => {
 						),
 					},
 				],
+				tags: {
+					Name: _("deploy"),
+					StackRef: STACKREF_ROOT,
+					PackageName: PACKAGE_NAME,
+				},
 			},
 			{
 				dependsOn: Object.values(canary).flatMap((canary) => [
@@ -1073,7 +1089,7 @@ export = async () => {
 
 		const EcrImageAction = (() => {
 			const rule = new EventRule(_("on-ecr-push"), {
-				description: `(${getStack()}) ECR push event rule @${PACKAGE_NAME}:${STACKREF_ROOT}`,
+				description: `(${PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
 				state: "ENABLED",
 				eventPattern: JSON.stringify({
 					source: ["aws.ecr"],
@@ -1085,6 +1101,10 @@ export = async () => {
 						"image-tag": [stage],
 					},
 				}),
+				tags: {
+					Name: _(`on-ecr-push`),
+					StackRef: STACKREF_ROOT,
+				},
 			});
 			const target = new EventTarget(_("on-ecr-push-deploy"), {
 				rule: rule.name,
@@ -1126,11 +1146,15 @@ export = async () => {
 					const rule = new EventRule(
 						_(`on-rate-${idx}`),
 						{
-							description: `(${getStack()}) Schedule rule for ${group
+							description: `(${PACKAGE_NAME}) Schedule rule for ${group
 								.map(([key]) => key)
 								.join(", ")}`,
 							state: "ENABLED",
 							scheduleExpression: `rate(${context.environment.isProd ? "4" : "12"} minutes)`,
+							tags: {
+								Name: _(`on-rate-${idx}`),
+								StackRef: STACKREF_ROOT,
+							},
 						},
 						{
 							dependsOn: group.map(([, handler]) => handler.alias),
@@ -1177,8 +1201,6 @@ export = async () => {
 			OnSchedule,
 		};
 	})();
-
-	// Outputs
 
 	// Outputs
 	const s3Output = Output.create(

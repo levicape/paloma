@@ -1,20 +1,26 @@
-import { ConsolaTransport } from "@loglayer/transport-consola";
-import { createConsola } from "consola";
+import { LogLevel, Logger } from "@aws-lambda-powertools/logger";
+import { PowertoolsTransport } from "@loglayer/transport-aws-lambda-powertools";
 import { Context, Effect } from "effect";
 import { LogLayer } from "loglayer";
 import { serializeError } from "serialize-error";
 import { env } from "std-env";
 import { ulid } from "ulidx";
-import { LoggingContext } from "./LoggingContext.mjs";
+import { LoggingContext, LogstreamPassthrough } from "./LoggingContext.mjs";
+
+let logLevel: (typeof LogLevel)[keyof typeof LogLevel];
+try {
+	logLevel = Number(env.LOG_LEVEL ?? "3") >= 3 ? LogLevel.INFO : LogLevel.DEBUG;
+} catch (e) {
+	logLevel = "INFO";
+}
 
 const rootloglayer = Effect.succeed(
 	new LogLayer({
-		transport: new ConsolaTransport({
-			logger: createConsola({
-				formatOptions: {
-					compact: false,
-				},
-				level: Number(env.LOG_LEVEL ?? "3"),
+		transport: new PowertoolsTransport({
+			logger: new Logger({
+				// TODO: Stack env vars, add to protocol stands
+				serviceName: env.AWS_CLOUDMAP_SERVICE_NAME,
+				logLevel,
 			}),
 		}),
 		errorSerializer: serializeError,
@@ -34,7 +40,7 @@ const rootloglayer = Effect.succeed(
 	}),
 );
 
-export const withConsolaLogger = (props: {
+export const withAwsPowertoolsLogger = (props: {
 	prefix?: string;
 	context?: Record<string, unknown>;
 }) =>
@@ -51,4 +57,5 @@ export const withConsolaLogger = (props: {
 				loggerId,
 			});
 		}),
+		stream: LogstreamPassthrough,
 	});

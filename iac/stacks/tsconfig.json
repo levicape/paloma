@@ -2,6 +2,7 @@
 	"compilerOptions": {
 		"strict": true,
 		"target": "es2022",
+		// "moduleResolution": "bundler",
 		"module": "preserve",
 		"jsx": "react-jsx",
 		"jsxImportSource": "@levicape/fourtwo",
@@ -14,7 +15,5 @@
 		"noImplicitReturns": true,
 		"forceConsistentCasingInFileNames": true,
 		"outDir": "commonjs"
-	},
-	"include": ["**/*"],
-	"exclude": ["node_modules", "module", "commonjs"]
+	}
 }

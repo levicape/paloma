@@ -7,6 +7,7 @@ import { Role } from "@pulumi/aws/iam/role";
 import { PrivateDnsNamespace } from "@pulumi/aws/servicediscovery/privateDnsNamespace";
 import { Vpc } from "@pulumi/awsx/ec2/vpc";
 import { all, getStack } from "@pulumi/pulumi";
+import { destr } from "destr";
 import type { z } from "zod";
 import { PalomaDatalayerStackExportsZod } from "./exports";
 
@@ -28,6 +29,7 @@ export = async () => {
 				},
 				tags: {
 					Name: _("vpc"),
+					PackageName: PACKAGE_NAME,
 				},
 			},
 			{
@@ -55,6 +57,10 @@ export = async () => {
 						cidrBlocks: ["0.0.0.0/0"],
 					},
 				],
+				tags: {
+					Name: _("security-group"),
+					PackageName: PACKAGE_NAME,
+				},
 			},
 			{
 				parent: vpc,
@@ -73,6 +79,7 @@ export = async () => {
 			throughputMode: "elastic",
 			tags: {
 				Name: _("efs"),
+				PackageName: PACKAGE_NAME,
 			},
 		});
 
@@ -108,6 +115,10 @@ export = async () => {
 				posixUser: {
 					gid: 1000,
 					uid: 1000,
+				},
+				tags: {
+					Name: _("efs-access-point"),
+					PackageName: PACKAGE_NAME,
 				},
 			},
 			{
@@ -161,16 +172,17 @@ export = async () => {
 	})();
 
 	const cloudmap = (({ vpc }) => {
-		const cloudMapPrivateDnsNamespace = new PrivateDnsNamespace(
-			_(`cloudmap-ns`),
-			{
-				name: all([vpc.vpcId, efs.filesystem.id]).apply(([vpcid, efsid]) =>
-					_(`cloudmap-ns-${vpcid.slice(-4)}-${efsid.slice(-4)}`),
-				),
-				description: `(${getStack()}) Service mesh DNS namespace for ${PACKAGE_NAME}`,
-				vpc: vpc.vpcId,
+		const cloudMapPrivateDnsNamespace = new PrivateDnsNamespace(_(`pdns`), {
+			name: all([vpc.vpcId, efs.filesystem.id]).apply(([vpcid, efsid]) =>
+				_(`pdns-${vpcid.slice(-4)}-${efsid.slice(-4)}`),
+			),
+			description: `(${PACKAGE_NAME}) Service mesh private DNS namespace`,
+			vpc: vpc.vpcId,
+			tags: {
+				Name: _("pdns"),
+				PackageName: PACKAGE_NAME,
 			},
-		);
+		});
 
 		return {
 			namespace: cloudMapPrivateDnsNamespace,
@@ -254,7 +266,7 @@ export = async () => {
 			cloudmapNamespaceHostedZone,
 		]) => {
 			const exported = {
-				paloma_datalayer_props: JSON.parse(jsonProps),
+				paloma_datalayer_props: destr(jsonProps),
 				paloma_datalayer_iam: {
 					roles: {
 						lambda: {

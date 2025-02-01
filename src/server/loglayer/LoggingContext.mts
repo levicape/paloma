@@ -14,8 +14,19 @@ export class LoggingContext extends Context.Tag("LoggingContext")<
 	{
 		readonly props: LoggingContextProps;
 		readonly logger: Effect.Effect<ILogLayer, unknown>;
+		readonly stream: (
+			logger: ILogLayer,
+			each: (logger: ILogLayer, message: string) => void,
+		) => (m: string) => string;
 	}
 >() {}
+
+export const LogstreamPassthrough =
+	(logger: ILogLayer, each: (logger: ILogLayer, message: string) => void) =>
+	(m: string) => {
+		each(logger, m);
+		return m;
+	};
 
 export const withStructuredLogging = (props: {
 	prefix?: string;

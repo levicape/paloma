@@ -67,6 +67,7 @@ catalogs:
   database-postgres:
     "pg": "^8.13.1"
   database-sql:
+    "db0": "^0.2.3"
     "knex": "^3.1.0"
     "slonik": "^46.4.0"
   database-sqlite:
@@ -121,6 +122,10 @@ catalogs:
     "nx": "^20.3.2"
     "publint": "^0.3.2"
     "syncpack": "^13.0.0"
+  parse-json:
+    "destr": "^2.0.3"
+  parse-path:
+    "pathe": "^2.0.2"
   protobuf:
     "@bufbuild/protobuf": "^2.2.3"
     "@bufbuild/buf": "^1.44.0"

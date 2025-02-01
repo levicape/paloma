@@ -12,21 +12,15 @@ const server = http.createServer({ keepAliveTimeout: 60000 }, (req, res) => {
 const port = 9222;
 const ttl = Math.random() * 8000 + 6;
 server.listen(9222);
-console.dir(
-	{
-		message: "Server listening",
-		port,
-		ttl,
-	},
-	{ depth: null },
-);
+console.log({
+	message: "Server listening",
+	port,
+	ttl,
+});
 setTimeout(() => {
 	server.close(() => {
-		console.dir(
-			{
-				message: "Server closed",
-			},
-			{ depth: null },
-		);
+		console.log({
+			message: "Server closed",
+		});
 	});
 }, ttl);

@@ -8,12 +8,20 @@ import { all } from "@pulumi/pulumi/output";
 import type { z } from "zod";
 import { PalomaCodestarStackExportsZod } from "./exports";
 
+const PACKAGE_NAME = "@levicape/paloma";
+
 export = async () => {
 	const context = await Context.fromConfig();
 	const _ = (name: string) => `${context.prefix}-${name}`;
 
 	const ecr = await (async () => {
-		const repository = new ECRRepository(_("binaries"));
+		const repository = new ECRRepository(_("binaries"), {
+			tags: {
+				Name: _("binaries"),
+				PackageName: PACKAGE_NAME,
+			},
+		});
+		const daysTtl = context.environment.isProd ? 28 : 9;
 		new LifecyclePolicy(_("binaries-lifecycle"), {
 			repository: repository.name,
 			policy: repository.repositoryUrl.apply(
@@ -23,12 +31,12 @@ export = async () => {
 							rules: [
 								{
 									priority: 1,
-									description: "Expire images older than 14 days",
+									description: `Expire images older than ${daysTtl} days`,
 									selection: {
 										tagStatus: "tagged",
 										countType: "sinceImagePushed",
 										countUnit: "days",
-										countNumber: 14,
+										countNumber: daysTtl,
 										tagPrefixLists: ["git"],
 									},
 									action: {
@@ -75,6 +83,10 @@ export = async () => {
 	const codedeploy = await (async () => {
 		const application = new Application(_("application"), {
 			computePlatform: "Lambda",
+			tags: {
+				Name: _("application"),
+				PackageName: PACKAGE_NAME,
+			},
 		});
 
 		const deploymentConfig = new DeploymentConfig(_("deployment-config"), {

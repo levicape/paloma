@@ -20,6 +20,9 @@ catalogs:
       specifier: ^3.24.1
       version: 3.24.1
   database-sql:
+    db0:
+      specifier: ^0.2.3
+      version: 0.2.3
     knex:
       specifier: ^3.1.0
       version: 3.1.0
@@ -45,12 +48,6 @@ catalogs:
       specifier: ^5.7.3
       version: 5.7.3
   effect:
-    '@effect/platform':
-      specifier: ^0.75.1
-      version: 0.75.1
-    '@effect/platform-node':
-      specifier: ^0.71.1
-      version: 0.71.1
     effect:
       specifier: ^3.12.7
       version: 3.12.7
@@ -107,6 +104,14 @@ catalogs:
     syncpack:
       specifier: ^13.0.0
       version: 13.0.0
+  parse-json:
+    destr:
+      specifier: ^2.0.3
+      version: 2.0.3
+  parse-path:
+    pathe:
+      specifier: ^2.0.2
+      version: 2.0.2
   protobuf:
     '@bufbuild/protobuf':
       specifier: ^2.2.3
@@ -188,12 +193,6 @@ importers:
       '@aws-lambda-powertools/logger':
         specifier: catalog:log-awspowertools
         version: 2.13.1
-      '@effect/platform':
-        specifier: catalog:effect
-        version: 0.75.1(effect@3.12.7)
-      '@effect/platform-node':
-        specifier: catalog:effect
-        version: 0.71.1(@effect/platform@0.75.1(effect@3.12.7))(effect@3.12.7)
       '@loglayer/transport-aws-lambda-powertools':
         specifier: catalog:log-loglayer
         version: 2.0.6(@aws-lambda-powertools/logger@2.13.1)
@@ -209,6 +208,12 @@ importers:
       consola:
         specifier: catalog:log-consola
         version: 3.4.0
+      db0:
+        specifier: catalog:database-sql
+        version: 0.2.3(better-sqlite3@11.7.2)
+      destr:
+        specifier: catalog:parse-json
+        version: 2.0.3
       effect:
         specifier: catalog:effect
         version: 3.12.7
@@ -221,6 +226,9 @@ importers:
       loglayer:
         specifier: catalog:log-loglayer
         version: 5.5.1
+      pathe:
+        specifier: catalog:parse-path
+        version: 2.0.2
       serialize-error:
         specifier: catalog:error
         version: 12.0.0
@@ -334,6 +342,9 @@ importers:
       '@pulumi/pulumi':
         specifier: catalog:pulumi
         version: 3.147.0(typescript@5.7.3)
+      destr:
+        specifier: catalog:parse-json
+        version: 2.0.3
       verror:
         specifier: catalog:error
         version: 1.10.1
@@ -2477,6 +2488,29 @@ packages:
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
 
+  db0@0.2.3:
+    resolution: {integrity: sha512-PunuHESDNefmwVy1LDpY663uWwKt2ogLGoB6NOz2sflGREWqDreMwDgF8gfkXxgNXW+dqviyiJGm924H1BaGiw==}
+    peerDependencies:
+      '@electric-sql/pglite': '*'
+      '@libsql/client': '*'
+      better-sqlite3: '*'
+      drizzle-orm: '*'
+      mysql2: '*'
+      sqlite3: '*'
+    peerDependenciesMeta:
+      '@electric-sql/pglite':
+        optional: true
+      '@libsql/client':
+        optional: true
+      better-sqlite3:
+        optional: true
+      drizzle-orm:
+        optional: true
+      mysql2:
+        optional: true
+      sqlite3:
+        optional: true
+
   debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -2545,6 +2579,9 @@ packages:
 
   deps-regex@0.2.0:
     resolution: {integrity: sha512-PwuBojGMQAYbWkMXOY9Pd/NWCDNHVH12pnS7WHqZkTSeMESe4hwnKKRp0yR87g37113x4JPbo/oIvXY+s/f56Q==}
+
+  destr@2.0.3:
+    resolution: {integrity: sha512-2N3BOUU4gYMpTP24s5rF5iP7BDr7uNTCs4ozw3kf/eKfvWSIu93GEBi5m427YoyJoeOzQ5smuu4nNAPGb8idSQ==}
 
   destroy@1.2.0:
     resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
@@ -3791,6 +3828,9 @@ packages:
 
   pathe@1.1.2:
     resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
+
+  pathe@2.0.2:
+    resolution: {integrity: sha512-15Ztpk+nov8DR524R4BF7uEuzESgzUEAV4Ah7CUMNGXdE5ELuvxElxGXndBl32vMSsWa1jpNf22Z+Er3sKwq+w==}
 
   peek-stream@1.1.3:
     resolution: {integrity: sha512-FhJ+YbOSBb9/rIl2ZeE/QHEsWn7PqNYt8ARAY3kIgNGOk13g9FGyIY6JIl/xB/3TFRVoTv5as0l11weORrTekA==}
@@ -7242,6 +7282,10 @@ snapshots:
 
   csstype@3.1.3: {}
 
+  db0@0.2.3(better-sqlite3@11.7.2):
+    optionalDependencies:
+      better-sqlite3: 11.7.2
+
   debug@2.6.9:
     dependencies:
       ms: 2.0.0
@@ -7303,6 +7347,8 @@ snapshots:
   depd@2.0.0: {}
 
   deps-regex@0.2.0: {}
+
+  destr@2.0.3: {}
 
   destroy@1.2.0: {}
 
@@ -8583,6 +8629,8 @@ snapshots:
   path-type@5.0.0: {}
 
   pathe@1.1.2: {}
+
+  pathe@2.0.2: {}
 
   peek-stream@1.1.3:
     dependencies:

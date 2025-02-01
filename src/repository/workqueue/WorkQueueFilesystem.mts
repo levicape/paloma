@@ -1,5 +1,6 @@
 import { mkdirSync } from "node:fs";
-import { basename } from "node:path";
+import { basename } from "pathe";
+import VError from "verror";
 
 export class WorkQueueFilesystem {
 	static root = process.env.LEAF_WORK_QUEUE_FS_PATH ?? "/tmp/paloma/work";
@@ -11,12 +12,12 @@ export class WorkQueueFilesystem {
 
 	sqlite = (): string => {
 		if (this.test in WorkQueueFilesystem.namecache) {
-			throw new Error(
+			throw new VError(
 				`Test ${this.test} already registered, please use a unique test name`,
 			);
 		}
 		if (this.test !== basename(this.test)) {
-			throw new Error(`Test ${this.test} must be safe for use in a filename`);
+			throw new VError(`Test ${this.test} must be safe for use in a filename`);
 		}
 
 		return `${WorkQueueFilesystem.root}/${this.test}_${this.hash}.sqlite`;

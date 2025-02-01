@@ -24,7 +24,7 @@ import { BucketWebsiteConfigurationV2 } from "@pulumi/aws/s3/bucketWebsiteConfig
 import { all, getStack } from "@pulumi/pulumi";
 import { stringify } from "yaml";
 import type { z } from "zod";
-import { deref } from "../../../Stack";
+import { $deref } from "../../../Stack";
 import { PalomaCodestarStackExportsZod } from "../../../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
 import { PalomaNevadaWebStackExportsZod } from "./exports";
@@ -53,12 +53,13 @@ const STACKREF_CONFIG = {
 };
 export = async () => {
 	const context = await Context.fromConfig();
-	const _ = (name: string) => `${context.prefix}-${name}`;
+	const _ = (name?: string) =>
+		name ? `${context.prefix}-${name}` : context.prefix;
 	const stage = process.env.CI_ENVIRONMENT ?? "unknown";
 	const farRole = await getRole({ name: "FourtwoAccessRole" });
 
 	// Stack references
-	const { codestar, datalayer } = await deref(STACKREF_CONFIG);
+	const { codestar, datalayer } = await $deref(STACKREF_CONFIG);
 
 	// Object Store
 	const s3 = (() => {
@@ -68,13 +69,19 @@ export = async () => {
 				daysToRetain?: number;
 				www?: boolean;
 			} = {
-				daysToRetain: 30,
+				daysToRetain: context.environment.isProd ? 30 : 8,
 				www: false,
 			},
 		) => {
 			const { daysToRetain, www } = props;
 			const bucket = new Bucket(_(name), {
 				acl: "private",
+				tags: {
+					Name: _(name),
+					StackRef: STACKREF_ROOT,
+					PackageName: PACKAGE_NAME,
+					Key: name,
+				},
 			});
 
 			new BucketServerSideEncryptionConfigurationV2(_(`${name}-encryption`), {
@@ -87,16 +94,12 @@ export = async () => {
 					},
 				],
 			});
-			new BucketVersioningV2(
-				_(`${name}-versioning`),
-
-				{
-					bucket: bucket.bucket,
-					versioningConfiguration: {
-						status: "Enabled",
-					},
+			new BucketVersioningV2(_(`${name}-versioning`), {
+				bucket: bucket.bucket,
+				versioningConfiguration: {
+					status: "Enabled",
 				},
-			);
+			});
 
 			let website: BucketWebsiteConfigurationV2 | undefined;
 			if (www) {
@@ -261,10 +264,14 @@ export = async () => {
 		})();
 
 		const project = (() => {
+			const deployStage = "staticwww";
+			const deployAction = "extractimage";
+			const artifactIdentifier = `${deployStage}_${deployAction}`;
+
 			const project = new Project(
-				_("project"),
+				_(artifactIdentifier),
 				{
-					description: `(${getStack()}) CodeBuild project for @${PACKAGE_NAME}:${STACKREF_ROOT}`,
+					description: `"(${PACKAGE_NAME}) Deploy pipeline "${deployStage}" stage: "${deployAction}"`,
 					buildTimeout: 14,
 					serviceRole: farRole.arn,
 					artifacts: {
@@ -311,6 +318,13 @@ export = async () => {
 						type: "CODEPIPELINE",
 						buildspec: buildspec.content,
 					},
+					tags: {
+						Name: _(artifactIdentifier),
+						StackRef: STACKREF_ROOT,
+						PackageName: PACKAGE_NAME,
+						DeployStage: deployStage,
+						Action: deployAction,
+					},
 				},
 				{
 					dependsOn: [buildspec.upload, s3.staticwww.bucket],
@@ -325,6 +339,7 @@ export = async () => {
 		return {
 			...project,
 			spec: {
+				artifactIdentifier: "staticwww_extractimage",
 				buildspec,
 			},
 		};
@@ -376,7 +391,7 @@ export = async () => {
 							provider: "CodeBuild",
 							version: "1",
 							inputArtifacts: ["source_image"],
-							outputArtifacts: ["staticwww_extractimage"],
+							outputArtifacts: [codebuild.spec.artifactIdentifier],
 							configuration: all([
 								codestar.ecr.repository.arn,
 								codestar.ecr.repository.name,
@@ -437,7 +452,7 @@ export = async () => {
 							owner: "AWS",
 							provider: "S3",
 							version: "1",
-							inputArtifacts: ["staticwww_extractimage"],
+							inputArtifacts: [codebuild.spec.artifactIdentifier],
 							configuration: all([s3.staticwww.bucket.bucket]).apply(
 								([BucketName]) => ({
 									BucketName,
@@ -449,6 +464,11 @@ export = async () => {
 					],
 				},
 			],
+			tags: {
+				Name: _("deploy"),
+				StackRef: STACKREF_ROOT,
+				PackageName: PACKAGE_NAME,
+			},
 		});
 
 		new RolePolicyAttachment(_("codepipeline-rolepolicy"), {
@@ -466,7 +486,7 @@ export = async () => {
 		const { name } = codestar.ecr.repository;
 
 		const rule = new EventRule(_("on-ecr"), {
-			description: `(${getStack()}) ECR push event rule @${PACKAGE_NAME}:${STACKREF_ROOT}`,
+			description: `(${PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${name}"`,
 			state: "ENABLED",
 			eventPattern: JSON.stringify({
 				source: ["aws.ecr"],
@@ -478,6 +498,10 @@ export = async () => {
 					"image-tag": [stage],
 				},
 			}),
+			tags: {
+				Name: _(`on-ecr-push`),
+				StackRef: STACKREF_ROOT,
+			},
 		});
 		const pipeline = new EventTarget(_("on-ecr-deploy"), {
 			rule: rule.name,
