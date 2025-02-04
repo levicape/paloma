@@ -83,6 +83,13 @@ export default async () => (
 										"pnpx nx run-many -t test --parallel=1 --verbose --no-cloud",
 									]}
 								/>,
+								<GithubStepX
+									name="Clean cache"
+									run={[
+										"pnpm store prune || true",
+										"corepack cache clean || true",
+									]}
+								/>,
 							];
 						}}
 					/>

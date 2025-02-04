@@ -82,6 +82,7 @@
           "dx:prepublish:pre",
           "dx:lint",
           "@levicape/paloma-examples-canaryexecution:dx:precommit",
+          "@levicape/paloma-nevada-io:dx:precommit",
           "@levicape/paloma-nevada-ui:dx:precommit",
           "@levicape/paloma-iac-stacks:dx:precommit"
         ]
@@ -108,6 +109,7 @@
         "dependsOn": [
           "build:module",
           "@levicape/paloma-examples-canaryexecution:nx:compile",
+          "@levicape/paloma-nevada-io:nx:compile",
           "@levicape/paloma-nevada-ui:nx:compile"
         ]
       },
@@ -120,6 +122,7 @@
         "dependsOn": [
           "test:unit",
           "@levicape/paloma-examples-canaryexecution:nx:test",
+          "@levicape/paloma-nevada-io:nx:test",
           "@levicape/paloma-nevada-ui:nx:test"
         ]
       },

@@ -111,11 +111,11 @@ export const PULUMI_STACKS: Array<{
 		stack: "datalayer",
 	},
 	{
-		stack: "monitor",
-	},
-	{
 		stack: "domains/nevada/web",
 		name: "nevada-web",
+	},
+	{
+		stack: "monitor",
 	},
 ].map((stack) => ({ ...stack, output: stack.stack.replaceAll("/", "_") }));
 
@@ -613,8 +613,8 @@ export default async () => {
 													/>
 												</>
 											))}
-											<CodeCatalystStepX run={`pnpm store prune`} />
-											<CodeCatalystStepX run={`corepack cache clean`} />
+											<CodeCatalystStepX run={`pnpm store prune || true`} />
+											<CodeCatalystStepX run={`corepack cache clean || true`} />
 										</>
 									}
 								/>

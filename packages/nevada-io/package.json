@@ -1,0 +1,130 @@
+{
+  "name": "@levicape/paloma-nevada-io",
+  "version": "0.0.0-local.0",
+  "config": {
+    "packagemanager": "pnpm",
+    "packageexecutor": "pnpm exec",
+    "outpath": "./module",
+    "srcpaths": "./src",
+    "lintpaths": "./src",
+    "i18n": "./src/_i18n",
+    "protocols": "./src/_protocols",
+    "models": "./src/_models",
+    "server": "module/app/PalomaNevadaHonoApp.mjs",
+    "port": "64128"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "catalog:protobuf",
+    "@levicape/paloma": "workspace:",
+    "@levicape/spork": "catalog:",
+    "effect": "catalog:effect",
+    "hono": "catalog:hono",
+    "ts-proto": "catalog:protobuf"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:lint",
+    "@types/node": "catalog:types",
+    "publint": "catalog:package",
+    "syncpack": "catalog:package",
+    "typescript": "catalog:dev"
+  },
+  "files": [
+    "module",
+    "output"
+  ],
+  "nx": {
+    "targets": {
+      "build:module": {
+        "dependsOn": [
+          "build:tsc"
+        ]
+      },
+      "build:tsc": {
+        "dependsOn": [
+          "@levicape/paloma:build:module"
+        ]
+      },
+      "dx:lint": {
+        "dependsOn": [
+          "nx:compile",
+          "lint:format",
+          "package:format"
+        ]
+      },
+      "dx:precommit": {
+        "dependsOn": [
+          "dx:prepublish",
+          "nx:test"
+        ]
+      },
+      "dx:prepublish": {
+        "dependsOn": [
+          "dx:prepublish:pre",
+          "dx:lint"
+        ]
+      },
+      "dx:test": {
+        "dependsOn": [
+          "dx:lint",
+          "nx:test"
+        ]
+      },
+      "nx:clean": {
+        "dependsOn": [
+          "clean:module"
+        ]
+      },
+      "nx:compile": {
+        "dependsOn": [
+          "build:module"
+        ]
+      },
+      "nx:test": {
+        "dependsOn": [
+          "dx:noop"
+        ]
+      },
+      "test:module": {
+        "dependsOn": [
+          "build:module"
+        ]
+      }
+    }
+  },
+  "private": true,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": "github:levicape/paloma",
+  "scripts": {
+    "build": "$npm_package_config_packageexecutor nx nx:compile",
+    "build:tsc": "$npm_package_config_packageexecutor tsc",
+    "clean": "$npm_package_config_packageexecutor nx nx:clean --verbose --no-cloud",
+    "clean:modules": "rm -rf $npm_package_config_modulepath",
+    "dx:precommit": "$npm_package_config_packageexecutor nx dx:precommit:pre && $npm_package_config_packageexecutor nx package:deps",
+    "dx:precommit:pre": "echo \"Starting precommit dx. This will check package.json dependencies.\"",
+    "dx:prepublish": "$npm_package_config_packageexecutor nx dx:lint && $npm_package_config_packageexecutor nx prepublish",
+    "dx:prepublish:pre": "echo \"Starting prepublish dx. This will compile the package, lint it, format package.json and verify all exports are valid. \"",
+    "dx:test": "$npm_package_config_packagescript clean && $npm_package_config_packagescript build && $npm_package_config_packagescript test",
+    "generate:i18n": "NODE_NO_WARNINGS=1 NPM_CONFIG_UPDATE_NOTIFIER=false $npm_package_config_packageexecutor spork code gen --root \"../../i18n\" --command \"$(which $npm_package_config_packagemanager) --silent run build\" --artifact module --destination $npm_package_config_i18n --clean",
+    "generate:models": "NODE_NO_WARNINGS=1 NPM_CONFIG_UPDATE_NOTIFIER=false $npm_package_config_packageexecutor spork code gen --root \"../../models\" --command \"$(which $npm_package_config_packagemanager) --silent run build\" --artifact module --destination $npm_package_config_models --clean",
+    "generate:protocols": "NODE_NO_WARNINGS=1 NPM_CONFIG_UPDATE_NOTIFIER=false $npm_package_config_packageexecutor spork code gen --root \"../../protocols\" --command \"$(which $npm_package_config_packagemanager) --silent run build\" --artifact gen --destination $npm_package_config_protocols --clean",
+    "http:start": "$npm_package_config_packageexecutor spork server start $npm_package_config_server --port $PORT --import server",
+    "http:watch": "rm nohup.out || true; nohup $npm_package_config_packageexecutor tsc -w & echo $! > .pidfile.tsc && pnpm run http:start --watch 'module'; kill $(cat .pidfile.tsc) || true; rm -f .pidfile.tsc || true",
+    "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_srcpaths",
+    "lint:format": "$npm_package_config_packageexecutor biome format --write $npm_package_config_srcpaths",
+    "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_srcpaths",
+    "lint:write": "$npm_package_config_packageexecutor biome check --write $npm_package_config_srcpaths",
+    "package:deps": "$npm_package_config_packageexecutor nx exec -- depcheck",
+    "package:fix": "$npm_package_config_packageexecutor nx exec -- syncpack fix-mismatches",
+    "package:format": "$npm_package_config_packageexecutor nx exec -- syncpack format",
+    "package:update": "$npm_package_config_packageexecutor nx exec -- syncpack update",
+    "precommit": "$npm_package_config_packageexecutor nx dx:prepublish  --verbose --no-cloud",
+    "predx:lint": "$npm_package_config_packageexecutor nx clean",
+    "prelint": "$npm_package_config_packageexecutor nx exec -- biome format $npm_package_config_lintpaths",
+    "prepublish": "$npm_package_config_packageexecutor nx exec -- publint --strict",
+    "test": "$npm_package_config_packageexecutor nx nx:test --verbose --no-cloud",
+    "test:module": "echo 'node --test  \"module/**/*.test.js\"'"
+  },
+  "type": "module"
+}

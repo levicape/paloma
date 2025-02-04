@@ -31,7 +31,7 @@ import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
 import { PalomaNevadaWebStackExportsZod } from "./exports";
 
 const PACKAGE_NAME = "@levicape/paloma-nevada-ui" as const;
-const DEPLOY_DIRECTORY = "output/staticwww/client" as const;
+const DEPLOY_DIRECTORY = "output/staticwww" as const;
 const MANIFEST_PATH = "/_web/routemap.json" as const;
 
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? "paloma";
@@ -67,9 +67,9 @@ export = async () => {
 	const farRole = await getRole({ name: "FourtwoAccessRole" });
 
 	// Stack references
-	const $dereference$ = await $deref(STACKREF_CONFIG);
-	const { codestar, datalayer } = $dereference$;
-	const routemap = ROUTE_MAP($dereference$);
+	const dereferenced$ = await $deref(STACKREF_CONFIG);
+	const { codestar, datalayer } = dereferenced$;
+	const routemap = ROUTE_MAP(dereferenced$);
 
 	// Object Store
 	const s3 = (() => {
@@ -244,7 +244,7 @@ export = async () => {
 			);
 
 			const upload = new BucketObjectv2(_("manifest-upload"), {
-				bucket: s3.build.bucket.bucket,
+				bucket: s3.staticwww.bucket.bucket,
 				content: content.apply((c) => JSON.stringify(c, null, 2)),
 				key: MANIFEST_PATH,
 			});

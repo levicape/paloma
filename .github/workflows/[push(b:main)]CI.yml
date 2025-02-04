@@ -56,12 +56,16 @@ jobs:
         run: pnpx nx run-many -t lint --parallel=1 --verbose --no-cloud;
       - name: Test
         run: pnpx nx run-many -t test --parallel=1 --verbose --no-cloud;
+      - name: Clean cache
+        run: |-
+          pnpm store prune || true;
+          corepack cache clean || true;
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[push(b:main)]CI.yml","source":"iac/workflows/github/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"9cf4dd29e99bb4a9384ee062b7ed7bafd69ca33f8141dae644293ea97282245c"}
-#**:_$~- {"$$":"footer","started":"2025-01-18T08:02:56.595Z","now":"2025-01-18T08:02:56.601Z","elapsed":"6ms"}
+#**:_$~- {"$$":"body","hashed":"1027f085751348401b02d357fa2f83d0cc43d2e277bead9394325fb17c41c167"}
+#**:_$~- {"$$":"footer","started":"2025-02-04T07:53:24.072Z","now":"2025-02-04T07:53:24.079Z","elapsed":"7ms"}
 # END OF GENERATED FILE
 

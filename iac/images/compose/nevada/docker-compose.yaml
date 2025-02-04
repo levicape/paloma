@@ -1,0 +1,30 @@
+services:
+  nginx:
+    image: "nginx:1.27"
+    ports:
+      - "5200:80"
+    volumes:
+      - "./nginx.conf:/etc/nginx/nginx.conf"
+  paloma-nevada-ui:
+    image: paloma
+    entrypoint: project
+    environment:
+      PROJECT_PATH: ./packages/nevada-ui
+      PROJECT_COMMAND: staticwww:dev
+      PORT: "5201"
+    ports:
+      - "5201:5201"
+    volumes:
+      # iac/images/compose/manifest
+      - "../../../..:/workspace"
+  # spork-manifest-io:
+  #   image: spork
+  #   entrypoint: project
+  #   environment:
+  #     PROJECT_PATH: ./packages/manifest-io
+  #     PROJECT_COMMAND: dev:staticwww
+  #     PORT: "3201"
+  #   ports:
+  #     - "3201:3201"
+  # postgres:
+  #   image: "postgres:17"

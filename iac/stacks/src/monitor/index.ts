@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import {
 	CodeBuildBuildspecArtifactsBuilder,
 	CodeBuildBuildspecBuilder,
@@ -36,18 +37,36 @@ import { AssetArchive } from "@pulumi/pulumi/asset/archive";
 import { StringAsset } from "@pulumi/pulumi/asset/asset";
 import { stringify } from "yaml";
 import type { z } from "zod";
-import { $deref } from "../Stack";
+import { $deref, type DereferencedOutput } from "../Stack";
 import { PalomaCodestarStackExportsZod } from "../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../datalayer/exports";
+import { PalomaNevadaWebStackExportsZod } from "../domains/nevada/web/exports";
 import { PalomaMonitorStackExportsZod } from "./exports";
 
-const PACKAGE_NAME = "@levicape/paloma";
+const WORKSPACE_PACKAGE_NAME = "@levicape/paloma";
 const CANARY_PATHS = [
 	{
 		name: "execution",
 		description: "Tests basic Paloma state machine execution",
 		packageName: "@levicape/paloma-examples-canaryexecution",
 		handler: "module/canary/harness.LambdaHandler",
+		environment: (
+			$refs: DereferencedOutput<typeof STACKREF_CONFIG>["paloma"],
+		) => {
+			const { "nevada-web": nevada_web } = $refs;
+			inspect(
+				{
+					nevada_web,
+					$refs,
+				},
+				{ depth: null },
+			);
+			return {
+				...{
+					NEVADA_WEB_S3: nevada_web?.s3?.staticwww?.public ?? {},
+				},
+			} as const;
+		},
 	},
 	// {
 	// 	name: "server",
@@ -81,8 +100,13 @@ const STACKREF_CONFIG = {
 					PalomaDatalayerStackExportsZod.shape.paloma_datalayer_cloudmap,
 			},
 		},
+		["nevada-web"]: {
+			refs: {
+				s3: PalomaNevadaWebStackExportsZod.shape.paloma_nevada_web_s3,
+			},
+		},
 	},
-};
+} as const;
 
 export = async () => {
 	const context = await Context.fromConfig();
@@ -92,8 +116,12 @@ export = async () => {
 	const farRole = await getRole({ name: CI.CI_ACCESS_ROLE });
 
 	// Stack references
-	const { codestar: __codestar, datalayer: __datalayer } =
-		await $deref(STACKREF_CONFIG);
+	const dereferenced$ = await $deref(STACKREF_CONFIG);
+	const {
+		codestar: __codestar,
+		datalayer: __datalayer,
+		"nevada-web": __nevada_web,
+	} = dereferenced$;
 
 	// Object Store
 	const s3 = (() => {
@@ -103,7 +131,7 @@ export = async () => {
 				tags: {
 					Name: _(name),
 					StackRef: STACKREF_ROOT,
-					PackageName: PACKAGE_NAME,
+					PackageName: WORKSPACE_PACKAGE_NAME,
 					Key: name,
 				},
 			});
@@ -167,7 +195,7 @@ export = async () => {
 				tags: {
 					Name: _(`${name}-loggroup`),
 					StackRef: STACKREF_ROOT,
-					PackageName: PACKAGE_NAME,
+					PackageName: WORKSPACE_PACKAGE_NAME,
 				},
 			});
 
@@ -181,7 +209,13 @@ export = async () => {
 
 	// Compute
 	const handler = async (
-		{ name, description, packageName, handler }: (typeof CANARY_PATHS)[number],
+		{
+			name,
+			description,
+			packageName,
+			handler,
+			environment,
+		}: (typeof CANARY_PATHS)[number],
 		{
 			datalayer,
 			codestar,
@@ -196,7 +230,7 @@ export = async () => {
 			tags: {
 				Name: _(`${name}-log`),
 				StackRef: STACKREF_ROOT,
-				PackageName: PACKAGE_NAME,
+				PackageName: WORKSPACE_PACKAGE_NAME,
 				Monitor: name,
 				MonitorPackageName: packageName,
 			},
@@ -343,13 +377,28 @@ export = async () => {
 							...cloudmapEnv,
 							NODE_ENV: "production",
 							LOG_LEVEL: "5",
+							...(environment !== undefined
+								? Object.fromEntries(
+										Object.entries(environment(dereferenced$))
+											.filter(([_, value]) => value !== undefined)
+											.map(([key, value]) => {
+												if (typeof value === "string") {
+													return [key, value];
+												}
+												return [
+													key,
+													Buffer.from(JSON.stringify(value)).toString("base64"),
+												];
+											}),
+									)
+								: {}),
 						},
 					};
 				}),
 				tags: {
 					Name: _(name),
 					StackRef: STACKREF_ROOT,
-					PackageName: PACKAGE_NAME,
+					PackageName: WORKSPACE_PACKAGE_NAME,
 					Handler: "Monitor",
 					Monitor: name,
 					MonitorPackageName: packageName,
@@ -532,7 +581,7 @@ export = async () => {
 										...[
 											"--detach",
 											"--entrypoint deploy",
-											`--env DEPLOY_FILTER=${PACKAGE_NAME}`,
+											`--env DEPLOY_FILTER=$PACKAGE_NAME`,
 											`--env DEPLOY_OUTPUT=/tmp/${PIPELINE_STAGE}`,
 										],
 										"$SOURCE_IMAGE_URI",
@@ -1131,7 +1180,7 @@ export = async () => {
 				tags: {
 					Name: _("deploy"),
 					StackRef: STACKREF_ROOT,
-					PackageName: PACKAGE_NAME,
+					PackageName: WORKSPACE_PACKAGE_NAME,
 				},
 			},
 			{
@@ -1158,7 +1207,7 @@ export = async () => {
 
 		const EcrImageAction = (() => {
 			const rule = new EventRule(_("on-ecr-push"), {
-				description: `(${PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
+				description: `(${WORKSPACE_PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
 				state: "ENABLED",
 				eventPattern: JSON.stringify({
 					source: ["aws.ecr"],
@@ -1215,7 +1264,7 @@ export = async () => {
 					const rule = new EventRule(
 						_(`on-rate-${idx}`),
 						{
-							description: `(${PACKAGE_NAME}) Schedule rule for ${group
+							description: `(${WORKSPACE_PACKAGE_NAME}) Schedule rule for ${group
 								.map(([key]) => key)
 								.join(", ")}`,
 							state: "ENABLED",
@@ -1534,6 +1583,7 @@ export = async () => {
 					paloma: {
 						codestar: __codestar,
 						datalayer: __datalayer,
+						nevada_web: __nevada_web,
 					},
 				},
 				paloma_monitor_s3,
@@ -1547,6 +1597,7 @@ export = async () => {
 					paloma: {
 						codestar: typeof __codestar;
 						datalayer: typeof __datalayer;
+						nevada_web: typeof __nevada_web;
 					};
 				};
 			};

@@ -1,7 +1,8 @@
+import { inspect } from "node:util";
 import { StackReference, getStack } from "@pulumi/pulumi";
+import { deserializeError, serializeError } from "serialize-error";
 import { VError } from "verror";
 import type { z } from "zod";
-import { JsonParseException } from "./Exception";
 
 export const $stack$ = getStack().split(".").pop();
 
@@ -11,6 +12,9 @@ export const $ref = (stack: string) =>
 export const $val = <Z extends z.AnyZodObject | z.ZodRecord>(
 	json: string,
 	schema: Z,
+	opts?: {
+		info?: Record<string, unknown>;
+	},
 ): z.infer<Z> => {
 	try {
 		if (typeof json !== "string") {
@@ -18,8 +22,21 @@ export const $val = <Z extends z.AnyZodObject | z.ZodRecord>(
 		}
 
 		return schema.parse(JSON.parse(json));
-	} catch (e) {
-		throw new JsonParseException(e, json);
+	} catch (e: unknown) {
+		throw new VError(
+			{
+				name: "StackrefValueParseError",
+				cause: e instanceof Error ? deserializeError(e) : undefined,
+				message: `Failed to parse value`,
+				info: {
+					error: serializeError(e),
+					json,
+					schema,
+					...(opts?.info ?? {}),
+				},
+			},
+			`Failed to parse '${opts?.info?.["outputName"] ?? "<OUTPUT_NAME>"}' value`,
+		);
 	}
 };
 
@@ -44,6 +61,12 @@ export const $deref = async <T extends DereferenceConfig>(
 	if (Object.keys(config).length > 1) {
 		throw new VError("Only one root key is allowed");
 	}
+	inspect(
+		{
+			$stack$,
+		},
+		{ depth: null },
+	);
 
 	for (const rootKey in config) {
 		const rootStacks = config[rootKey];
@@ -54,13 +77,31 @@ export const $deref = async <T extends DereferenceConfig>(
 			const outputValues = {} as Record<string, unknown>;
 
 			const ref = $ref(`${rootKey}-${stackName}`);
-
 			for (const stackOutput in stackConfig.refs) {
 				const schema = stackConfig.refs[stackOutput];
-				const output = await ref.getOutputDetails(
-					`${rootKey}_${stackName}_${stackOutput}`,
+				const envStackName = stackName.replace(/-/g, "_");
+				const outputName = `${rootKey}_${envStackName}_${stackOutput}`;
+				const output = await ref.getOutputDetails(outputName);
+				outputValues[stackOutput] = $val(output.value, schema, {
+					info: {
+						rootKey,
+						stackName,
+						envStackName,
+						stackOutput,
+						outputName,
+					},
+				});
+
+				inspect(
+					{
+						rootKey,
+						stackName,
+						envStackName,
+						stackOutput,
+						outputName,
+					},
+					{ depth: null },
 				);
-				outputValues[stackOutput] = $val(output.value, schema);
 			}
 
 			dereferencedStacks[stackName] = outputValues;
