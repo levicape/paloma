@@ -5,8 +5,7 @@
   "author": "Pedro Cardona",
   "config": {
     "packagemanager": "pnpm",
-    "packagebin": "corepack pnpm",
-    "packageexecutor": "corepack pnpm exec",
+    "packageexecutor": "pnpm exec",
     "outpaths": "./output",
     "lintpaths": "./app ./server",
     "protocols": "./src/_protocols",

@@ -46,9 +46,9 @@ Actions:
             - Name: COREPACK_HOME
               Value: /cc/cache/nodejs/corepack
             - Name: PNPM_VERSION
-              Value: pnpm@9
+              Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
-              Value: "22"
+              Value: 22.12.0
             - Name: NODE_AUTH_TOKEN
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
             - Name: NPM_REGISTRY_PROTOCOL
@@ -175,9 +175,9 @@ Actions:
             - Name: COREPACK_HOME
               Value: /cc/cache/nodejs/corepack
             - Name: PNPM_VERSION
-              Value: pnpm@9
+              Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
-              Value: "22"
+              Value: 22.12.0
             - Name: NODE_AUTH_TOKEN
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
             - Name: NPM_REGISTRY_PROTOCOL
@@ -253,9 +253,9 @@ Actions:
             - Name: COREPACK_HOME
               Value: /cc/cache/nodejs/corepack
             - Name: PNPM_VERSION
-              Value: pnpm@9
+              Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
-              Value: "22"
+              Value: 22.12.0
             - Name: NODE_AUTH_TOKEN
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
             - Name: NPM_REGISTRY_PROTOCOL
@@ -338,9 +338,9 @@ Actions:
             - Name: COREPACK_HOME
               Value: /cc/cache/nodejs/corepack
             - Name: PNPM_VERSION
-              Value: pnpm@9
+              Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
-              Value: "22"
+              Value: 22.12.0
             - Name: NODE_AUTH_TOKEN
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
             - Name: NPM_REGISTRY_PROTOCOL
@@ -476,9 +476,9 @@ Actions:
             - Name: COREPACK_HOME
               Value: /cc/cache/nodejs/corepack
             - Name: PNPM_VERSION
-              Value: pnpm@9
+              Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
-              Value: "22"
+              Value: 22.12.0
             - Name: NODE_AUTH_TOKEN
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
             - Name: NPM_REGISTRY_PROTOCOL
@@ -554,7 +554,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"[push(b:main)][schedule(0_0_*_*_?_*)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"4799ecde4a3d7165c08ee5603b38cb2169c9e5f903f03dbf27d394f8f34fa072"}
-#**:_$~- {"$$":"footer","started":"2025-02-02T03:26:13.257Z","now":"2025-02-02T03:26:13.267Z","elapsed":"10ms"}
+#**:_$~- {"$$":"body","hashed":"9c775b702544a064e8904a360585a99fd89a12998233b998d4a11d33ab98acb6"}
+#**:_$~- {"$$":"footer","started":"2025-02-04T01:28:11.920Z","now":"2025-02-04T01:28:11.930Z","elapsed":"10ms"}
 # END OF GENERATED FILE
 

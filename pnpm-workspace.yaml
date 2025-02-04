@@ -1,13 +1,13 @@
 packages:
   - .
+  - examples/*
   - iac/*
   - iac/images/*
-  - examples/*
   - packages/*
 catalog:
-  "@levicape/fourtwo": "0.7.0-main.14"
-  "@levicape/fourtwo-pulumi": "0.7.0-main.14"
-  "@levicape/fourtwo-builders": "0.7.0-main.14"
+  "@levicape/fourtwo": "0.7.1-main.15"
+  "@levicape/fourtwo-pulumi": "0.7.1-main.15"
+  "@levicape/fourtwo-builders": "0.7.1-main.15"
 
 
 
@@ -71,7 +71,7 @@ catalogs:
     "knex": "^3.1.0"
     "slonik": "^46.4.0"
   database-sqlite:
-    "better-sqlite3": "^11.6.0"
+    "better-sqlite3": "^11.8.1"
   dev:
     "typescript": "^5.7.3"
     "tsx": "^4.19.2"
@@ -119,13 +119,14 @@ catalogs:
   package:
     "ci": "^2.3.0"
     "depcheck": "^1.4.7"
-    "nx": "^20.3.2"
     "publint": "^0.3.2"
-    "syncpack": "^13.0.0"
+    "syncpack": "^13.0.1"
   parse-json:
     "destr": "^2.0.3"
   parse-path:
     "pathe": "^2.0.2"
+  project-nx:
+    "nx": "^20.4.0"
   protobuf:
     "@bufbuild/protobuf": "^2.2.3"
     "@bufbuild/buf": "^1.44.0"
@@ -164,7 +165,7 @@ catalogs:
     "@types/js-yaml": "^4.0.9"
     "@types/jsonwebtoken": "^9.0.7"
     "@types/module-alias": "^2.0.4"
-    "@types/node": "^22"
+    "@types/node": "^22.13.1"
     "@types/qrcode": "^1.5.5"
     "@types/react": "^19.0.1"
     "@types/react-dom": "^19.0.1"

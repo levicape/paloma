@@ -1,7 +1,6 @@
 import { StackReference, getStack } from "@pulumi/pulumi";
-import { destr } from "destr";
 import { VError } from "verror";
-import type { SomeZodObject, z } from "zod";
+import type { z } from "zod";
 import { JsonParseException } from "./Exception";
 
 export const $stack$ = getStack().split(".").pop();
@@ -9,7 +8,7 @@ export const $stack$ = getStack().split(".").pop();
 export const $ref = (stack: string) =>
 	new StackReference(`organization/${stack}/${stack}.${$stack$}`);
 
-export const $val = <Z extends z.AnyZodObject>(
+export const $val = <Z extends z.AnyZodObject | z.ZodRecord>(
 	json: string,
 	schema: Z,
 ): z.infer<Z> => {
@@ -18,18 +17,18 @@ export const $val = <Z extends z.AnyZodObject>(
 			return schema.parse(json);
 		}
 
-		return schema.parse(destr(json));
+		return schema.parse(JSON.parse(json));
 	} catch (e) {
 		throw new JsonParseException(e, json);
 	}
 };
 
-type DereferenceConfig = Record<
+export type DereferenceConfig = Record<
 	string,
-	Record<string, { refs: Record<string, SomeZodObject> }>
+	Record<string, { refs: Record<string, z.AnyZodObject | z.ZodRecord> }>
 >;
 
-type DereferencedOutput<T extends DereferenceConfig> = {
+export type DereferencedOutput<T extends DereferenceConfig> = {
 	[R in keyof T]: {
 		[S in keyof T[R]]: {
 			[K in keyof T[R][S]["refs"]]: z.infer<T[R][S]["refs"][K]>;

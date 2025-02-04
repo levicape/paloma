@@ -21,17 +21,18 @@ import { BucketOwnershipControls } from "@pulumi/aws/s3/bucketOwnershipControls"
 import { BucketPublicAccessBlock } from "@pulumi/aws/s3/bucketPublicAccessBlock";
 import { BucketVersioningV2 } from "@pulumi/aws/s3/bucketVersioningV2";
 import { BucketWebsiteConfigurationV2 } from "@pulumi/aws/s3/bucketWebsiteConfigurationV2";
-import { all, getStack } from "@pulumi/pulumi";
+import { type Output, all } from "@pulumi/pulumi";
 import { stringify } from "yaml";
 import type { z } from "zod";
-import { $deref } from "../../../Stack";
+import type { WebsiteManifest } from "../../../RouteMap";
+import { $deref, type DereferencedOutput } from "../../../Stack";
 import { PalomaCodestarStackExportsZod } from "../../../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
 import { PalomaNevadaWebStackExportsZod } from "./exports";
 
 const PACKAGE_NAME = "@levicape/paloma-nevada-ui" as const;
-const ARTIFACT_ROOT = "paloma-nevada-ui" as const;
 const DEPLOY_DIRECTORY = "output/staticwww/client" as const;
+const MANIFEST_PATH = "/_web/routemap.json" as const;
 
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? "paloma";
 const STACKREF_CONFIG = {
@@ -51,6 +52,13 @@ const STACKREF_CONFIG = {
 		},
 	},
 };
+
+const ROUTE_MAP = (
+	_refs: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT],
+) => {
+	return undefined;
+};
+
 export = async () => {
 	const context = await Context.fromConfig();
 	const _ = (name?: string) =>
@@ -59,7 +67,9 @@ export = async () => {
 	const farRole = await getRole({ name: "FourtwoAccessRole" });
 
 	// Stack references
-	const { codestar, datalayer } = await $deref(STACKREF_CONFIG);
+	const $dereference$ = await $deref(STACKREF_CONFIG);
+	const { codestar, datalayer } = $dereference$;
+	const routemap = ROUTE_MAP($dereference$);
 
 	// Object Store
 	const s3 = (() => {
@@ -193,7 +203,66 @@ export = async () => {
 		};
 	})();
 
+	// Website Manifest
+	if (routemap) {
+		(() => {
+			const {
+				stage,
+				environment: { isProd },
+				frontend,
+			} = context;
+
+			let content: Output<{ WebsiteComponent: WebsiteManifest }> | undefined;
+			content = all([s3.staticwww.website?.websiteEndpoint ?? ""]).apply(
+				([url]) => {
+					const { dns } = frontend ?? {};
+					const { hostnames } = dns ?? {};
+					return {
+						WebsiteComponent: {
+							manifest: {
+								ok: true,
+								routes: routemap,
+								frontend: {
+									...(isProd
+										? {}
+										: {
+												website: {
+													url,
+													protocol: "http",
+												},
+											}),
+									hostnames: hostnames ?? [],
+								},
+								version: {
+									sequence: Date.now().toString(),
+									stage,
+								},
+							},
+						} satisfies WebsiteManifest,
+					};
+				},
+			);
+
+			const upload = new BucketObjectv2(_("manifest-upload"), {
+				bucket: s3.build.bucket.bucket,
+				content: content.apply((c) => JSON.stringify(c, null, 2)),
+				key: MANIFEST_PATH,
+			});
+
+			return {
+				routemap: {
+					content,
+					upload,
+				},
+			};
+		})();
+	}
+
 	const codebuild = (() => {
+		const deployStage = "staticwww";
+		const deployAction = "extractimage";
+		const artifactIdentifier = `${deployStage}_${deployAction}`;
+
 		const buildspec = (() => {
 			const content = stringify(
 				new CodeBuildBuildspecBuilder()
@@ -201,8 +270,8 @@ export = async () => {
 					.setArtifacts(
 						new CodeBuildBuildspecArtifactsBuilder()
 							.setFiles(["**/*"])
-							.setBaseDirectory(`.extractimage/${DEPLOY_DIRECTORY}`)
-							.setName("staticwww_extractimage"),
+							.setBaseDirectory(`.${deployAction}/${DEPLOY_DIRECTORY}`)
+							.setName(artifactIdentifier),
 					)
 					.setEnv(
 						new CodeBuildBuildspecEnvBuilder().setVariables({
@@ -231,20 +300,20 @@ export = async () => {
 									"--entrypoint",
 									"deploy",
 									`-e DEPLOY_FILTER=${PACKAGE_NAME}`,
-									`-e DEPLOY_OUTPUT=/tmp/${ARTIFACT_ROOT}`,
+									`-e DEPLOY_OUTPUT=/tmp/${deployAction}`,
 									"$SOURCE_IMAGE_URI",
 									"> .container",
 								].join(" "),
 								"docker ps -al",
-								"cat .container",
-								"sleep 10s",
-								`docker container logs $(cat .container)`,
-								"sleep 10s",
-								`docker container logs $(cat .container)`,
-								`docker cp $(cat .container):/tmp/${ARTIFACT_ROOT} $CODEBUILD_SRC_DIR/.extractimage`,
-								"ls -al $CODEBUILD_SRC_DIR/.extractimage || true",
-								`ls -al $CODEBUILD_SRC_DIR/.extractimage/${DEPLOY_DIRECTORY} || true`,
-								`du -sh $CODEBUILD_SRC_DIR/.extractimage/${DEPLOY_DIRECTORY} || true`,
+								...[2, 6, 2].flatMap((i) => [
+									`cat .container`,
+									`sleep ${i}s`,
+									`docker container logs $(cat .container)`,
+								]),
+								`docker cp $(cat .container):/tmp/${deployAction} $CODEBUILD_SRC_DIR/.${deployAction}`,
+								`ls -al $CODEBUILD_SRC_DIR/.${deployAction} || true`,
+								`ls -al $CODEBUILD_SRC_DIR/.${deployAction}/${DEPLOY_DIRECTORY} || true`,
+								`du -sh $CODEBUILD_SRC_DIR/.${deployAction}/${DEPLOY_DIRECTORY} || true`,
 								"aws s3 ls s3://$S3_STATICWWW_BUCKET",
 							]),
 					})
@@ -264,23 +333,19 @@ export = async () => {
 		})();
 
 		const project = (() => {
-			const deployStage = "staticwww";
-			const deployAction = "extractimage";
-			const artifactIdentifier = `${deployStage}_${deployAction}`;
-
 			const project = new Project(
 				_(artifactIdentifier),
 				{
-					description: `"(${PACKAGE_NAME}) Deploy pipeline "${deployStage}" stage: "${deployAction}"`,
+					description: `(${PACKAGE_NAME}) Deploy pipeline "${deployStage}" stage: "${deployAction}"`,
 					buildTimeout: 14,
 					serviceRole: farRole.arn,
 					artifacts: {
 						type: "CODEPIPELINE",
-						artifactIdentifier: "staticwww_extractimage",
+						artifactIdentifier,
 					},
 					environment: {
 						type: "ARM_CONTAINER",
-						computeType: "BUILD_GENERAL1_MEDIUM",
+						computeType: "BUILD_GENERAL1_SMALL",
 						image: "aws/codebuild/amazonlinux-aarch64-standard:3.0",
 						environmentVariables: [
 							{
@@ -339,7 +404,7 @@ export = async () => {
 		return {
 			...project,
 			spec: {
-				artifactIdentifier: "staticwww_extractimage",
+				artifactIdentifier,
 				buildspec,
 			},
 		};

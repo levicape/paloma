@@ -2,24 +2,29 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultBase": "main",
   "targetDefaults": {
-    "build:http": {
+    "build:tsc": {
+      "cache": true,
+      "outputs": [
+        "{projectRoot}/commonjs",
+        "{projectRoot}/module"
+      ]
+    },
+    "http:build": {
       "cache": true,
       "outputs": [
         "{projectRoot}/output/http"
       ]
     },
-    "build:staticwww": {
+    "staticwww:build": {
       "cache": true,
       "outputs": [
         "{projectRoot}/output/staticwww"
       ]
-    },
-    "build:tsc": {
+    },    
+    "webhttp:build": {
       "cache": true,
       "outputs": [
-        "{projectRoot}/commonjs",
-        "{projectRoot}/gen",
-        "{projectRoot}/module"
+        "{projectRoot}/output/webhttp"
       ]
     }
   }

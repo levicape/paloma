@@ -19,7 +19,7 @@ const rootloglayer = Effect.succeed(
 		transport: new PowertoolsTransport({
 			logger: new Logger({
 				// TODO: Stack env vars, add to protocol stands
-				serviceName: env.AWS_CLOUDMAP_SERVICE_NAME,
+				serviceName: env.AWS_CLOUDMAP_SERVICE_NAME ?? env.PULUMI__NAME,
 				logLevel,
 			}),
 		}),
@@ -48,7 +48,7 @@ export const withAwsPowertoolsLogger = (props: {
 		props,
 		logger: Effect.gen(function* () {
 			const logger = yield* yield* Effect.cached(rootloglayer);
-			const loggerId = ulid().slice(-16);
+			const loggerId = ulid().slice(-8);
 			let child = props.prefix
 				? logger.withPrefix(props.prefix)
 				: logger.child();

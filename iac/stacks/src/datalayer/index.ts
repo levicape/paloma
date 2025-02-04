@@ -6,12 +6,13 @@ import { MountTarget } from "@pulumi/aws/efs/mountTarget";
 import { Role } from "@pulumi/aws/iam/role";
 import { PrivateDnsNamespace } from "@pulumi/aws/servicediscovery/privateDnsNamespace";
 import { Vpc } from "@pulumi/awsx/ec2/vpc";
-import { all, getStack } from "@pulumi/pulumi";
-import { destr } from "destr";
+import { all } from "@pulumi/pulumi";
 import type { z } from "zod";
 import { PalomaDatalayerStackExportsZod } from "./exports";
 
 const PACKAGE_NAME = "@levicape/paloma";
+const EFS_ROOT_DIRECTORY = "/paloma";
+const EFS_MOUNT_PATH = "/mnt/efs";
 
 export = async () => {
 	const context = await Context.fromConfig();
@@ -105,7 +106,7 @@ export = async () => {
 			{
 				fileSystemId: filesystem.id,
 				rootDirectory: {
-					path: "/paloma",
+					path: EFS_ROOT_DIRECTORY,
 					creationInfo: {
 						ownerGid: 1000,
 						ownerUid: 1000,
@@ -206,7 +207,7 @@ export = async () => {
 			]) => {
 				const fileSystemConfig = {
 					arn: accessPointArn,
-					localMountPath: "/mnt/efs",
+					localMountPath: EFS_MOUNT_PATH,
 				};
 
 				const vpcConfig = {
@@ -226,7 +227,6 @@ export = async () => {
 				});
 			},
 		))(ec2, efs, iam);
-
 	return all([
 		props,
 		iam.roles.lambda.arn,
@@ -266,7 +266,7 @@ export = async () => {
 			cloudmapNamespaceHostedZone,
 		]) => {
 			const exported = {
-				paloma_datalayer_props: destr(jsonProps),
+				paloma_datalayer_props: JSON.parse(jsonProps),
 				paloma_datalayer_iam: {
 					roles: {
 						lambda: {

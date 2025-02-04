@@ -39,7 +39,7 @@ import type { z } from "zod";
 import { $deref } from "../Stack";
 import { PalomaCodestarStackExportsZod } from "../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../datalayer/exports";
-import { PalomaNevadaMonitorStackExportsZod } from "./exports";
+import { PalomaMonitorStackExportsZod } from "./exports";
 
 const PACKAGE_NAME = "@levicape/paloma";
 const CANARY_PATHS = [
@@ -47,7 +47,7 @@ const CANARY_PATHS = [
 		name: "execution",
 		description: "Tests basic Paloma state machine execution",
 		packageName: "@levicape/paloma-examples-canaryexecution",
-		handler: "module/canary/execution.LambdaHandler",
+		handler: "module/canary/harness.LambdaHandler",
 	},
 	// {
 	// 	name: "server",
@@ -55,7 +55,8 @@ const CANARY_PATHS = [
 	// 	handler: "module/canary/server.handler",
 	// },
 ] as const;
-const LLRT_ARCH: string | undefined = process.env["LLRT_ARCH"]; //"lambda-arm64-full-sdk";
+const LLRT_ARCH: string | undefined = process.env["LLRT_ARCH"];
+const BUNDLE_DIRECTORY = "output/esbuild" as const;
 
 const CI = {
 	CI_ENVIRONMENT: process.env.CI_ENVIRONMENT ?? "unknown",
@@ -160,17 +161,21 @@ export = async () => {
 
 	// Logging
 	const cloudwatch = (() => {
-		const loggroup = new LogGroup(_("logs"), {
-			retentionInDays: context.environment.isProd ? 14 : 180,
-			tags: {
-				Name: _("logs"),
-				StackRef: STACKREF_ROOT,
-				PackageName: PACKAGE_NAME,
-			},
-		});
+		const loggroup = (name: string) => {
+			const loggroup = new LogGroup(_(`${name}-loggroup`), {
+				retentionInDays: context.environment.isProd ? 90 : 14,
+				tags: {
+					Name: _(`${name}-loggroup`),
+					StackRef: STACKREF_ROOT,
+					PackageName: PACKAGE_NAME,
+				},
+			});
+
+			return { loggroup };
+		};
 
 		return {
-			loggroup,
+			build: loggroup("build"),
 		};
 	})();
 
@@ -185,7 +190,17 @@ export = async () => {
 	) => {
 		const role = datalayer.iam.roles.lambda.name;
 		const roleArn = datalayer.iam.roles.lambda.arn;
-		const loggroup = cw.loggroup;
+
+		const loggroup = new LogGroup(_(`${name}-log`), {
+			retentionInDays: context.environment.isProd ? 90 : 14,
+			tags: {
+				Name: _(`${name}-log`),
+				StackRef: STACKREF_ROOT,
+				PackageName: PACKAGE_NAME,
+				Monitor: name,
+				MonitorPackageName: packageName,
+			},
+		});
 
 		const lambdaPolicyDocument = all([loggroup.arn]).apply(([loggroupArn]) => {
 			return {
@@ -288,6 +303,9 @@ export = async () => {
 			tags: {
 				Name: _(`${name}-monitor`),
 				StackRef: STACKREF_ROOT,
+				Handler: "Monitor",
+				Monitor: name,
+				MonitorPackageName: packageName,
 			},
 		});
 
@@ -316,7 +334,7 @@ export = async () => {
 				},
 				loggingConfig: {
 					logFormat: "JSON",
-					logGroup: cloudwatch.loggroup.name,
+					logGroup: loggroup.name,
 					applicationLogLevel: context.environment.isProd ? "INFO" : "DEBUG",
 				},
 				environment: all([cloudmapEnvironment]).apply(([cloudmapEnv]) => {
@@ -331,14 +349,15 @@ export = async () => {
 				tags: {
 					Name: _(name),
 					StackRef: STACKREF_ROOT,
+					PackageName: PACKAGE_NAME,
 					Handler: "Monitor",
 					Monitor: name,
-					PackageName: packageName,
+					MonitorPackageName: packageName,
 				},
 			},
 			{
 				dependsOn: zip,
-				ignoreChanges: ["handler", "s3Key", "s3ObjectVersion"],
+				ignoreChanges: ["handler", "s3Key", "s3ObjectVersion", "s3Bucket"],
 			},
 		);
 
@@ -422,7 +441,7 @@ export = async () => {
 						action: EXTRACT_ACTION,
 						artifact: {
 							name: `${PIPELINE_STAGE}_${name}_${EXTRACT_ACTION}`,
-							baseDirectory: ".extractimage" as string | undefined,
+							baseDirectory: `.${EXTRACT_ACTION}` as string | undefined,
 							files: ["**/*"] as string[],
 						},
 						variables: {
@@ -506,31 +525,62 @@ export = async () => {
 								`aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $STACKREF_CODESTAR_ECR_REPOSITORY_URL`,
 								"docker pull $SOURCE_IMAGE_URI",
 								"docker images",
+								// node_module
 								[
-									"docker run",
-									"--detach",
-									"--entrypoint",
-									"deploy",
-									`-e DEPLOY_FILTER=$PACKAGE_NAME`,
-									`-e DEPLOY_OUTPUT=/tmp/monitorhandler`,
-									"$SOURCE_IMAGE_URI",
+									...[
+										"docker run",
+										...[
+											"--detach",
+											"--entrypoint deploy",
+											`--env DEPLOY_FILTER=${PACKAGE_NAME}`,
+											`--env DEPLOY_OUTPUT=/tmp/${PIPELINE_STAGE}`,
+										],
+										"$SOURCE_IMAGE_URI",
+									],
 									"> .container",
 								].join(" "),
 								"docker ps -al",
-								"cat .container",
-								"sleep 10s",
-								`docker container logs $(cat .container)`,
-								"sleep 9s",
-								`docker container logs $(cat .container)`,
-								"sleep 8s",
-								`docker container logs $(cat .container)`,
-								"mkdir -p $CODEBUILD_SRC_DIR/.extractimage || true",
-								`docker cp $(cat .container):/tmp/monitorhandler $CODEBUILD_SRC_DIR/.extractimage`,
-								"ls -al $CODEBUILD_SRC_DIR/.extractimage || true",
-								"ls -al $CODEBUILD_SRC_DIR/.extractimage/monitorhandler || true",
-								"corepack -g install pnpm@9 || true",
-								"pnpm -C $CODEBUILD_SRC_DIR/.extractimage/monitorhandler install --offline --prod --ignore-scripts --node-linker=hoisted || true",
-								"ls -al $CODEBUILD_SRC_DIR/.extractimage/monitorhandler/node_modules || true",
+								...[2, 8, 4, 2].flatMap((i) => [
+									`cat .container`,
+									`sleep ${i}s`,
+									`docker container logs $(cat .container)`,
+								]),
+								`mkdir -p $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION} || true`,
+								`docker cp $(cat .container):/tmp/${PIPELINE_STAGE} $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}`,
+								`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION} || true`,
+								`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
+								`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/node_modules || true`,
+								// bootstrap binary
+								...(LLRT_ARCH
+									? [
+											[
+												...[
+													"docker run",
+													...[
+														"--detach",
+														"--entrypoint bootstrap",
+														`--env BOOTSTRAP_ARCH=llrt/${LLRT_ARCH}`,
+													],
+													"$SOURCE_IMAGE_URI",
+												],
+												"> .container",
+											].join(" "),
+											"docker ps -al",
+											...[8, 4].flatMap((i) => [
+												`cat .container`,
+												`sleep ${i}s`,
+												`docker container logs $(cat .container)`,
+											]),
+											`docker cp $(cat .container):/tmp/bootstrap $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/bootstrap`,
+											`du -sh $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/bootstrap || true`,
+											`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION} || true`,
+											`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
+										]
+									: [
+											`echo 'No bootstrap, removing ${BUNDLE_DIRECTORY}'`,
+											`rm -rf $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${BUNDLE_DIRECTORY} || true`,
+											`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
+										]),
 								`NODE_NO_WARNINGS=1 node -e '(${(
 									// biome-ignore lint/complexity/useArrowFunction:
 									function () {
@@ -609,7 +659,7 @@ export = async () => {
 								},
 								{
 									name: "DeployKey",
-									value: `monitorhandler_${name}_extractimage.DeployKey`,
+									value: `${PIPELINE_STAGE}_${name}_${EXTRACT_ACTION}.DeployKey`,
 									type: "PLAINTEXT",
 								},
 								{
@@ -735,6 +785,16 @@ export = async () => {
 										type: "CODEPIPELINE",
 										artifactIdentifier: artifact.name,
 									},
+									logsConfig: {
+										cloudwatchLogs: {
+											groupName: cloudwatch.build.loggroup.name,
+											streamName: `${artifact.name}`,
+										},
+										// s3Logs: {
+										// 	status: "ENABLED",
+										// 	location: s3.build.bucket,
+										// },
+									},
 									environment,
 									source: {
 										type: "CODEPIPELINE",
@@ -750,7 +810,7 @@ export = async () => {
 									},
 								},
 								{
-									dependsOn: [upload],
+									dependsOn: [upload, deploymentGroup],
 								},
 							);
 
@@ -758,10 +818,13 @@ export = async () => {
 								action,
 								{
 									project,
+									pipeline: {
+										stage,
+										namespace: `ns_${stage}_${name}_${action}`,
+									},
 									buildspec: {
 										artifact: `io_${artifact.name}`,
 										content,
-										namespace: `ns_${stage}_${name}_${action}`,
 										upload,
 									},
 								},
@@ -774,10 +837,13 @@ export = async () => {
 					(typeof stages)[number]["action"],
 					{
 						project: Project;
+						pipeline: {
+							stage: string;
+							namespace: string;
+						};
 						buildspec: {
 							artifact: string;
 							content: string;
-							namespace: string;
 							upload: BucketObjectv2;
 						};
 					}
@@ -791,6 +857,9 @@ export = async () => {
 
 		return {
 			role: datalayer.props.lambda.role,
+			cloudwatch: {
+				loggroup,
+			},
 			codedeploy: {
 				application: codestar.codedeploy.application,
 				deploymentGroup,
@@ -872,7 +941,7 @@ export = async () => {
 									{
 										runOrder: 1,
 										name: `${name}_ExtractImage`,
-										namespace: codebuild.extractimage.buildspec.namespace,
+										namespace: codebuild.extractimage.pipeline.namespace,
 										category: "Build",
 										owner: "AWS",
 										provider: "CodeBuild",
@@ -960,14 +1029,14 @@ export = async () => {
 											([BucketName]) => ({
 												BucketName,
 												Extract: "false",
-												ObjectKey: `#{${codebuild.extractimage.buildspec.namespace}.DeployKey}`,
+												ObjectKey: `#{${codebuild.extractimage.pipeline.namespace}.DeployKey}`,
 											}),
 										),
 									},
 									{
 										runOrder: 3,
 										name: `${name}_UpdateLambda`,
-										namespace: codebuild.updatelambda.buildspec.namespace,
+										namespace: codebuild.updatelambda.pipeline.namespace,
 										category: "Build",
 										owner: "AWS",
 										provider: "CodeBuild",
@@ -1023,12 +1092,12 @@ export = async () => {
 														},
 														{
 															name: "DeployKey",
-															value: `#{${codebuild.extractimage.buildspec.namespace}.DeployKey}`,
+															value: `#{${codebuild.extractimage.pipeline.namespace}.DeployKey}`,
 															type: "PLAINTEXT",
 														},
 														{
 															name: "LAMBDA_HANDLER",
-															value: `monitorhandler/${environment.LAMBDA_HANDLER}`,
+															value: `${codebuild.extractimage.pipeline.stage}/${environment.LAMBDA_HANDLER}`,
 															type: "PLAINTEXT",
 														},
 													]),
@@ -1219,11 +1288,24 @@ export = async () => {
 		) as Record<keyof typeof s3, Output<{ bucket: string; region: string }>>,
 	);
 
-	const cloudwatchOutput = Output.create(cloudwatch).apply((cloudwatch) => ({
-		loggroup: all([cloudwatch.loggroup.arn]).apply(([loggroupArn]) => ({
-			arn: loggroupArn,
-		})),
-	}));
+	const cloudwatchOutput = Output.create(
+		Object.fromEntries(
+			Object.entries(cloudwatch).map(([key, { loggroup }]) => {
+				return [
+					key,
+					all([loggroup.name, loggroup.arn]).apply(([name, arn]) => ({
+						logGroup: {
+							name,
+							arn,
+						},
+					})),
+				];
+			}),
+		) as Record<
+			keyof typeof cloudwatch,
+			Output<{ logGroup: { name: string; arn: string } }>
+		>,
+	);
 
 	const lambdaOutput = Output.create(canary).apply((canaries) => {
 		return Object.fromEntries(
@@ -1237,6 +1319,15 @@ export = async () => {
 								name,
 							}),
 						),
+						cloudwatch: all([
+							handler.cloudwatch.loggroup.name,
+							handler.cloudwatch.loggroup.arn,
+						]).apply(([name, arn]) => ({
+							logGroup: {
+								name,
+								arn,
+							},
+						})),
 						monitor: all([
 							handler.lambda.arn,
 							handler.lambda.name,
@@ -1295,7 +1386,10 @@ export = async () => {
 													artifact: resources.buildspec.artifact,
 													bucket: bucketName,
 													key: bucketKey,
-													namespace: resources.buildspec.namespace,
+												},
+												pipeline: {
+													stage: resources.pipeline.stage,
+													namespace: resources.pipeline.namespace,
 												},
 												project: {
 													arn: projectArn,
@@ -1312,6 +1406,9 @@ export = async () => {
 										artifact: string;
 										bucket: string;
 										key: string;
+									};
+									pipeline: {
+										stage: string;
 										namespace: string;
 									};
 									project: { arn: string; name: string };
@@ -1425,35 +1522,35 @@ export = async () => {
 		eventbridgeRulesOutput,
 	]).apply(
 		([
-			paloma_nevada_monitor_s3,
-			paloma_nevada_monitor_cloudwatch,
-			paloma_nevada_monitor_lambda,
-			paloma_nevada_monitor_codebuild,
-			paloma_nevada_monitor_codepipeline,
-			paloma_nevada_monitor_eventbridge,
+			paloma_monitor_s3,
+			paloma_monitor_cloudwatch,
+			paloma_monitor_lambda,
+			paloma_monitor_codebuild,
+			paloma_monitor_codepipeline,
+			paloma_monitor_eventbridge,
 		]) => {
 			const exported = {
-				paloma_nevada_monitor_imports: {
+				paloma_monitor_imports: {
 					paloma: {
 						codestar: __codestar,
 						datalayer: __datalayer,
 					},
 				},
-				paloma_nevada_monitor_s3,
-				paloma_nevada_monitor_cloudwatch,
-				paloma_nevada_monitor_lambda,
-				paloma_nevada_monitor_codebuild,
-				paloma_nevada_monitor_codepipeline,
-				paloma_nevada_monitor_eventbridge,
-			} satisfies z.infer<typeof PalomaNevadaMonitorStackExportsZod> & {
-				paloma_nevada_monitor_imports: {
+				paloma_monitor_s3,
+				paloma_monitor_cloudwatch,
+				paloma_monitor_lambda,
+				paloma_monitor_codebuild,
+				paloma_monitor_codepipeline,
+				paloma_monitor_eventbridge,
+			} satisfies z.infer<typeof PalomaMonitorStackExportsZod> & {
+				paloma_monitor_imports: {
 					paloma: {
 						codestar: typeof __codestar;
 						datalayer: typeof __datalayer;
 					};
 				};
 			};
-			const validate = PalomaNevadaMonitorStackExportsZod.safeParse(exported);
+			const validate = PalomaMonitorStackExportsZod.safeParse(exported);
 			if (!validate.success) {
 				process.stderr.write(
 					`Validation failed: ${JSON.stringify(validate.error, null, 2)}`,

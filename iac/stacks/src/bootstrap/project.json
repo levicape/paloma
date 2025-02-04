@@ -3,7 +3,7 @@
 	"description": "Template for new Pulumi stacks",
 	"config": {
 		"packagemanager": "pnpm",
-		"packageexecutor": "corepack pnpm exec"
+		"packageexecutor": "pnpm exec"
 	},
 	"nx": {
 		"targets": {

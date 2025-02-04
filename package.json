@@ -8,7 +8,7 @@
   },
   "config": {
     "packagemanager": "pnpm",
-    "packagebin": "corepack pnpm",
+    "packagescript": "pnpm run",
     "packageexecutor": "pnpm exec",
     "outpath": "./module",
     "binpath": "./src/cli/bin.mts",
@@ -41,14 +41,14 @@
     "@types/node": "catalog:types",
     "@types/verror": "catalog:types",
     "depcheck": "catalog:package",
-    "nx": "catalog:package",
+    "nx": "catalog:project-nx",
     "publint": "catalog:package",
     "syncpack": "catalog:package",
     "tsx": "catalog:dev",
     "typescript": "catalog:dev"
   },
   "engines": {
-    "node": "22"
+    "node": "22.12.0"
   },
   "exports": {
     ".": "./module/execution/index.mjs",
@@ -60,7 +60,8 @@
   },
   "files": [
     "iac",
-    "module"
+    "module",
+    "output"
   ],
   "license": "AGPL-3.0-only",
   "nx": {
@@ -129,7 +130,7 @@
       }
     }
   },
-  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c",
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0",
   "pnpm": {
     "supportedArchitectures": {
       "os": [
@@ -156,7 +157,7 @@
     "dx:cli:bin": "NODE_NO_WARNINGS=1 $npm_package_config_packageexecutor tsx $npm_package_config_binpath",
     "dx:cli:dev": "node --inspect-brk --import tsx $npm_package_config_binpath",
     "dx:cli:mjs": "NODE_NO_WARNINGS=1 node $npm_package_config_clipath",
-    "dx:commit": "$npm_package_config_packagebin run clean:packages && $npm_package_config_packageexecutor nx dx:precommit --no-cloud --verbose",
+    "dx:commit": "$npm_package_config_packagescript clean:packages && $npm_package_config_packageexecutor nx dx:precommit --no-cloud --verbose",
     "dx:image": "$npm_package_config_packageexecutor nx pack:build iac-images-application --verbose",
     "dx:precommit": "$npm_package_config_packageexecutor nx dx:precommit:pre && $npm_package_config_packageexecutor nx dx:sync && $npm_package_config_packageexecutor nx package:deps",
     "dx:precommit:pre": "echo \"Starting precommit dx. This will recompile iac files and check package.json dependencies.\"",
