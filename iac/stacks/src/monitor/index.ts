@@ -32,9 +32,10 @@ import {
 import { BucketObjectv2 } from "@pulumi/aws/s3/bucketObjectv2";
 import { BucketPublicAccessBlock } from "@pulumi/aws/s3/bucketPublicAccessBlock";
 import { BucketVersioningV2 } from "@pulumi/aws/s3/bucketVersioningV2";
-import { Output, all } from "@pulumi/pulumi";
+import { Output, all, log } from "@pulumi/pulumi";
 import { AssetArchive } from "@pulumi/pulumi/asset/archive";
 import { StringAsset } from "@pulumi/pulumi/asset/asset";
+import { serializeError } from "serialize-error";
 import { stringify } from "yaml";
 import type { z } from "zod";
 import { $deref, type DereferencedOutput } from "../Stack";
@@ -44,29 +45,29 @@ import { PalomaNevadaWebStackExportsZod } from "../domains/nevada/web/exports";
 import { PalomaMonitorStackExportsZod } from "./exports";
 
 const WORKSPACE_PACKAGE_NAME = "@levicape/paloma";
+
+const LLRT_ARCH: string | undefined = process.env["LLRT_ARCH"];
+const LLRT_PLATFORM: "node" | "browser" | undefined = LLRT_ARCH
+	? "node"
+	: undefined;
+
+const ENVIRONMENT = (
+	$refs: DereferencedOutput<typeof STACKREF_CONFIG>["paloma"],
+) => {
+	const { "nevada-web": nevada_web } = $refs;
+	return {
+		NEVADA_WEB_S3: nevada_web?.s3?.staticwww?.public,
+	} as const;
+};
+
+const OUTPUT_DIRECTORY = `output/esbuild`;
 const CANARY_PATHS = [
 	{
 		name: "execution",
 		description: "Tests basic Paloma state machine execution",
 		packageName: "@levicape/paloma-examples-canaryexecution",
-		handler: "module/canary/harness.LambdaHandler",
-		environment: (
-			$refs: DereferencedOutput<typeof STACKREF_CONFIG>["paloma"],
-		) => {
-			const { "nevada-web": nevada_web } = $refs;
-			inspect(
-				{
-					nevada_web,
-					$refs,
-				},
-				{ depth: null },
-			);
-			return {
-				...{
-					NEVADA_WEB_S3: nevada_web?.s3?.staticwww?.public ?? {},
-				},
-			} as const;
-		},
+		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/harness.LambdaHandler`,
+		environment: ENVIRONMENT,
 	},
 	// {
 	// 	name: "server",
@@ -74,8 +75,6 @@ const CANARY_PATHS = [
 	// 	handler: "module/canary/server.handler",
 	// },
 ] as const;
-const LLRT_ARCH: string | undefined = process.env["LLRT_ARCH"];
-const BUNDLE_DIRECTORY = "output/esbuild" as const;
 
 const CI = {
 	CI_ENVIRONMENT: process.env.CI_ENVIRONMENT ?? "unknown",
@@ -231,6 +230,7 @@ export = async () => {
 				Name: _(`${name}-log`),
 				StackRef: STACKREF_ROOT,
 				PackageName: WORKSPACE_PACKAGE_NAME,
+				Kind: "Monitor",
 				Monitor: name,
 				MonitorPackageName: packageName,
 			},
@@ -337,19 +337,20 @@ export = async () => {
 			tags: {
 				Name: _(`${name}-monitor`),
 				StackRef: STACKREF_ROOT,
+				PackageName: WORKSPACE_PACKAGE_NAME,
 				Handler: "Monitor",
 				Monitor: name,
 				MonitorPackageName: packageName,
 			},
 		});
-
+		const memorySize = context.environment.isProd ? 512 : 256;
 		const lambda = new LambdaFn(
 			_(`${name}`),
 			{
 				description: `(${packageName}) "${description ?? `Monitor lambda ${name}`}" in #${stage}`,
 				role: roleArn,
 				architectures: ["arm64"],
-				memorySize: Number.parseInt(context.environment.isProd ? "512" : "256"),
+				memorySize,
 				timeout: 93,
 				packageType: "Zip",
 				runtime: LLRT_ARCH ? Runtime.CustomAL2023 : Runtime.NodeJS22dX,
@@ -377,18 +378,60 @@ export = async () => {
 							...cloudmapEnv,
 							NODE_ENV: "production",
 							LOG_LEVEL: "5",
-							...(environment !== undefined
+							...(LLRT_PLATFORM
+								? {
+										LLRT_PLATFORM,
+										LLRT_GC_THRESHOLD_MB: String(memorySize / 4),
+									}
+								: {}),
+							...(environment !== undefined && typeof environment === "function"
 								? Object.fromEntries(
 										Object.entries(environment(dereferenced$))
 											.filter(([_, value]) => value !== undefined)
+											.filter(
+												([_, value]) =>
+													typeof value !== "function" &&
+													typeof value !== "symbol",
+											)
 											.map(([key, value]) => {
-												if (typeof value === "string") {
-													return [key, value];
+												log.debug(
+													inspect({
+														LambdaFn: {
+															environment: {
+																key,
+																value,
+															},
+														},
+													}),
+												);
+
+												if (typeof value === "object") {
+													return [
+														key,
+														Buffer.from(JSON.stringify(value)).toString(
+															"base64",
+														),
+													];
 												}
-												return [
-													key,
-													Buffer.from(JSON.stringify(value)).toString("base64"),
-												];
+												try {
+													return [key, String(value)];
+												} catch (e) {
+													log.warn(
+														inspect(
+															{
+																LambdaFn: {
+																	environment: {
+																		key,
+																		value,
+																		error: serializeError(e),
+																	},
+																},
+															},
+															{ depth: null },
+														),
+													);
+													return [key, undefined];
+												}
 											}),
 									)
 								: {}),
@@ -440,6 +483,18 @@ export = async () => {
 				deploymentStyle: {
 					deploymentOption: "WITH_TRAFFIC_CONTROL",
 					deploymentType: "BLUE_GREEN",
+				},
+				tags: {
+					Name: _("deployment-group"),
+					StackRef: STACKREF_ROOT,
+					PackageName: WORKSPACE_PACKAGE_NAME,
+					Kind: "Monitor",
+					Monitor: name,
+					MonitorPackageName: packageName,
+					Lambda: lambda.name,
+					LambdaArn: lambda.arn,
+					LambdaAlias: alias.name,
+					LambdaVersion: version.version,
 				},
 			},
 			{
@@ -626,8 +681,8 @@ export = async () => {
 											`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
 										]
 									: [
-											`echo 'No bootstrap, removing ${BUNDLE_DIRECTORY}'`,
-											`rm -rf $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${BUNDLE_DIRECTORY} || true`,
+											`echo 'No bootstrap, removing ${OUTPUT_DIRECTORY}'`,
+											`rm -rf $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${OUTPUT_DIRECTORY} || true`,
 											`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
 										]),
 								`NODE_NO_WARNINGS=1 node -e '(${(
@@ -852,8 +907,10 @@ export = async () => {
 									tags: {
 										Name: _(artifact.name),
 										StackRef: STACKREF_ROOT,
-										PackageName: packageName,
+										PackageName: WORKSPACE_PACKAGE_NAME,
+										Kind: "Monitor",
 										Monitor: name,
+										MonitorPackageName: packageName,
 										DeployStage: stage,
 										Action: action,
 									},

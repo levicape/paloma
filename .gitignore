@@ -143,6 +143,7 @@ gen
 **/gen
 build
 module
+output
 **/_protocols
 _protocols
 **/_models

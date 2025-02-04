@@ -10,7 +10,11 @@
     "canaryserver": "./module/canary/server.mjs",
     "canaryserverhttp": "./module/server/http.mjs",
     "lambdacanaryharness": "./module/canary/harness.LambdaHandler",
-    "lambdacanaryserver": "./module/canary/server.LambdaHandler"
+    "lambdacanaryserver": "./module/canary/server.LambdaHandler",
+    "esbuildpaths": "module/canary/*.mjs",
+    "esbuildplatform": "node",
+    "esbuildpackages": "bundle",
+    "esbuildargs": "--external:better-sqlite3 --external:sqlite3 --external:tedious --external:mysql --external:mysql2 --external:oracledb --external:knex"
   },
   "dependencies": {
     "@bufbuild/protobuf": "catalog:protobuf",
@@ -21,6 +25,7 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
     "@types/node": "catalog:types",
+    "esbuild": "catalog:build-esbuild",
     "publint": "catalog:package",
     "syncpack": "catalog:package",
     "typescript": "catalog:dev"
@@ -30,6 +35,11 @@
   ],
   "nx": {
     "targets": {
+      "build:esbuild": {
+        "dependsOn": [
+          "build:module"
+        ]
+      },
       "build:module": {
         "dependsOn": [
           "build:tsc"
@@ -82,7 +92,8 @@
       },
       "nx:compile": {
         "dependsOn": [
-          "build:module"
+          "build:module",
+          "build:esbuild"
         ]
       },
       "nx:test": {
@@ -100,6 +111,7 @@
   "repository": "github:levicape/paloma",
   "scripts": {
     "build": "$npm_package_config_packageexecutor nx nx:compile",
+    "build:esbuild": "[ \"$ESBUILD_DISABLED\" = \"1\" ] && echo 'ESBUILD_DISABLED is set to 1. Skipping esbuild' || $npm_package_config_packageexecutor esbuild $npm_package_config_esbuildpaths --outdir=output/esbuild --outbase=module --platform=$npm_package_config_esbuildplatform --target=es2023 --format=esm --bundle --minify --packages=$npm_package_config_esbuildpackages --external:@aws-sdk --external:@smithy $npm_package_config_esbuildargs",
     "build:tsc": "$npm_package_config_packageexecutor tsc",
     "canary:harness": "node $npm_package_config_canaryharness",
     "canary:server": "nohup node $npm_package_config_canaryserverhttp & node $npm_package_config_canaryserver",

@@ -5,6 +5,7 @@
         "**/module",
         "**/node_modules",
         "**/module",
+        "**/output",
         "package.json",
         "package-lock.json",
         "**/package.json",

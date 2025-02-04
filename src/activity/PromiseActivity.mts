@@ -4,21 +4,22 @@ import {
 	withStructuredLogging,
 } from "../server/loglayer/LoggingContext.mjs";
 
-export const ExecutionPlan = await Effect.runPromise(
+export type PromiseActivityProps = {
+	name: string;
+};
+
+export const PromiseActivity = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
 			const logging = yield* LoggingContext;
 			const log = {
-				work: (yield* logging.logger).withContext({
-					event: "work",
-				}),
-				execution: (yield* logging.logger).withContext({
-					event: "execution",
+				trace: (yield* logging.logger).withContext({
+					event: "trace",
 				}),
 			};
 
-			return class ExecutionPlan {
-				constructor() {
+			return class PromiseActivity {
+				constructor(readonly props: PromiseActivityProps) {
 					for (let i = 0; i < 10; i++) {
 						// biome-ignore lint:
 						continue;
@@ -26,6 +27,6 @@ export const ExecutionPlan = await Effect.runPromise(
 				}
 			};
 		}),
-		Context.empty().pipe(withStructuredLogging({ prefix: "ExecutionPlan" })),
+		Context.empty().pipe(withStructuredLogging({ prefix: "PromiseActivity" })),
 	),
 );

@@ -4,20 +4,17 @@ import {
 	withStructuredLogging,
 } from "../server/loglayer/LoggingContext.mjs";
 
-export const ExecutionPlan = await Effect.runPromise(
+export const Actor = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
 			const logging = yield* LoggingContext;
 			const log = {
-				work: (yield* logging.logger).withContext({
-					event: "work",
-				}),
-				execution: (yield* logging.logger).withContext({
-					event: "execution",
+				activity: (yield* logging.logger).withContext({
+					event: "activity",
 				}),
 			};
 
-			return class ExecutionPlan {
+			return class Actor {
 				constructor() {
 					for (let i = 0; i < 10; i++) {
 						// biome-ignore lint:
@@ -26,6 +23,6 @@ export const ExecutionPlan = await Effect.runPromise(
 				}
 			};
 		}),
-		Context.empty().pipe(withStructuredLogging({ prefix: "ExecutionPlan" })),
+		Context.empty().pipe(withStructuredLogging({ prefix: "Actor" })),
 	),
 );

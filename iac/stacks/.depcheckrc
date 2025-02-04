@@ -1,1 +1,9 @@
-ignores: ["@levicape/*"]
+ignore-patterns:
+- "output"
+json: true
+ignores: 
+- "@bufbuild/protobuf"
+- "@levicape/*"
+- "expect"
+- "nx" 
+- "verror"

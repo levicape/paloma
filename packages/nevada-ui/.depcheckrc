@@ -1,8 +1,14 @@
+ignore-patterns:
+- "output"
+json: true
 ignores: 
 - "@bufbuild/protobuf"
 - "@levicape/*"
+- "aws4fetch"
+- "better-sqlite3"
 - "expect"
 - "jsonc-parser"
+- "knex"
 - "nx" 
 - "tailwindcss"
 - "tslib"

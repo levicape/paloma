@@ -5,6 +5,10 @@ settings:
   excludeLinksFromLockfile: false
 
 catalogs:
+  build-esbuild:
+    esbuild:
+      specifier: ^0.24.2
+      version: 0.24.2
   cli:
     '@stricli/core':
       specifier: ^1.1.1
@@ -298,6 +302,9 @@ importers:
       '@types/node':
         specifier: catalog:types
         version: 22.13.1
+      esbuild:
+        specifier: catalog:build-esbuild
+        version: 0.24.2
       publint:
         specifier: catalog:package
         version: 0.3.2
