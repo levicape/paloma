@@ -1,4 +1,5 @@
 import { Context, Effect } from "effect";
+import { InternalContext } from "../server/ServerContext.mjs";
 import {
 	LoggingContext,
 	withStructuredLogging,
@@ -26,6 +27,6 @@ export const ExecutionPlan = await Effect.runPromise(
 				}
 			};
 		}),
-		Context.empty().pipe(withStructuredLogging({ prefix: "ExecutionPlan" })),
+		InternalContext,
 	),
 );

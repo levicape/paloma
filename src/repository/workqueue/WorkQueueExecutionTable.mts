@@ -2,6 +2,7 @@ import type { Database } from "better-sqlite3";
 import { Context, Effect } from "effect";
 import createQueryBuilder from "knex";
 import KSUID from "ksuid";
+import { InternalContext } from "../../server/ServerContext.mjs";
 import {
 	LoggingContext,
 	withStructuredLogging,
@@ -47,9 +48,7 @@ const { logsql, trace } = await Effect.runPromise(
 				}),
 			};
 		}),
-		Context.empty().pipe(
-			withStructuredLogging({ prefix: "WorkQueueExecutionTable" }),
-		),
+		InternalContext,
 	),
 );
 

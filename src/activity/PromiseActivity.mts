@@ -1,32 +1,76 @@
-import { Context, Effect } from "effect";
-import {
-	LoggingContext,
-	withStructuredLogging,
-} from "../server/loglayer/LoggingContext.mjs";
+import { Effect } from "effect";
+import { InternalContext } from "../server/ServerContext.mjs";
+import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
+import type { Activity } from "./Activity.mjs";
 
-export type PromiseActivityProps = {
-	name: string;
-};
-
-export const PromiseActivity = await Effect.runPromise(
+const { trace } = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
 			const logging = yield* LoggingContext;
-			const log = {
+			return {
 				trace: (yield* logging.logger).withContext({
-					event: "trace",
+					event: "promise-activity",
 				}),
 			};
-
-			return class PromiseActivity {
-				constructor(readonly props: PromiseActivityProps) {
-					for (let i = 0; i < 10; i++) {
-						// biome-ignore lint:
-						continue;
-					}
-				}
-			};
 		}),
-		Context.empty().pipe(withStructuredLogging({ prefix: "PromiseActivity" })),
+		InternalContext,
 	),
 );
+
+export type PromiseActivityOn<Enter> = {
+	enter?: () => Promise<Enter> | Enter;
+	exit?: (props: { events: { enter: Enter } }) => Promise<void> | void;
+};
+
+export type PromiseActivityEvents<Enter> = {
+	enter: Enter;
+};
+
+export type PromiseActivityTask<Enter> = (props: {
+	events: {
+		enter: Enter;
+	};
+}) => Promise<void> | void;
+
+export class PromiseActivity<Enter> implements Activity {
+	$on: PromiseActivityOn<Enter>;
+	$events: PromiseActivityEvents<Enter>;
+	constructor(
+		private readonly props: {
+			on: PromiseActivityOn<Enter>;
+		},
+		private readonly task: PromiseActivityTask<Enter>,
+	) {
+		for (let i = 0; i < 10; i++) {
+			// biome-ignore lint:
+			continue;
+		}
+	}
+	$partial?: undefined;
+	hash(): Promise<string> {
+		// createHash("md5")
+		// 		.update(
+		// 			`${Object.values(this)
+		// 				.map(
+		// 					(state) =>
+		// 						`${
+		// 							(
+		// 								state as TestHarness<
+		// 									S,
+		// 									M,
+		// 									Funnels,
+		// 									FunnelData,
+		// 									Prepared,
+		// 									Resolved,
+		// 									Clients,
+		// 									Previous
+		// 								>
+		// 							).test
+		// 						}`,
+		// 				)
+		// 				.join("")}`,
+		// 		)
+		// 		.digest("hex");
+		return Promise.resolve("hash");
+	}
+}

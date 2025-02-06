@@ -1,28 +1,56 @@
-import { Context, Effect } from "effect";
-import {
-	LoggingContext,
-	withStructuredLogging,
-} from "../server/loglayer/LoggingContext.mjs";
+import { Effect } from "effect";
+import { InternalContext } from "../server/ServerContext.mjs";
+import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
+import type { Canary } from "./Canary.mjs";
 
-export const Actor = await Effect.runPromise(
+const { trace } = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
 			const logging = yield* LoggingContext;
-			const log = {
-				activity: (yield* logging.logger).withContext({
-					event: "activity",
+			// const handler = yield* ExecutionStage;
+			return {
+				// handler,
+				trace: (yield* logging.logger).withContext({
+					event: "actor",
 				}),
 			};
-
-			return class Actor {
-				constructor() {
-					for (let i = 0; i < 10; i++) {
-						// biome-ignore lint:
-						continue;
-					}
-				}
-			};
 		}),
-		Context.empty().pipe(withStructuredLogging({ prefix: "Actor" })),
+		InternalContext,
 	),
 );
+
+export type ActorProps<CanaryTyped extends Canary> = {
+	canary: CanaryTyped;
+	// workQueue: WorkQueueClient;
+};
+
+export class Actor<CanaryTyped extends Canary> {
+	constructor(readonly props: ActorProps<CanaryTyped>) {
+		// const hash = createHash("md5")
+		// 	.update(
+		// 		`${Object.values(this.states)
+		// 			.map(
+		// 				(state) =>
+		// 					`${
+		// 						(
+		// 							state as TestHarness<
+		// 								S,
+		// 								M,
+		// 								Funnels,
+		// 								FunnelData,
+		// 								Prepared,
+		// 								Resolved,
+		// 								Clients,
+		// 								Previous
+		// 							>
+		// 						).test
+		// 					}`,
+		// 			)
+		// 			.join("")}`,
+		// 	)
+		// 	.digest("hex");
+		// Create execution plan
+		// ExecutionPlan<{
+		// }>}
+	}
+}
