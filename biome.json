@@ -15,8 +15,9 @@
     "linter": {
       "rules": { 
         "correctness": {
+          "noChildrenProp": "off",
           "useJsxKeyInIterable": "off",
-          "noChildrenProp": "off"
+          "useYield": "off"
         },
         "suspicious": {
             "noAssignInExpressions": "off",

@@ -512,7 +512,6 @@ export class Alltest<
 			});
 
 			switch (action.kind) {
-				// @biomejs-ignore lint/suspicious/noFallthroughSwitchClause:
 				case "fail": {
 					work.warn("Failed");
 

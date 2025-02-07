@@ -119,10 +119,6 @@ catalogs:
     destr:
       specifier: ^2.0.3
       version: 2.0.3
-  parse-path:
-    pathe:
-      specifier: ^2.0.2
-      version: 2.0.2
   project-nx:
     nx:
       specifier: ^20.4.0
@@ -231,9 +227,6 @@ importers:
       loglayer:
         specifier: catalog:log-loglayer
         version: 5.5.1
-      pathe:
-        specifier: catalog:parse-path
-        version: 2.0.2
       serialize-error:
         specifier: catalog:error
         version: 12.0.0
@@ -4070,9 +4063,6 @@ packages:
   path-type@5.0.0:
     resolution: {integrity: sha512-5HviZNaZcfqP95rwpv+1HDgUamezbqdSYTyzjTvwtJSnIH+3vnbmWsItli8OFEndS984VT55M3jduxZbX351gg==}
     engines: {node: '>=12'}
-
-  pathe@2.0.2:
-    resolution: {integrity: sha512-15Ztpk+nov8DR524R4BF7uEuzESgzUEAV4Ah7CUMNGXdE5ELuvxElxGXndBl32vMSsWa1jpNf22Z+Er3sKwq+w==}
 
   pg-cloudflare@1.1.1:
     resolution: {integrity: sha512-xWPagP/4B6BgFO+EKz3JONXv3YDgvkbVrGw2mTo3D6tVDQRh1e7cqVGvyR3BE+eQgAvx1XhW/iEASj4/jCWl3Q==}
@@ -9401,8 +9391,6 @@ snapshots:
   path-type@4.0.0: {}
 
   path-type@5.0.0: {}
-
-  pathe@2.0.2: {}
 
   pg-cloudflare@1.1.1:
     optional: true

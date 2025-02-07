@@ -28,7 +28,6 @@
     "knex": "catalog:database-sql",
     "ksuid": "catalog:id",
     "loglayer": "catalog:log-loglayer",
-    "pathe": "catalog:parse-path",
     "serialize-error": "catalog:error",
     "std-env": "catalog:core",
     "ulidx": "catalog:id",

@@ -1,31 +1,46 @@
 import { Context, Effect } from "effect";
 import { gen, makeLatch } from "effect/Effect";
-import { DoneSignal, HandlerSignal } from "../execution/ExecutionSignals.mjs";
+import {
+	DoneSignal,
+	ExitSignal,
+	HandlerSignal,
+	ReadySignal,
+} from "../execution/ExecutionSignals.mjs";
 import { withStructuredLogging } from "./loglayer/LoggingContext.mjs";
 
-const { done, handler } = await Effect.runPromise(
+const { signals } = await Effect.runPromise(
 	gen(function* () {
 		return {
-			done: yield* makeLatch(),
-			handler: yield* makeLatch(),
+			signals: (
+				[
+					[ReadySignal, { latch: yield* makeLatch(true) }],
+					[HandlerSignal, { latch: yield* makeLatch(false) }],
+					[DoneSignal, { latch: yield* makeLatch(false) }],
+					[ExitSignal, { latch: yield* makeLatch(false) }],
+				] as const
+			).map(([tag, signal]) => ({
+				tag,
+				...signal,
+			})),
 		};
 	}),
 );
 
 export const InternalContext = Context.empty().pipe(
 	withStructuredLogging({ prefix: "internal" }),
-	Context.add(
-		HandlerSignal,
-		gen(function* () {
-			yield* Effect.void;
-			return handler;
-		}),
-	),
-	Context.add(
-		DoneSignal,
-		gen(function* () {
-			yield* Effect.void;
-			return done;
-		}),
+	Context.merge(
+		Context.mergeAll(
+			...signals.map(({ tag, latch }) =>
+				Context.empty().pipe(
+					Context.add(
+						tag,
+						gen(function* () {
+							yield* Effect.void;
+							return latch;
+						}),
+					),
+				),
+			),
+		),
 	),
 );

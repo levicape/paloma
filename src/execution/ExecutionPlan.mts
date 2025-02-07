@@ -1,9 +1,6 @@
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 import { InternalContext } from "../server/ServerContext.mjs";
-import {
-	LoggingContext,
-	withStructuredLogging,
-} from "../server/loglayer/LoggingContext.mjs";
+import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
 
 export const ExecutionPlan = await Effect.runPromise(
 	Effect.provide(
