@@ -1,11 +1,12 @@
+import { randomBytes } from "node:crypto";
 import { ConsolaTransport } from "@loglayer/transport-consola";
 import { createConsola } from "consola";
 import { Context, Effect } from "effect";
 import { LogLayer } from "loglayer";
 import { serializeError } from "serialize-error";
 import { env } from "std-env";
-import { ulid } from "ulidx";
 import { LoggingContext, LogstreamPassthrough } from "./LoggingContext.mjs";
+import { $$spanId, $$traceId, LoggingPlugins } from "./LoggingPlugins.mjs";
 
 const rootloglayer = Effect.succeed(
 	new LogLayer({
@@ -18,38 +19,36 @@ const rootloglayer = Effect.succeed(
 			}),
 		}),
 		errorSerializer: serializeError,
-		plugins: [
-			{
-				id: "timestamp-plugin",
-				onBeforeDataOut: ({ data }) => {
-					if (data) {
-						data.timestamp = Date.now();
-					}
-					return data;
-				},
-			},
-		],
+		plugins: LoggingPlugins,
 	}).withContext({
-		rootId: ulid(),
+		rootId: $$traceId(),
 	}),
 );
 
 export const withConsolaLogger = (props: {
-	prefix?: string;
+	prefix: string;
 	context?: Record<string, unknown>;
 }) =>
 	Context.add(LoggingContext, {
 		props,
 		logger: Effect.gen(function* () {
 			const logger = yield* yield* Effect.cached(rootloglayer);
-			const loggerId = ulid().slice(-16);
+			const loggerId = $$spanId();
 			let child = props.prefix
 				? logger.withPrefix(props.prefix)
 				: logger.child();
-			return child.withContext({
+			const loglayer = child.withContext({
 				...props.context,
 				loggerId,
 			});
+
+			loglayer
+				.withMetadata({
+					$span: "logger",
+				})
+				.debug(`logger span`);
+
+			return loglayer;
 		}),
 		stream: LogstreamPassthrough,
 	});

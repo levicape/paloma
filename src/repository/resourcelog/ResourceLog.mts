@@ -9,10 +9,13 @@ let { trace } = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
 			const logging = yield* LoggingContext;
-			return {
-				trace: (yield* logging.logger).withPrefix("resourcelog").withContext({
+			const trace = (yield* logging.logger)
+				.withPrefix("resourcelog")
+				.withContext({
 					event: "resourcelog-layer",
-				}),
+				});
+			return {
+				trace,
 			};
 		}),
 		InternalContext,
@@ -27,8 +30,10 @@ export class ResourceLog extends Context.Tag("ResourceLog")<
 >() {}
 
 /**
- * A ResourceLogLayer encapsulates a FileContext and provides methods to emit newline-delimited JSON objects to a file.
- *
+ * A ResourceLogLayer encapsulates a FileContext and provides methods
+ * that emit newline-delimited JSON objects to the file.
+ * @requires FileContext
+ * @implements ResourceLog
  */
 export const ResourceLogLayer = Layer.effect(
 	ResourceLog,

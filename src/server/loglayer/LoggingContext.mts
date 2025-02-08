@@ -5,7 +5,7 @@ import { withAwsPowertoolsLogger } from "./AwsPowertoolsLogger.mjs";
 import { withConsolaLogger } from "./ConsolaLogger.mjs";
 
 export type LoggingContextProps = {
-	readonly prefix?: string;
+	readonly prefix: string;
 	readonly context?: Record<string, unknown>;
 };
 
@@ -28,10 +28,7 @@ export const LogstreamPassthrough =
 		return m;
 	};
 
-export const withStructuredLogging = (props: {
-	prefix?: string;
-	context?: Record<string, unknown>;
-}) => {
+export const withStructuredLogging = (props: LoggingContextProps) => {
 	if (
 		env.AWS_LAMBDA_FUNCTION_NAME ||
 		env.STRUCTURED_LOGGING === "awspowertools"

@@ -47,7 +47,7 @@ export class PromiseActivity<Enter> implements Activity {
 		}
 	}
 	$partial?: undefined;
-	hash(): Promise<string> {
+	hash(): string {
 		// createHash("md5")
 		// 		.update(
 		// 			`${Object.values(this)
@@ -71,6 +71,6 @@ export class PromiseActivity<Enter> implements Activity {
 		// 				.join("")}`,
 		// 		)
 		// 		.digest("hex");
-		return Promise.resolve("hash");
+		return "hash";
 	}
 }

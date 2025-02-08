@@ -16,4 +16,5 @@ ignores:
 - "tslib"
 - "tsx" 
 - "ts-proto"
+- "ulid"
 - "verror"

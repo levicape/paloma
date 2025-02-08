@@ -84,8 +84,8 @@ export class StatefulActivity<
 		}
 	}
 	$partial?: undefined;
-	hash(): Promise<string> {
-		return Promise.resolve("stateful-activity");
+	hash(): string {
+		return "stateful-activity";
 	}
 
 	async plan() {}

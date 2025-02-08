@@ -63,16 +63,10 @@ const WorkQueueFilesystem = {
 	root: "/tmp/paloma",
 };
 
-type Otel = {
-	traceId: string;
-	spanId: string;
-	rootSpanId?: string;
-};
-
 /**
  * Canary classes define an Activity that the Paloma runtime will run on each execution.
  */
-export class Canary {
+export class Canary extends Function {
 	private trace: ILogLayer;
 	constructor(
 		/**
@@ -85,17 +79,17 @@ export class Canary {
 		 */
 		public readonly activity: Activity,
 	) {
+		super();
+
 		const canary = this;
 		const canarytrace = trace.child().withContext({
 			event: "canary-activity",
-			action: "create",
-			$CanaryActivity: {
+			action: "constructor()",
+			$Canary: {
 				name,
-				activity: activity.constructor.name,
 			},
 		});
 		this.trace = canarytrace;
-
 		canarytrace.debug("Canary created");
 
 		Effect.runFork(
@@ -108,47 +102,54 @@ export class Canary {
 					.withContext({
 						action: "register",
 					})
-					.withMetadata({
-						Canary: {
-							registry,
-						},
-					})
 					.debug("Registered Canary with queue");
 			}),
 		);
+
+		// biome-ignore lint/correctness/noConstructorReturn:
+		return new Proxy(this, {
+			apply: (target, _that, args: Parameters<Canary["handler"]>) =>
+				target.handler(...args),
+		});
 	}
 
-	async actor() {
+	actor() {
 		const canary = this;
-		const hash = await this.activity.hash();
+		const hash = this.activity.hash();
 		const path = `${WorkQueueFilesystem.root}/canary/${this.name}/actor/${hash}.sqlite`;
-		const otel = {
-			traceId: ulid(),
-			spanId: ulid(),
-		};
+
+		canary.trace
+			.withContext({
+				action: "actor",
+			})
+			.withMetadata({
+				Canary: {
+					actor: {
+						hash,
+						path,
+					},
+				},
+			})
+			.debug("Creating actor");
 
 		return Effect.provide(
 			gen(function* () {
 				// const database = yield* (yield* Db0Context).database;
 				// StateTable, TaskQueue, Acquire executionlog resource
+				// yield* resourcelog(canary.name);
+				const actor = new Actor({
+					canary,
+				});
 				canary.trace
-					.withContext({
-						action: "create",
-					})
 					.withMetadata({
-						...otel,
 						Canary: {
 							actor: {
-								hash,
-								path,
+								instance: actor,
 							},
 						},
 					})
-					.debug("Creating actor");
-				// yield* resourcelog(canary.name);
-				return new Actor({
-					canary,
-				});
+					.debug("Created actor");
+				return actor;
 			}),
 			Context.merge(InternalContext, Context.empty().pipe(withDb0())),
 		);
@@ -168,32 +169,32 @@ export class Canary {
 					},
 				},
 			})
-			.debug("Canary handler");
+			.debug("Canary handler() called");
 		await Effect.runPromise(
 			Effect.gen(function* () {
 				const result = yield* mutex.withPermitsIfAvailable(1)(
 					Effect.gen(function* () {
-						canarytrace
-							.withContext({
-								signal: "HandlerSignal",
-								what: "await",
-							})
-							.debug("Waiting for handler to be ready");
 						yield* ready.await;
 						canarytrace
-							.withContext({
+							.withMetadata({
+								signal: "ReadySignal",
+								what: "await",
+							})
+							.debug("Received ready signal");
+						yield* handler.release;
+						canarytrace
+							.withMetadata({
 								signal: "HandlerSignal",
 								what: "release",
 							})
-							.debug("Signal handler is ready");
-						yield* handler.release;
+							.debug("Released handler");
+						yield* done.await;
 						canarytrace
-							.withContext({
+							.withMetadata({
 								signal: "DoneSignal",
 								what: "await",
 							})
-							.debug("Waiting for ExecutionFiberMain to finish");
-						yield* done.await;
+							.debug("Received done signal");
 					}),
 				);
 
@@ -202,7 +203,7 @@ export class Canary {
 					Option.match({
 						onNone: () => {
 							canarytrace
-								.withContext({
+								.withMetadata({
 									signal: "mutex",
 									what: "error",
 								})

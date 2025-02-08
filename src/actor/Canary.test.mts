@@ -65,7 +65,7 @@ export const canary = new Canary(
 );
 
 setTimeout(() => {
-	canary.handler(undefined, {});
+	canary();
 }, 1200);
 
 export const stateful = new Canary(
