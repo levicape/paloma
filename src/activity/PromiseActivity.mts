@@ -9,7 +9,7 @@ const { trace } = await Effect.runPromise(
 			const logging = yield* LoggingContext;
 			return {
 				trace: (yield* logging.logger).withContext({
-					event: "promise-activity",
+					$event: "promise-activity",
 				}),
 			};
 		}),

@@ -12,7 +12,7 @@ let { trace } = await Effect.runPromise(
 			const logging = yield* LoggingContext;
 			return {
 				trace: (yield* logging.logger).withPrefix("db0").withContext({
-					event: "sqlite",
+					$event: "sqlite",
 				}),
 			};
 		}),

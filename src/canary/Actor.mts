@@ -11,7 +11,7 @@ const { trace } = await Effect.runPromise(
 			return {
 				// handler,
 				trace: (yield* logging.logger).withContext({
-					event: "actor",
+					$event: "actor",
 				}),
 			};
 		}),

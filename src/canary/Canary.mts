@@ -1,4 +1,12 @@
-import { Context, Effect, Option, pipe } from "effect";
+import {
+	Context,
+	Effect,
+	ExecutionStrategy,
+	Layer,
+	Option,
+	Scope,
+	pipe,
+} from "effect";
 import { gen, makeSemaphore } from "effect/Effect";
 import type { ILogLayer } from "loglayer";
 import { ulid } from "ulidx";
@@ -34,7 +42,7 @@ const {
 				return {
 					logging: {
 						trace: (yield* logging.logger).withPrefix("canary").withContext({
-							event: "canary",
+							$event: "canary-main",
 						}),
 					},
 					signals: {
@@ -59,7 +67,7 @@ const {
 export type CanaryProps = {};
 
 // Config class, PALOMA_DATA_PATH
-const WorkQueueFilesystem = {
+export const WorkQueueFilesystem = {
 	root: "/tmp/paloma",
 };
 
@@ -83,8 +91,8 @@ export class Canary extends Function {
 
 		const canary = this;
 		const canarytrace = trace.child().withContext({
-			event: "canary-activity",
-			action: "constructor()",
+			$event: "canary-activity",
+			$action: "constructor()",
 			$Canary: {
 				name,
 			},
@@ -98,11 +106,7 @@ export class Canary extends Function {
 					canary,
 				});
 
-				canarytrace
-					.withContext({
-						action: "register",
-					})
-					.debug("Registered Canary with queue");
+				canarytrace.withMetadata({}).debug("Registered Canary with queue");
 			}),
 		);
 
@@ -119,9 +123,6 @@ export class Canary extends Function {
 		const path = `${WorkQueueFilesystem.root}/canary/${this.name}/actor/${hash}.sqlite`;
 
 		canary.trace
-			.withContext({
-				action: "actor",
-			})
 			.withMetadata({
 				Canary: {
 					actor: {
@@ -130,7 +131,7 @@ export class Canary extends Function {
 					},
 				},
 			})
-			.debug("Creating actor");
+			.debug("actor() call");
 
 		return Effect.provide(
 			gen(function* () {
@@ -148,7 +149,7 @@ export class Canary extends Function {
 							},
 						},
 					})
-					.debug("Created actor");
+					.debug("Created Actor instance");
 				return actor;
 			}),
 			Context.merge(InternalContext, Context.empty().pipe(withDb0())),
@@ -156,11 +157,11 @@ export class Canary extends Function {
 	}
 
 	handler = async (_event: unknown, _context: unknown) => {
-		const canarytrace = this.trace;
-		canarytrace
-			.withContext({
-				action: "handler",
-			})
+		const handlertrace = this.trace.child().withContext({
+			$event: "canary-handler",
+		});
+
+		handlertrace
 			.withMetadata({
 				Canary: {
 					handler: {
@@ -170,26 +171,27 @@ export class Canary extends Function {
 				},
 			})
 			.debug("Canary handler() called");
+
 		await Effect.runPromise(
 			Effect.gen(function* () {
 				const result = yield* mutex.withPermitsIfAvailable(1)(
 					Effect.gen(function* () {
 						yield* ready.await;
-						canarytrace
+						handlertrace
 							.withMetadata({
 								signal: "ReadySignal",
 								what: "await",
 							})
 							.debug("Received ready signal");
 						yield* handler.release;
-						canarytrace
+						handlertrace
 							.withMetadata({
 								signal: "HandlerSignal",
 								what: "release",
 							})
 							.debug("Released handler");
 						yield* done.await;
-						canarytrace
+						handlertrace
 							.withMetadata({
 								signal: "DoneSignal",
 								what: "await",
@@ -202,7 +204,7 @@ export class Canary extends Function {
 					result,
 					Option.match({
 						onNone: () => {
-							canarytrace
+							handlertrace
 								.withMetadata({
 									signal: "mutex",
 									what: "error",
@@ -210,7 +212,7 @@ export class Canary extends Function {
 								.warn("Handler concurrency error");
 						},
 						onSome: () => {
-							canarytrace.debug("Canary handler succeeded");
+							handlertrace.withMetadata({}).debug("Canary handler succeeded");
 						},
 					}),
 				);
