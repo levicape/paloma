@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 
 import { PromiseActivity } from "../activity/PromiseActivity.mjs";
-import { StatefulActivity } from "../activity/StatefulActivity.mjs";
 import { InternalContext } from "../server/ServerContext.mjs";
 import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
 import { Canary } from "./Canary.mjs";
@@ -27,7 +26,7 @@ export const canary = new Canary(
 	},
 	new PromiseActivity(
 		{
-			on: {
+			events: {
 				enter: async () => {
 					const now = Date.now();
 					trace
@@ -64,85 +63,87 @@ export const canary = new Canary(
 	),
 );
 
-setTimeout(() => {
+// DurableActivity { setup, teardown, stale: (versions) => { teardown: boolean } }
+
+setImmediate(() => {
 	canary();
-}, 1200);
+});
 
-export const stateful = new Canary(
-	"Stateful",
-	{
-		name: "stateful",
-	},
-	new StatefulActivity(
-		{
-			on: {
-				prepare() {
-					const now = Date.now();
-					trace
-						.withMetadata({
-							StatefulActivity: {
-								now,
-							},
-						})
-						.info("prepare");
-					return {
-						now,
-					};
-				},
-				async enter({ events }) {
-					trace
-						.withMetadata({
-							StatefulActivity: {
-								events,
-							},
-						})
-						.info("enter");
+// export const stateful = new Canary(
+// 	"Stateful",
+// 	{
+// 		name: "stateful",
+// 	},
+// 	new StatefulActivity(
+// 		{
+// 			on: {
+// 				prepare() {
+// 					const now = Date.now();
+// 					trace
+// 						.withMetadata({
+// 							StatefulActivity: {
+// 								now,
+// 							},
+// 						})
+// 						.info("prepare");
+// 					return {
+// 						now,
+// 					};
+// 				},
+// 				async enter({ events }) {
+// 					trace
+// 						.withMetadata({
+// 							StatefulActivity: {
+// 								events,
+// 							},
+// 						})
+// 						.info("enter");
 
-					return {
-						now: Date.now(),
-					};
-				},
-				exit({ events }) {
-					trace
-						.withMetadata({
-							StatefulActivity: {
-								events,
-							},
-						})
-						.info("exit");
-				},
-				stop({ events }) {
-					trace
-						.withMetadata({
-							StatefulActivity: {
-								events,
-							},
-						})
-						.info("stop");
+// 					return {
+// 						now: Date.now(),
+// 					};
+// 				},
+// 				exit({ events }) {
+// 					trace
+// 						.withMetadata({
+// 							StatefulActivity: {
+// 								events,
+// 							},
+// 						})
+// 						.info("exit");
+// 				},
+// 				stop({ events }) {
+// 					trace
+// 						.withMetadata({
+// 							StatefulActivity: {
+// 								events,
+// 							},
+// 						})
+// 						.info("stop");
 
-					return {
-						now: Date.now(),
-					};
-				},
-				teardown({ events }) {
-					trace
-						.withMetadata({
-							StatefulActivity: {
-								events,
-							},
-						})
-						.info("teardown");
-				},
-			},
-		},
-		async ({ events }) => {
-			trace
-				.withMetadata({
-					StatefulActivity: {
-						events,
-					},
-				})
-				.info("task");
-		},
-	),
-);
+// 					return {
+// 						now: Date.now(),
+// 					};
+// 				},
+// 				teardown({ events }) {
+// 					trace
+// 						.withMetadata({
+// 							StatefulActivity: {
+// 								events,
+// 							},
+// 						})
+// 						.info("teardown");
+// 				},
+// 			},
+// 		},
+// 		async ({ events }) => {
+// 			trace
+// 				.withMetadata({
+// 					StatefulActivity: {
+// 						events,
+// 					},
+// 				})
+// 				.info("task");
+// 		},
+// 	),
+// );

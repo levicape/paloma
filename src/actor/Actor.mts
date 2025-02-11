@@ -1,7 +1,7 @@
 import { Effect } from "effect";
+import type { Canary } from "../canary/Canary.mjs";
 import { InternalContext } from "../server/ServerContext.mjs";
 import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
-import type { Canary } from "./Canary.mjs";
 
 const { trace } = await Effect.runPromise(
 	Effect.provide(
