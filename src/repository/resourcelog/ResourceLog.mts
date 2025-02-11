@@ -1,3 +1,4 @@
+import { Stream } from "node:stream";
 import { stringify } from "csv/sync";
 import { Context, Effect, Layer, Scope } from "effect";
 import { gen } from "effect/Effect";
@@ -88,12 +89,12 @@ export const ResourceLogFile = (scope: Scope.Scope) =>
 			gen(function* () {
 				const file = yield* (yield* FileContext.pipe(
 					Scope.extend(scope),
-				)).writeStream.pipe(Scope.extend(scope));
+				)).file.pipe(Scope.extend(scope));
 
 				let traceresource = trace.child().withContext({
 					$event: "resourcelog-layer",
 					$ResourceLogLayer: {
-						file: file.path,
+						file: file.stream.path,
 					},
 				});
 				traceresource.debug("ResourceLogLayer created");
@@ -105,7 +106,7 @@ export const ResourceLogFile = (scope: Scope.Scope) =>
 						const tracecapture = traceresource.child();
 						tracecapture
 							.withContext({
-								$event: "capture",
+								$event: "resourcelog-capture",
 							})
 							.debug("Capturing resource");
 
@@ -168,30 +169,45 @@ export const ResourceLogFile = (scope: Scope.Scope) =>
 										date: (value) => value.toISOString(),
 									},
 								});
-								const write = Effect.promise(
+
+								const captureFn = Effect.promise(
 									(_abortsignal) =>
 										new Promise((resolve, reject) => {
-											file.write(line, (err) => {
-												if (err) {
-													traceresource
-														.withMetadata({
-															ResourceLogFile: {
-																line,
-															},
-														})
-														.withError(deserializeError(err))
-														.error("Failed to write to file");
+											const readable = Stream.Readable.from([line]);
+											readable.pause();
+											readable.on("end", () => {
+												readable.unpipe();
+												readable.destroy();
 
-													reject(deserializeError(serializeError(err)));
-												} else {
-													traceresource.debug("Wrote to file");
-													resolve(undefined);
-												}
+												traceresource.debug("Wrote to file");
+												resolve(undefined);
 											});
+
+											readable.on("error", (error: unknown) => {
+												try {
+													readable.unpipe();
+													readable.destroy();
+												} catch (e) {
+													//
+												}
+
+												traceresource
+													.withMetadata({
+														ResourceLogFile: {
+															line,
+														},
+													})
+													.withError(deserializeError(error))
+													.error("Failed to write to file");
+
+												reject(deserializeError(error));
+											});
+
+											readable.pipe(file.stream, { end: false });
 										}),
 								);
 
-								return write;
+								return captureFn;
 							},
 						);
 					},

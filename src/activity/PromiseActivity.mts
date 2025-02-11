@@ -37,7 +37,7 @@ export class PromiseActivity<Enter> implements Activity {
 	$events: PromiseActivityEvents<Enter>;
 	constructor(
 		private readonly props: {
-			on: PromiseActivityOn<Enter>;
+			events: PromiseActivityOn<Enter>;
 		},
 		private readonly task: PromiseActivityTask<Enter>,
 	) {

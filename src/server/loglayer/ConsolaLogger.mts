@@ -11,28 +11,25 @@ import {
 	LoggingPlugins,
 } from "./LoggingPlugins.mjs";
 
-const rootloglayer = pipe(
-	Effect.sync(() => {
-		const rootId = $$_traceId_$$();
-		return new LogLayer({
-			transport: new ConsolaTransport({
-				logger: createConsola({
-					formatOptions: {
-						compact: false,
-					},
-					level: Number(env.LOG_LEVEL ?? "3"),
-				}),
+const rootloglayer = Effect.sync(() => {
+	const rootId = $$_traceId_$$();
+	return new LogLayer({
+		transport: new ConsolaTransport({
+			logger: createConsola({
+				formatOptions: {
+					compact: false,
+				},
+				level: Number(env.LOG_LEVEL ?? "3"),
 			}),
-			errorSerializer: serializeError,
-			plugins: LoggingPlugins,
-		}).withContext({
-			_$span: "root",
-			rootId,
-			traceId: rootId,
-		});
-	}),
-	Effect.cached,
-);
+		}),
+		errorSerializer: serializeError,
+		plugins: LoggingPlugins,
+	}).withContext({
+		_$span: "root",
+		rootId,
+		traceId: rootId,
+	});
+});
 
 export const withConsolaLogger = (props: {
 	prefix: string;
@@ -41,7 +38,7 @@ export const withConsolaLogger = (props: {
 	Context.add(LoggingContext, {
 		props,
 		logger: Effect.gen(function* () {
-			const logger = yield* yield* rootloglayer;
+			const logger = yield* yield* Effect.cached(rootloglayer);
 			const loggerId = $$_spanId_$$();
 			let child = props.prefix
 				? logger.withPrefix(props.prefix)

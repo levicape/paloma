@@ -1,11 +1,11 @@
-import { createWriteStream } from "node:fs";
+import { createWriteStream, statSync } from "node:fs";
 import { Context, Effect, Scope } from "effect";
 import { ensureFileSync } from "fs-extra/esm";
 import { deserializeError, serializeError } from "serialize-error";
 import VError from "verror";
 import { InternalContext } from "../ServerContext.mjs";
 import { LoggingContext } from "../index.mjs";
-import { FileContext } from "./FileContext.mjs";
+import { FileContext, type FileContextStats } from "./FileContext.mjs";
 
 let { trace } = await Effect.runPromise(
 	Effect.provide(
@@ -38,11 +38,11 @@ export const withWriteStream = (props: WithWriteStreamProps) => {
 			name: props.name,
 		},
 	});
-	tracestream.debug("Creating write stream");
+	tracestream.debug("Creating uf8 stream FileContext");
 
 	return Context.add(FileContext, {
 		$kind: "WriteStream",
-		writeStream: Effect.acquireRelease(
+		file: Effect.acquireRelease(
 			Effect.sync(() => {
 				tracestream
 					.withMetadata({
@@ -55,7 +55,19 @@ export const withWriteStream = (props: WithWriteStreamProps) => {
 				try {
 					ensureFileSync(props.name as string);
 
-					return createWriteStream(props.name, {
+					let stats: FileContextStats;
+					try {
+						stats = {
+							$kind: "stats",
+							stats: statSync(props.name),
+						};
+					} catch (error) {
+						stats = {
+							$kind: "error",
+							error: deserializeError(error),
+						};
+					}
+					const stream = createWriteStream(props.name, {
 						flags: "a",
 						mode: 0x0666,
 						encoding: "utf8",
@@ -64,6 +76,8 @@ export const withWriteStream = (props: WithWriteStreamProps) => {
 						flush: true,
 						...(props.writeStream ?? {}),
 					});
+
+					return { stats, stream };
 				} catch (e: unknown) {
 					const serialized = serializeError(e);
 					tracestream
@@ -79,12 +93,12 @@ export const withWriteStream = (props: WithWriteStreamProps) => {
 					);
 				}
 			}),
-			(writestream, exit) => {
+			({ stream }, exit) => {
 				return Effect.gen(function* () {
 					let error: unknown | undefined;
 					try {
-						writestream?.end();
-						writestream?.close();
+						stream?.end();
+						stream?.close();
 					} catch (e: unknown) {
 						error = e;
 					}

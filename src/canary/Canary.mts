@@ -12,6 +12,7 @@ import type { ILogLayer } from "loglayer";
 import { ulid } from "ulidx";
 import VError from "verror";
 import type { Activity } from "../activity/Activity.mjs";
+import { Actor } from "../actor/Actor.mjs";
 import {
 	ExecutionFiber,
 	ExecutionFiberMain,
@@ -25,7 +26,6 @@ import {
 import { InternalContext } from "../server/ServerContext.mjs";
 import { withDb0 } from "../server/db0/DatabaseContext.mjs";
 import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
-import { Actor } from "./Actor.mjs";
 
 const {
 	logging: { trace },
@@ -88,8 +88,6 @@ export class Canary extends Function {
 		public readonly activity: Activity,
 	) {
 		super();
-
-		const canary = this;
 		const canarytrace = trace.child().withContext({
 			$event: "canary-activity",
 			$action: "constructor()",
@@ -100,15 +98,19 @@ export class Canary extends Function {
 		this.trace = canarytrace;
 		canarytrace.debug("Canary created");
 
-		Effect.runFork(
-			Effect.gen(function* () {
-				yield* registry.queue.offer({
-					canary,
-				});
-
-				canarytrace.withMetadata({}).debug("Registered Canary with queue");
-			}),
-		);
+		const registered = registry.queue.unsafeOffer({
+			name: this.name,
+			actor: this.actor(),
+		});
+		if (registered) {
+			canarytrace
+				.withMetadata({})
+				.debug("Registered self with ExecutionFiberMain queue");
+		} else {
+			throw new VError(
+				"Could not register Canary with ExecutionFiberMain. Exiting.",
+			);
+		}
 
 		// biome-ignore lint/correctness/noConstructorReturn:
 		return new Proxy(this, {
@@ -117,7 +119,7 @@ export class Canary extends Function {
 		});
 	}
 
-	actor() {
+	private actor() {
 		const canary = this;
 		const hash = this.activity.hash();
 		const path = `${WorkQueueFilesystem.root}/canary/${this.name}/actor/${hash}.sqlite`;
@@ -135,8 +137,6 @@ export class Canary extends Function {
 
 		return Effect.provide(
 			gen(function* () {
-				// const database = yield* (yield* Db0Context).database;
-				// StateTable, TaskQueue, Acquire executionlog resource
 				// yield* resourcelog(canary.name);
 				const actor = new Actor({
 					canary,
@@ -152,11 +152,11 @@ export class Canary extends Function {
 					.debug("Created Actor instance");
 				return actor;
 			}),
-			Context.merge(InternalContext, Context.empty().pipe(withDb0())),
+			Context.merge(InternalContext, Context.empty()),
 		);
 	}
 
-	handler = async (_event: unknown, _context: unknown) => {
+	private handler = async (_event: unknown, _context: unknown) => {
 		const handlertrace = this.trace.child().withContext({
 			$event: "canary-handler",
 		});
@@ -211,8 +211,8 @@ export class Canary extends Function {
 								})
 								.warn("Handler concurrency error");
 						},
-						onSome: () => {
-							handlertrace.withMetadata({}).debug("Canary handler succeeded");
+						onSome: (a) => {
+							handlertrace.debug("Canary handler succeeded");
 						},
 					}),
 				);

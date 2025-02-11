@@ -18,28 +18,25 @@ try {
 	logLevel = "INFO";
 }
 
-const rootloglayer = pipe(
-	Effect.sync(() => {
-		const rootId = $$_traceId_$$();
-		return new LogLayer({
-			transport: new PowertoolsTransport({
-				logger: new Logger({
-					// TODO: Stack env vars, add to protocol stands
-					serviceName: env.AWS_CLOUDMAP_SERVICE_NAME ?? env.PULUMI__NAME,
-					logLevel,
-				}),
+const rootloglayer = Effect.sync(() => {
+	const rootId = $$_traceId_$$();
+	return new LogLayer({
+		transport: new PowertoolsTransport({
+			logger: new Logger({
+				// TODO: Stack env vars, add to protocol stands
+				serviceName: env.AWS_CLOUDMAP_SERVICE_NAME ?? env.PULUMI__NAME,
+				logLevel,
 			}),
-			errorSerializer: serializeError,
-			plugins: LoggingPlugins,
-		}).withContext({
-			_$span: "root",
+		}),
+		errorSerializer: serializeError,
+		plugins: LoggingPlugins,
+	}).withContext({
+		_$span: "root",
 
-			rootId,
-			traceId: rootId,
-		});
-	}),
-	Effect.cached,
-);
+		rootId,
+		traceId: rootId,
+	});
+});
 
 export const withAwsPowertoolsLogger = (props: {
 	prefix: string;
@@ -48,7 +45,7 @@ export const withAwsPowertoolsLogger = (props: {
 	Context.add(LoggingContext, {
 		props,
 		logger: Effect.gen(function* () {
-			const logger = yield* yield* rootloglayer;
+			const logger = yield* yield* Effect.cached(rootloglayer);
 			const loggerId = $$_spanId_$$();
 			let child = props.prefix
 				? logger.withPrefix(props.prefix)

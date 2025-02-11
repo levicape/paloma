@@ -1,1 +1,1 @@
-export * from "./Actor.mjs";
+export * from "../actor/Actor.mjs";
