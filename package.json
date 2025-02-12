@@ -33,7 +33,6 @@
     "loglayer": "catalog:log-loglayer",
     "serialize-error": "catalog:error",
     "std-env": "catalog:core",
-    "ulidx": "catalog:id",
     "verror": "catalog:error"
   },
   "devDependencies": {
@@ -54,14 +53,10 @@
     "node": "22.12.0"
   },
   "exports": {
-    ".": "./module/execution/index.mjs",
-    "./activity": "./module/activity/index.mjs",
-    "./canary": "./module/canary/index.mjs",
-    "./cli": "./module/cli/index.mjs",
-    "./execution": "./module/execution/index.mjs",
-    "./materials": "./module/materials/index.mjs",
-    "./repository": "./module/repository/index.mjs",
-    "./server": "./module/server/index.mjs"
+    ".": "./module/canary/*.mjs",
+    "./canary/*": "./module/canary/*.mjs",
+    "./runtime/execution/*": "./module/execution/*.mjs",
+    "./runtime/server/*": "./module/server/*.mjs"
   },
   "files": [
     "iac",
@@ -189,6 +184,5 @@
     "test:unit": "node --experimental-strip-types --experimental-test-coverage --test --test-reporter junit --test-reporter-destination test-unit.junit.xml  \"module/**/*.test.(mjs|cjs|js)\"",
     "xx:workflow": "$npm_package_config_packageexecutor nx run-many -t build,lint,test--parallel=1 --verbose --no-cloud && $npm_package_config_packageexecutor nx run-many -t package:deps,prepublish --parallel=1 --verbose --no-cloud"
   },
-  "type": "module",
-  "types": "./module/index.d.mts"
+  "type": "module"
 }

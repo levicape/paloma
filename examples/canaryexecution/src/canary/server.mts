@@ -1,5 +1,7 @@
 import { ok } from "node:assert";
-import { Alltest } from "@levicape/paloma";
+import { Alltest } from "@levicape/paloma/runtime/execution/Alltest";
+import type { ContinueAction } from "@levicape/paloma/runtime/execution/TestAction";
+
 import KSUID from "ksuid";
 
 const waitForMs = (ms: number) =>

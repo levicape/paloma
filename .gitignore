@@ -43,6 +43,7 @@ package-lock.json
 
 
 # Logs
+*.junit.xml
 logs
 *.log
 npm-debug.log*

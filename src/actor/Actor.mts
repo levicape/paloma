@@ -21,7 +21,6 @@ const { trace } = await Effect.runPromise(
 
 export type ActorProps<CanaryTyped extends Canary> = {
 	canary: CanaryTyped;
-	// workQueue: WorkQueueClient;
 };
 
 export class Actor<CanaryTyped extends Canary> {

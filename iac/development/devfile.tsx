@@ -100,7 +100,7 @@ let data = (
 				id={"node"}
 				exec={{
 					component: "source",
-					commandLine: sudodo(`pnpx n ${NODE_VERSION} -y;`),
+					commandLine: sudodo(`pnpx n ${NODE_VERSION} -y`),
 				}}
 			/>,
 			<DevfileCommandX

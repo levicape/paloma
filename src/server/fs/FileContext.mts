@@ -11,8 +11,9 @@ export class FileContext extends Context.Tag("FileContext")<
 	{
 		$kind: "WriteStream";
 		file: Effect<{
+			path: string;
 			stats: FileContextStats;
-			stream: WriteStream;
+			stream: WritableStream;
 		}>;
 	}
 >() {}

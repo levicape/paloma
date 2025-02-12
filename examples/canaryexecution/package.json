@@ -31,7 +31,8 @@
     "typescript": "catalog:dev"
   },
   "files": [
-    "module"
+    "module",
+    "output"
   ],
   "nx": {
     "targets": {

@@ -1,11 +1,13 @@
 import { createWriteStream, statSync } from "node:fs";
+import { Writable, pipeline } from "node:stream";
 import { Context, Effect, Scope } from "effect";
 import { ensureFileSync } from "fs-extra/esm";
 import { deserializeError, serializeError } from "serialize-error";
 import VError from "verror";
 import { InternalContext } from "../ServerContext.mjs";
-import { LoggingContext } from "../index.mjs";
+import { LoggingContext } from "../loglayer/LoggingContext.mjs";
 import { FileContext, type FileContextStats } from "./FileContext.mjs";
+import { WriteStreamHeaderlessCsv } from "./csv/WriteStreamCsv.mjs";
 
 let { trace } = await Effect.runPromise(
 	Effect.provide(
@@ -21,9 +23,15 @@ let { trace } = await Effect.runPromise(
 	),
 );
 
+export type WithWriteStreamAdapter = {
+	fileExtension: string;
+	transform: () => TransformStream;
+};
+
 export type WithWriteStreamProps = {
 	name: Parameters<typeof createWriteStream>[0];
-	scope: Scope.CloseableScope;
+	scope: Scope.Scope;
+	adapter?: WithWriteStreamAdapter;
 } & {
 	writeStream?: Exclude<
 		Parameters<typeof createWriteStream>[1],
@@ -53,13 +61,15 @@ export const withWriteStream = (props: WithWriteStreamProps) => {
 					.debug("Acquiring write stream");
 
 				try {
-					ensureFileSync(props.name as string);
+					const adapter = props.adapter ?? WriteStreamHeaderlessCsv;
+					const filepath = `${props.name}${adapter.fileExtension ?? ""}`;
+					ensureFileSync(filepath as string);
 
 					let stats: FileContextStats;
 					try {
 						stats = {
 							$kind: "stats",
-							stats: statSync(props.name),
+							stats: statSync(filepath),
 						};
 					} catch (error) {
 						stats = {
@@ -67,17 +77,27 @@ export const withWriteStream = (props: WithWriteStreamProps) => {
 							error: deserializeError(error),
 						};
 					}
-					const stream = createWriteStream(props.name, {
-						flags: "a",
-						mode: 0x0666,
-						encoding: "utf8",
-						autoClose: true,
-						emitClose: true,
-						flush: true,
-						...(props.writeStream ?? {}),
-					});
+					const objectstream = adapter.transform();
+					const filestream = Writable.toWeb(
+						createWriteStream(filepath, {
+							flags: "a",
+							mode: 0x0770,
+							encoding: "utf8",
+							autoClose: true,
+							emitClose: true,
+							...(props.writeStream ?? {}),
+						}),
+					);
+					tracestream.debug("Created write streams");
 
-					return { stats, stream };
+					objectstream.readable.pipeTo(filestream, { preventClose: true });
+					tracestream.debug("Piped transform stream to write stream");
+
+					return {
+						path: filepath,
+						stream: objectstream.writable,
+						stats,
+					};
 				} catch (e: unknown) {
 					const serialized = serializeError(e);
 					tracestream
@@ -97,7 +117,6 @@ export const withWriteStream = (props: WithWriteStreamProps) => {
 				return Effect.gen(function* () {
 					let error: unknown | undefined;
 					try {
-						stream?.end();
 						stream?.close();
 					} catch (e: unknown) {
 						error = e;

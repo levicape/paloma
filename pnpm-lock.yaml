@@ -256,9 +256,6 @@ importers:
       std-env:
         specifier: catalog:core
         version: 3.8.0
-      ulidx:
-        specifier: catalog:id
-        version: 2.4.1
       verror:
         specifier: catalog:error
         version: 1.10.1
