@@ -1,0 +1,46 @@
+{
+	"name": "iac-development-osx",
+	"targets": {
+		"tart:configure": {
+			"executor": "nx:run-commands",
+			"options": {
+				"commands": [
+					"sudo touch /etc/fstab || true",
+					"echo \"com.apple.virtio-fs.automount /mnt/shared virtiofs rw,relatime 0 0\" | sudo tee -a /etc/fstab"
+				],
+				"parallel": false
+			}
+		},
+		"tart:devfile": {
+			"executor": "nx:run-commands",
+			"options": {
+				"commands": ["cat devfile.yaml | yq \".commands.[].exec.commandLine\""]
+			}
+		},
+		"tart:info": {
+			"executor": "nx:run-commands",
+			"options": {
+				"commands": [
+					"echo 'Run these commands in the vm to mount the workspace directory';",
+					"echo \"sudo mkdir /mnt/shared\";",
+					"echo \"sudo mount -t virtiofs com.apple.virtio-fs.automount /mnt/shared\";"
+				],
+				"parallel": false
+			}
+		},
+		"tart:vm": {
+			"executor": "nx:run-commands",
+			"dependsOn": ["tart:info"],
+			"options": {
+				"env": {
+					"TART_NETWORK": "Wi-Fi",
+					"TART_VM_NAME": "fedora-base"
+				},
+				"forwardAllArgs": true,
+				"commands": [
+					"tart run --net-bridged $TART_NETWORK $TART_VM_NAME --dir workspace:$PWD"
+				]
+			}
+		}
+	}
+}

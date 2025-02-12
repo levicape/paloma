@@ -75,6 +75,12 @@ catalogs:
     "slonik": "^46.4.0"
   database-sqlite:
     "better-sqlite3": "^11.8.1"
+  data-column-arrow:
+    "@apache-arrow/esnext-esm": "^19.0.0"
+    "@apache-arrow/ts": "^19.0.0"
+    "arquero": "^8.0.0"
+  data-row-avro:
+    "avsc": "^5.7.7"
   dev:
     "typescript": "^5.7.3"
     "tsx": "^4.19.2"
@@ -86,8 +92,9 @@ catalogs:
     "serialize-error": "^12.0.0"
     "verror": "^1.10.0"
   fs:
-    "fs-extra": "^11.3.0"
     "chokidar": "^4.0.3"
+    "fs-extra": "^11.3.0"
+    "klaw": "^4.1.0"
   http:
     "cookie": "^1.0.2"
     "cookie-signature": "^1.2.2"
@@ -110,12 +117,6 @@ catalogs:
     "slugid": "^5.0.1"
     "uuid-base64-ts": "^1.0.2"
     "ulidx": "^2.4.1"
-  data-column-arrow:
-    "@apache-arrow/esnext-esm": "^19.0.0"
-    "@apache-arrow/ts": "^19.0.0"
-    "arquero": "^8.0.0"
-  data-row-avro:
-    "avro-js": "^1.12.0"
   kubernetes:
     "@kubernetes-models/postgres-operator": "^0.4.2"
   lint:
@@ -178,6 +179,7 @@ catalogs:
     "@types/ini": "^4.1.1"
     "@types/js-yaml": "^4.0.9"
     "@types/jsonwebtoken": "^9.0.7"
+    "@types/klaw": "^3.0.6"
     "@types/module-alias": "^2.0.4"
     "@types/node": "^22.13.1"
     "@types/qrcode": "^1.5.5"

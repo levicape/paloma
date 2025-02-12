@@ -1,18 +1,12 @@
-import {
-	Context,
-	Effect,
-	ExecutionStrategy,
-	Layer,
-	Option,
-	Scope,
-	pipe,
-} from "effect";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { Context, Effect, Option, pipe } from "effect";
+import type { Tag } from "effect/Context";
 import { gen, makeSemaphore } from "effect/Effect";
 import type { ILogLayer } from "loglayer";
-import { ulid } from "ulidx";
 import VError from "verror";
-import type { Activity } from "../activity/Activity.mjs";
 import { Actor } from "../actor/Actor.mjs";
+import type { Activity } from "../canary/activity/Activity.mjs";
 import {
 	ExecutionFiber,
 	ExecutionFiberMain,
@@ -23,27 +17,35 @@ import {
 	HandlerSignal,
 	ReadySignal,
 } from "../execution/ExecutionSignals.mjs";
+import { PalomaRepositoryConfig } from "../repository/RepositoryConfig.mjs";
+import {
+	ResourceLog,
+	ResourceLogFile,
+} from "../repository/resourcelog/ResourceLog.mjs";
 import { InternalContext } from "../server/ServerContext.mjs";
-import { withDb0 } from "../server/db0/DatabaseContext.mjs";
+import { withWriteStream } from "../server/fs/WriteStream.mjs";
 import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
 
 const {
+	config,
 	logging: { trace },
 	signals: { handler, done, ready, mutex },
 	registry,
-	// resourcelog,
 } = await Effect.runPromise(
 	Effect.provide(
 		Effect.provide(
 			Effect.gen(function* () {
+				const config = yield* PalomaRepositoryConfig;
 				const registry = yield* ExecutionFiber;
 				const logging = yield* LoggingContext;
-				// const resourcelog = yield* ResourcelogContext;
+				const trace = (yield* logging.logger).withPrefix("canary").withContext({
+					$event: "canary-main",
+				});
+
 				return {
+					config,
 					logging: {
-						trace: (yield* logging.logger).withPrefix("canary").withContext({
-							$event: "canary-main",
-						}),
+						trace,
 					},
 					signals: {
 						ready: yield* yield* ReadySignal,
@@ -52,7 +54,6 @@ const {
 						done: yield* yield* DoneSignal,
 						mutex: yield* makeSemaphore(1),
 					},
-					// resourcelog
 					registry,
 				};
 			}),
@@ -62,23 +63,30 @@ const {
 	),
 );
 
-// const log = `${WorkQueueFilesystem.root}/canary/resource.log`;
-
-export type CanaryProps = {};
-
-// Config class, PALOMA_DATA_PATH
-export const WorkQueueFilesystem = {
-	root: "/tmp/paloma",
+export type CanaryActorDependencies = ResourceLog;
+export type CanaryActorProps = {
+	contextlog: Tag.Service<ResourceLog>;
 };
+export type CanaryProps = {};
+export type CanaryIdentifiers = {
+	name: string;
+	hash: string;
+	path: string;
+};
+
+export const CanaryResourceLogPath = () =>
+	`${config.data_path}/!execution/-resourcelog/canary`;
 
 /**
  * Canary classes define an Activity that the Paloma runtime will run on each execution.
  */
 export class Canary extends Function {
-	private trace: ILogLayer;
+	private readonly trace: ILogLayer;
+	private identifiers: CanaryIdentifiers;
+
 	constructor(
 		/**
-		 * Unique name for this canary
+		 * Unique name for this canary. Must be URL safe alphanumeric, maximum 50 characters.
 		 */
 		public readonly name: string,
 		public readonly props: CanaryProps,
@@ -103,57 +111,39 @@ export class Canary extends Function {
 			actor: this.actor(),
 		});
 		if (registered) {
-			canarytrace
-				.withMetadata({})
-				.debug("Registered self with ExecutionFiberMain queue");
+			canarytrace.debug("Registered actor with ExecutionFiberMain queue");
 		} else {
 			throw new VError(
 				"Could not register Canary with ExecutionFiberMain. Exiting.",
 			);
 		}
 
+		this.identifiers = (() => {
+			const stack = new Error().stack;
+			if (!stack) {
+				throw new VError("Could not get stack trace");
+			}
+			const lines = stack.split("\n");
+			const caller = lines[2];
+			const match = caller.match(/\(([^)]+)\)/);
+			if (!match) {
+				throw new VError("Could not get caller from stack trace");
+			}
+			const path = match[1].split(":").at(-3) as string;
+			const contents = readFileSync(path, "utf8");
+			const hash = createHash("sha256").update(contents).digest("hex");
+			return {
+				name,
+				hash,
+				path,
+			};
+		})();
+
 		// biome-ignore lint/correctness/noConstructorReturn:
 		return new Proxy(this, {
 			apply: (target, _that, args: Parameters<Canary["handler"]>) =>
 				target.handler(...args),
 		});
-	}
-
-	private actor() {
-		const canary = this;
-		const hash = this.activity.hash();
-		const path = `${WorkQueueFilesystem.root}/canary/${this.name}/actor/${hash}.sqlite`;
-
-		canary.trace
-			.withMetadata({
-				Canary: {
-					actor: {
-						hash,
-						path,
-					},
-				},
-			})
-			.debug("actor() call");
-
-		return Effect.provide(
-			gen(function* () {
-				// yield* resourcelog(canary.name);
-				const actor = new Actor({
-					canary,
-				});
-				canary.trace
-					.withMetadata({
-						Canary: {
-							actor: {
-								instance: actor,
-							},
-						},
-					})
-					.debug("Created Actor instance");
-				return actor;
-			}),
-			Context.merge(InternalContext, Context.empty()),
-		);
 	}
 
 	private handler = async (_event: unknown, _context: unknown) => {
@@ -211,7 +201,7 @@ export class Canary extends Function {
 								})
 								.warn("Handler concurrency error");
 						},
-						onSome: (a) => {
+						onSome: () => {
 							handlertrace.debug("Canary handler succeeded");
 						},
 					}),
@@ -219,4 +209,62 @@ export class Canary extends Function {
 			}),
 		);
 	};
+
+	private actor() {
+		return ({ contextlog }: CanaryActorProps) => {
+			const canary = this;
+
+			const actortrace = canary.trace.child().withContext({
+				$Canary: {
+					identifiers: this.identifiers,
+				},
+			});
+
+			actortrace.debug("actor() call");
+
+			return Effect.provide(
+				gen(function* () {
+					const resourcelog = yield* ResourceLog;
+					const actor = new Actor({
+						canary,
+					});
+					const { traceId, spanId, parentSpanId } = actortrace.getContext();
+
+					yield* contextlog.capture(
+						"Canary-actor",
+						actortrace.getContext.bind(actortrace),
+					);
+					yield* resourcelog.capture("Canary-actor", () => ({
+						traceId,
+						spanId,
+						parentSpanId,
+						...actor,
+					}));
+
+					actortrace
+						.withMetadata({
+							Canary: {
+								actor: {
+									instance: actor,
+								},
+							},
+						})
+						.debug("Created Actor instance");
+					return actor;
+				}),
+				Context.merge(InternalContext, Context.empty()),
+			).pipe(
+				Effect.provide(ResourceLogFile(contextlog.scope)),
+				Effect.provide(
+					Context.empty().pipe(
+						withWriteStream({
+							name: CanaryResourceLogPath(),
+							scope: contextlog.scope,
+						}),
+					),
+				),
+				Effect.scoped,
+			);
+		};
+	}
 }

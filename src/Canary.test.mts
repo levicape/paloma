@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 
-import { PromiseActivity } from "../activity/PromiseActivity.mjs";
-import { InternalContext } from "../server/ServerContext.mjs";
-import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
-import { Canary } from "./Canary.mjs";
+import { Canary } from "./canary/Canary.mjs";
+import { PromiseActivity } from "./canary/activity/PromiseActivity.mjs";
+import { InternalContext } from "./server/ServerContext.mjs";
+import { LoggingContext } from "./server/loglayer/LoggingContext.mjs";
 
 const { trace } = await Effect.runPromise(
 	Effect.provide(

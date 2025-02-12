@@ -1,8 +1,9 @@
-import { Stream } from "node:stream";
+import { EOL } from "node:os";
+import { Stream, Writable } from "node:stream";
 import { stringify } from "csv/sync";
 import { Context, Effect, Layer, Scope } from "effect";
 import { gen } from "effect/Effect";
-import { deserializeError, serializeError } from "serialize-error";
+import { deserializeError } from "serialize-error";
 import { InternalContext } from "../../server/ServerContext.mjs";
 import { FileContext } from "../../server/fs/FileContext.mjs";
 import { LoggingContext } from "../../server/loglayer/LoggingContext.mjs";
@@ -29,11 +30,8 @@ export type ResourceLogLineResource = Record<string, unknown>;
 /**
  * A ResourceLogLine represents a single line in the resource log. It has the following fields:
  * - acquired: the timestamp when the resource was acquired
- * - acquiredResource: the resource that was acquired
- * - acquiredContext: the context data when the resource was acquired
  * - released: the timestamp when the resource was released
- * - releasedResource: the resource that was released
- * - releasedContext: the context data when the resource was released
+ * - resource: the resource that was released
  *
  * @see ResourceLogFile
  * @see ResourceLogTimestamp
@@ -41,9 +39,8 @@ export type ResourceLogLineResource = Record<string, unknown>;
  */
 export type ResourceLogLine = [
 	ResourceLogTimestamp, // acquired
-	ResourceLogLineResource, // acquiredResource
 	ResourceLogTimestamp, // released
-	ResourceLogLineResource, // releasedResource
+	ResourceLogLineResource,
 ];
 
 /**
@@ -68,6 +65,7 @@ export class ResourceLog extends Context.Tag("ResourceLog")<
 	{
 		scope: Scope.Scope;
 		capture: (
+			name: string,
 			props: ResourceLogCaptureFn,
 		) => Effect.Effect<ResourceLogCaptureState, unknown, Scope.Scope>;
 	}
@@ -94,42 +92,32 @@ export const ResourceLogFile = (scope: Scope.Scope) =>
 				let traceresource = trace.child().withContext({
 					$event: "resourcelog-layer",
 					$ResourceLogLayer: {
-						file: file.stream.path,
+						file: file.path,
 					},
 				});
 				traceresource.debug("ResourceLogLayer created");
 
 				return {
 					scope,
-					capture: (props: ResourceLogCaptureFn) => {
-						let row: ResourceLogLine = Array(8) as ResourceLogLine;
+					capture: (name: string, props: ResourceLogCaptureFn) => {
+						let row: ResourceLogLine = Array(3) as ResourceLogLine;
 						const tracecapture = traceresource.child();
 						tracecapture
 							.withContext({
 								$event: "resourcelog-capture",
+								$ResourceLog: {},
 							})
 							.debug("Capturing resource");
 
 						return Effect.acquireRelease(
 							Effect.gen(function* () {
 								row[0] = new Date();
-								row[1] = props();
-
-								// biome-ignore lint:
-								delete row[1]?.rootId;
-								// biome-ignore lint:
-								delete row[1]?.loggerId;
-								// biome-ignore lint:
-								delete row[1]?.timestamp;
-								// biome-ignore lint:
-								delete row[1]?.duration;
 
 								tracecapture
 									.withMetadata({
 										ResourceLogFile: {
 											acquired: {
 												timestamp: row[0],
-												resource: row[1],
 											},
 										},
 									})
@@ -138,74 +126,34 @@ export const ResourceLogFile = (scope: Scope.Scope) =>
 								return;
 							}),
 							() => {
-								row[2] = new Date();
-								row[3] = props();
+								row[1] = new Date();
+								row[2] = Object.assign({}, props());
 
-								// biome-ignore lint:
-								delete row[3]?.rootId;
-								// biome-ignore lint:
-								delete row[3]?.loggerId;
-								// biome-ignore lint:
-								delete row[3]?.timestamp;
-								// biome-ignore lint:
-								delete row[3]?.duration;
+								FILTERED_KEYS.forEach((key) => {
+									delete row[2][key];
+								});
 
 								traceresource
 									.withMetadata({
 										ResourceLogFile: {
 											released: {
-												timestamp: row[2],
-												resource: row[3],
+												timestamp: row[1],
+												resource: row[2],
 											},
 										},
 									})
 									.debug("Released resource");
 
-								const line = stringify([row], {
-									defaultEncoding: "utf8",
-									delimiter: "⸰⸮⸟",
-									header: false,
-									cast: {
-										date: (value) => value.toISOString(),
-									},
+								const captureFn = Effect.promise((_abortsignal) => {
+									const readable = new ReadableStream({
+										start(controller) {
+											controller.enqueue(row);
+											controller.close();
+										},
+									});
+
+									return readable.pipeTo(file.stream, { preventClose: true });
 								});
-
-								const captureFn = Effect.promise(
-									(_abortsignal) =>
-										new Promise((resolve, reject) => {
-											const readable = Stream.Readable.from([line]);
-											readable.pause();
-											readable.on("end", () => {
-												readable.unpipe();
-												readable.destroy();
-
-												traceresource.debug("Wrote to file");
-												resolve(undefined);
-											});
-
-											readable.on("error", (error: unknown) => {
-												try {
-													readable.unpipe();
-													readable.destroy();
-												} catch (e) {
-													//
-												}
-
-												traceresource
-													.withMetadata({
-														ResourceLogFile: {
-															line,
-														},
-													})
-													.withError(deserializeError(error))
-													.error("Failed to write to file");
-
-												reject(deserializeError(error));
-											});
-
-											readable.pipe(file.stream, { end: false });
-										}),
-								);
 
 								return captureFn;
 							},

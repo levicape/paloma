@@ -17,8 +17,13 @@ import {
 import { forkDaemon, gen } from "effect/Effect";
 import { deserializeError } from "serialize-error";
 import VError from "verror";
-import type { Canary } from "../canary/Canary.mjs";
-import type { Actor } from "../index.mjs";
+import type { Actor } from "../actor/Actor.mjs";
+import type {
+	Canary,
+	CanaryActorDependencies,
+	CanaryActorProps,
+} from "../canary/Canary.mjs";
+import { PalomaRepositoryConfig } from "../repository/RepositoryConfig.mjs";
 import {
 	ResourceLog,
 	ResourceLogFile,
@@ -33,18 +38,14 @@ import {
 	ReadySignal,
 } from "./ExecutionSignals.mjs";
 
-const HANDLER_SIGNAL_SECONDS = 2;
-const INTERRUPT_FIBER_SECONDS = 0.1;
-const EXIT_SIGNAL_SECONDS = 0.1;
+const HANDLER_SIGNAL_SECONDS = 0.6 + Math.random() * 200;
+const INTERRUPT_FIBER_SECONDS = 0.05;
+const EXIT_SIGNAL_SECONDS = 0.05;
 
-// Config class, PALOMA_DATA_PATH
-export const WorkQueueFilesystem = {
-	root: "/tmp/paloma",
-};
-
-let { rootId, trace, signals } = await Effect.runPromise(
+let { config, trace, signals } = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
+			const config = yield* PalomaRepositoryConfig;
 			const logging = yield* LoggingContext;
 			const trace = (yield* logging.logger)
 				.withPrefix("execution")
@@ -55,6 +56,7 @@ let { rootId, trace, signals } = await Effect.runPromise(
 
 			return {
 				rootId,
+				config,
 				signals: {
 					ready: yield* yield* ReadySignal,
 					handler: yield* yield* HandlerSignal,
@@ -68,9 +70,14 @@ let { rootId, trace, signals } = await Effect.runPromise(
 	),
 );
 
+export const ExecutionFiberResourceLogPath = () =>
+	`${config.data_path}/!execution/-resourcelog/execution-fiber`;
+
 export type ExecutionFiberQueueItem = {
 	name: string;
-	actor: Effect.Effect<Actor<Canary>, unknown>;
+	actor: (
+		props: CanaryActorProps,
+	) => Effect.Effect<Actor<Canary>, unknown, CanaryActorDependencies>;
 };
 
 export class ExecutionFiber extends Context.Tag("ExecutionFiber")<
@@ -248,11 +255,16 @@ export const ExecutionFiberMain = Layer.effect(
 															.debug("Yielding Actor instance.");
 
 														yield* resourcelog.capture(
+															"ExecutionFiber-actor",
 															actortrace.getContext.bind(actortrace),
 														);
 														const actor = yield* yield* Effect.try({
 															try() {
-																return queueItem.actor;
+																return queueItem
+																	.actor({
+																		contextlog: resourcelog,
+																	})
+																	.pipe(Scope.extend(resourcelogScope));
 															},
 															catch(error) {
 																looptrace
@@ -399,7 +411,7 @@ export const ExecutionFiberMain = Layer.effect(
 								Effect.provide(
 									Context.empty().pipe(
 										withWriteStream({
-											name: `${WorkQueueFilesystem.root}/!execution/-resourcelog/${rootId}.rlog.csv`,
+											name: ExecutionFiberResourceLogPath(),
 											scope: resourcelogScope,
 										}),
 									),

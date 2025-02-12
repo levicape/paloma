@@ -1,7 +1,6 @@
 import { ok } from "node:assert";
-import type { ContinueAction } from "@levicape/paloma";
-import { Alltest } from "@levicape/paloma";
-import { SecretValue } from "@levicape/paloma/materials";
+import { Alltest } from "@levicape/paloma/runtime/execution/Alltest";
+import type { ContinueAction } from "@levicape/paloma/runtime/execution/TestAction";
 import KSUID from "ksuid";
 
 const test = new Alltest(
@@ -15,7 +14,7 @@ const test = new Alltest(
 			const { userId } = prepared;
 			return {
 				userId,
-				sessionId: new SecretValue(`token for ${userId}`),
+				sessionId: { value: "yeah" },
 			};
 		},
 	},

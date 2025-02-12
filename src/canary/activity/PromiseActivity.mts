@@ -1,6 +1,6 @@
 import { Effect } from "effect";
-import { InternalContext } from "../server/ServerContext.mjs";
-import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
+import { InternalContext } from "../../server/ServerContext.mjs";
+import { LoggingContext } from "../../server/loglayer/LoggingContext.mjs";
 import type { Activity } from "./Activity.mjs";
 
 const { trace } = await Effect.runPromise(
