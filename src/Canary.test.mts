@@ -2,7 +2,7 @@ import { Effect } from "effect";
 
 import { Canary } from "./canary/Canary.mjs";
 import { PromiseActivity } from "./canary/activity/PromiseActivity.mjs";
-import { InternalContext } from "./server/ServerContext.mjs";
+import { RuntimeContext } from "./server/RuntimeContext.mjs";
 import { LoggingContext } from "./server/loglayer/LoggingContext.mjs";
 
 const { trace } = await Effect.runPromise(
@@ -10,12 +10,12 @@ const { trace } = await Effect.runPromise(
 		Effect.gen(function* () {
 			const logging = yield* LoggingContext;
 			return {
-				trace: (yield* logging.logger).withContext({
+				trace: (yield* logging.logger).withPrefix("TESTFILE").withContext({
 					event: "canary-test",
 				}),
 			};
 		}),
-		InternalContext,
+		RuntimeContext,
 	),
 );
 
@@ -52,6 +52,23 @@ export const canary = new Canary(
 			},
 		},
 		async ({ events }) => {
+			console.warn("HELOLOPLOLO");
+			console.table([
+				{ a: 1, b: "Y" },
+				{ a: "Z", b: 2 },
+			]);
+			console.table([
+				{ a: 1, b: "Y" },
+				{ a: "Z", b: 2 },
+			]);
+			console.table([
+				{ a: 1, b: "Y" },
+				{ a: "Z", b: 2 },
+			]);
+			console.table([
+				{ a: 1, b: "Y" },
+				{ a: "Z", b: 2 },
+			]);
 			trace
 				.withMetadata({
 					PromiseActivity: {
@@ -65,9 +82,11 @@ export const canary = new Canary(
 
 // DurableActivity { setup, teardown, stale: (versions) => { teardown: boolean } }
 
-setImmediate(() => {
-	canary();
-});
+if (Math.random() > 0.49) {
+	setImmediate(() => {
+		canary();
+	});
+}
 
 // export const stateful = new Canary(
 // 	"Stateful",

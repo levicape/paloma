@@ -2,13 +2,11 @@
 /** @jsxImportSource @levicape/fourtwo */
 /** @jsxRuntime automatic */
 
-import {
-	DevfileCommandX,
-	DevfileEventX,
-	DevfileMetadataX,
-	DevfileSourceComponentX,
-	DevfileX,
-} from "@levicape/fourtwo/x/devfile";
+import { DevfileCommandX } from "@levicape/fourtwo/jsx/devfile/DevfileCommandX";
+import { DevfileSourceComponentX } from "@levicape/fourtwo/jsx/devfile/DevfileComponentX";
+import { DevfileEventX } from "@levicape/fourtwo/jsx/devfile/DevfileEventX";
+import { DevfileMetadataX } from "@levicape/fourtwo/jsx/devfile/DevfileMetadataX";
+import { DevfileX } from "@levicape/fourtwo/jsx/devfile/DevfileX";
 
 const APPLICATION_NAME = "paloma";
 const NODE_VERSION = "22.12.0";

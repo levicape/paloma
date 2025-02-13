@@ -2,7 +2,7 @@ import type { Database } from "better-sqlite3";
 import { Context, Effect } from "effect";
 import createQueryBuilder from "knex";
 import KSUID from "ksuid";
-import { InternalContext } from "../../server/ServerContext.mjs";
+import { RuntimeContext } from "../../server/RuntimeContext.mjs";
 import {
 	LoggingContext,
 	withStructuredLogging,
@@ -48,7 +48,7 @@ const { logsql, trace } = await Effect.runPromise(
 				}),
 			};
 		}),
-		InternalContext,
+		RuntimeContext,
 	),
 );
 

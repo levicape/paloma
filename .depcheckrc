@@ -12,6 +12,7 @@ ignores:
 - "jsonc-parser"
 - "knex"
 - "nx" 
+- "std-env"
 - "tailwindcss"
 - "tslib"
 - "tsx" 

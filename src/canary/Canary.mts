@@ -4,9 +4,10 @@ import { Context, Effect, Option, pipe } from "effect";
 import type { Tag } from "effect/Context";
 import { gen, makeSemaphore } from "effect/Effect";
 import type { ILogLayer } from "loglayer";
+import { deserializeError } from "serialize-error";
 import VError from "verror";
 import { Actor } from "../actor/Actor.mjs";
-import type { Activity } from "../canary/activity/Activity.mjs";
+import { Activity } from "../canary/activity/Activity.mjs";
 import {
 	ExecutionFiber,
 	ExecutionFiberMain,
@@ -22,14 +23,15 @@ import {
 	ResourceLog,
 	ResourceLogFile,
 } from "../repository/resourcelog/ResourceLog.mjs";
-import { InternalContext } from "../server/ServerContext.mjs";
+import { RuntimeContext } from "../server/RuntimeContext.mjs";
 import { withWriteStream } from "../server/fs/WriteStream.mjs";
 import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
+import { PromiseActivity } from "./activity/PromiseActivity.mjs";
 
 const {
 	config,
 	logging: { trace },
-	signals: { handler, done, ready, mutex },
+	signals: { handler, done, ready, mutex, exit },
 	registry,
 } = await Effect.runPromise(
 	Effect.provide(
@@ -57,7 +59,7 @@ const {
 					registry,
 				};
 			}),
-			InternalContext,
+			RuntimeContext,
 		),
 		ExecutionFiberMain,
 	),
@@ -74,49 +76,32 @@ export type CanaryIdentifiers = {
 	path: string;
 };
 
-export const CanaryResourceLogPath = () =>
-	`${config.data_path}/!execution/-resourcelog/canary`;
+export const CanaryResourceLogPath = ({
+	canary,
+}: { canary: CanaryIdentifiers }) =>
+	`${config.data_path}/canary/${canary.name}/-canary/actor`;
 
 /**
- * Canary classes define an Activity that the Paloma runtime will run on each execution.
+ * Canary classes define an Activity that the Paloma runtime will run.
  */
 export class Canary extends Function {
 	private readonly trace: ILogLayer;
-	private identifiers: CanaryIdentifiers;
+	public identifiers: CanaryIdentifiers;
 
 	constructor(
 		/**
 		 * Unique name for this canary. Must be URL safe alphanumeric, maximum 50 characters.
+		 * @see https://docs.paloma.levicape.cloud/canary-naming
 		 */
 		public readonly name: string,
 		public readonly props: CanaryProps,
 		/**
-		 * Activity to run on each execution
+		 * Activity to execute.
+		 * @see Activity
 		 */
 		public readonly activity: Activity,
 	) {
 		super();
-		const canarytrace = trace.child().withContext({
-			$event: "canary-activity",
-			$action: "constructor()",
-			$Canary: {
-				name,
-			},
-		});
-		this.trace = canarytrace;
-		canarytrace.debug("Canary created");
-
-		const registered = registry.queue.unsafeOffer({
-			name: this.name,
-			actor: this.actor(),
-		});
-		if (registered) {
-			canarytrace.debug("Registered actor with ExecutionFiberMain queue");
-		} else {
-			throw new VError(
-				"Could not register Canary with ExecutionFiberMain. Exiting.",
-			);
-		}
 
 		this.identifiers = (() => {
 			const stack = new Error().stack;
@@ -139,6 +124,27 @@ export class Canary extends Function {
 			};
 		})();
 
+		const canarytrace = trace.child().withContext({
+			$event: "canary-instance",
+			$action: "constructor()",
+			$Canary: {
+				id: this.identifiers,
+			},
+		});
+		this.trace = canarytrace;
+		canarytrace.debug("Canary created");
+
+		const registered = registry.queue.unsafeOffer({
+			identifiers: this.identifiers,
+			actor: this.actor(),
+		});
+		if (registered) {
+			canarytrace.debug("Registered actor with ExecutionFiberMain queue");
+		} else {
+			throw new VError(
+				"Could not register Canary with ExecutionFiberMain. Exiting.",
+			);
+		}
 		// biome-ignore lint/correctness/noConstructorReturn:
 		return new Proxy(this, {
 			apply: (target, _that, args: Parameters<Canary["handler"]>) =>
@@ -215,9 +221,7 @@ export class Canary extends Function {
 			const canary = this;
 
 			const actortrace = canary.trace.child().withContext({
-				$Canary: {
-					identifiers: this.identifiers,
-				},
+				$event: "canary-actor",
 			});
 
 			actortrace.debug("actor() call");
@@ -225,9 +229,6 @@ export class Canary extends Function {
 			return Effect.provide(
 				gen(function* () {
 					const resourcelog = yield* ResourceLog;
-					const actor = new Actor({
-						canary,
-					});
 					const { traceId, spanId, parentSpanId } = actortrace.getContext();
 
 					yield* contextlog.capture(
@@ -238,27 +239,36 @@ export class Canary extends Function {
 						traceId,
 						spanId,
 						parentSpanId,
-						...actor,
+						...canary.identifiers,
 					}));
+					actortrace.debug("Captured context and resourcelog. Creating Actor");
 
-					actortrace
-						.withMetadata({
-							Canary: {
-								actor: {
-									instance: actor,
-								},
-							},
-						})
-						.debug("Created Actor instance");
+					let actor: Actor<typeof canary>;
+					try {
+						actor = new Actor({
+							canary,
+						});
+					} catch (e: unknown) {
+						actortrace
+							.withError(deserializeError(e))
+							.error("Could not create Actor instance");
+
+						yield* exit.open;
+						throw new VError(
+							deserializeError(e),
+							"Could not create Actor instance",
+						);
+					}
+					actortrace.debug("Created Actor instance");
 					return actor;
 				}),
-				Context.merge(InternalContext, Context.empty()),
+				Context.merge(RuntimeContext, Context.empty()),
 			).pipe(
 				Effect.provide(ResourceLogFile(contextlog.scope)),
 				Effect.provide(
 					Context.empty().pipe(
 						withWriteStream({
-							name: CanaryResourceLogPath(),
+							name: CanaryResourceLogPath({ canary: this.identifiers }),
 							scope: contextlog.scope,
 						}),
 					),
@@ -268,3 +278,5 @@ export class Canary extends Function {
 		};
 	}
 }
+
+export { Activity, PromiseActivity };

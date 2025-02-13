@@ -12,7 +12,6 @@ import {
 	Ref,
 	Scope,
 	SubscriptionRef,
-	pipe,
 } from "effect";
 import { forkDaemon, gen } from "effect/Effect";
 import { deserializeError } from "serialize-error";
@@ -22,15 +21,17 @@ import type {
 	Canary,
 	CanaryActorDependencies,
 	CanaryActorProps,
+	CanaryIdentifiers,
 } from "../canary/Canary.mjs";
 import { PalomaRepositoryConfig } from "../repository/RepositoryConfig.mjs";
 import {
 	ResourceLog,
 	ResourceLogFile,
 } from "../repository/resourcelog/ResourceLog.mjs";
-import { InternalContext } from "../server/ServerContext.mjs";
+import { RuntimeContext } from "../server/RuntimeContext.mjs";
 import { withWriteStream } from "../server/fs/WriteStream.mjs";
 import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
+import { $$_traceId_$$ } from "../server/loglayer/LoggingPlugins.mjs";
 import {
 	DoneSignal,
 	ExitSignal,
@@ -38,11 +39,11 @@ import {
 	ReadySignal,
 } from "./ExecutionSignals.mjs";
 
-const HANDLER_SIGNAL_SECONDS = 0.6 + Math.random() * 200;
+const HANDLER_SIGNAL_SECONDS = 0.6 + Math.random() * 190 * 0.01; // 0.6 - 1.5
 const INTERRUPT_FIBER_SECONDS = 0.05;
 const EXIT_SIGNAL_SECONDS = 0.05;
 
-let { config, trace, signals } = await Effect.runPromise(
+let { rootId, config, trace, signals } = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
 			const config = yield* PalomaRepositoryConfig;
@@ -66,15 +67,15 @@ let { config, trace, signals } = await Effect.runPromise(
 				trace,
 			};
 		}),
-		InternalContext,
+		RuntimeContext,
 	),
 );
 
 export const ExecutionFiberResourceLogPath = () =>
-	`${config.data_path}/!execution/-resourcelog/execution-fiber`;
+	`${config.data_path}/!execution/-fiber/context`;
 
 export type ExecutionFiberQueueItem = {
-	name: string;
+	identifiers: CanaryIdentifiers;
 	actor: (
 		props: CanaryActorProps,
 	) => Effect.Effect<Actor<Canary>, unknown, CanaryActorDependencies>;
@@ -124,15 +125,18 @@ export const ExecutionFiberMain = Layer.effect(
 							);
 
 						const first = yield* Queue.take(queue);
-						fibertrace.debug("Received Actor. Will open ReadySignal");
+						fibertrace.debug(
+							"Received Actor. Will fork WaitForActorsFiber and then open ReadySignal",
+						);
 
-						const waitForActorsFiber = yield* Effect.fork(
+						const waitForHandlerSignalFiber = yield* Effect.fork(
 							Effect.gen(function* () {
 								const waittrace = fibertrace.child();
 
 								waittrace
 									.withContext({
 										$event: "execution-fiber-wait",
+										$signal: "HandlerSignal",
 									})
 									.withMetadata({
 										ExecutionFiber: {
@@ -140,7 +144,7 @@ export const ExecutionFiberMain = Layer.effect(
 										},
 									})
 									.debug(
-										`WaitForCanariesFiber thread. Will sleep and release HandlerSignal.`,
+										`WaitForHandler thread. Will sleep and release HandlerSignal.`,
 									);
 
 								yield* Effect.sleep(Duration.seconds(HANDLER_SIGNAL_SECONDS));
@@ -170,7 +174,7 @@ export const ExecutionFiberMain = Layer.effect(
 							})
 							.debug("Received HandlerSignal.");
 
-						yield* Fiber.interruptFork(waitForActorsFiber);
+						yield* Fiber.interruptFork(waitForHandlerSignalFiber);
 						fibertrace
 							.withMetadata({
 								fiber: "WaitForCanariesFiber",
@@ -185,8 +189,8 @@ export const ExecutionFiberMain = Layer.effect(
 						fibertrace
 							.withMetadata({
 								ExecutionFiber: {
-									actors: actors.map(({ name }) => {
-										return { name };
+									actors: actors.map(({ identifiers }) => {
+										return { name: identifiers.name, hash: identifiers.hash };
 									}),
 								},
 							})
@@ -200,14 +204,15 @@ export const ExecutionFiberMain = Layer.effect(
 								fibertrace
 									.withMetadata({
 										ExecutionFiber: {
-											canaries: actors.map(({ name }) => {
-												return { name };
+											canaries: actors.map(({ identifiers }) => {
+												return {
+													name: identifiers.name,
+													hash: identifiers.hash,
+												};
 											}),
 										},
 									})
-									.error(
-										"Duplicate Canary names detected. Canary names must be unique.",
-									);
+									.error(error);
 
 								throw new VError(error);
 							}
@@ -249,7 +254,7 @@ export const ExecutionFiberMain = Layer.effect(
 															.withContext({
 																$event: "execution-fiber-actor",
 																$Canary: {
-																	name: queueItem.name,
+																	name: queueItem.identifiers,
 																},
 															})
 															.debug("Yielding Actor instance.");
@@ -276,16 +281,14 @@ export const ExecutionFiberMain = Layer.effect(
 														actortrace
 															.withMetadata({
 																ExecutionFiber: {
-																	actor,
+																	actor: actor.identifiers,
 																},
 															})
 															.debug("Actor created.");
-														yield* Effect.sleep(
-															Duration.seconds(Math.random()),
-														);
 
 														return Option.some({
 															actor,
+															identifiers: queueItem.identifiers,
 														});
 													}),
 												).pipe(
@@ -308,19 +311,121 @@ export const ExecutionFiberMain = Layer.effect(
 												},
 											})
 											.debug(
-												"Actors created. Creating ExecutionPlan strategy.",
+												"Actors created. Creating ExecutionPlans and iterating.",
 											);
 
-										// yield* pipe(
-										// 	Effect.gen(function* (scope) {
-										// 		// ExecutionLog resource
-										// 		yield* Effect.sleep(Duration.seconds(2));
-										// 	}),
-										// );
-										// looptrace
-										// 	.withMetadata({})
-										// 	.debug("ExecutionPlan done. Forking Timeout fiber");
+										const executions = yield* Effect.all(
+											actorInstances.flatMap((actorOption) =>
+												Effect.scoped(
+													Effect.gen(function* (_scope) {
+														const actor = yield* actorOption;
+														const executiontrace = looptrace.child();
+														executiontrace
+															.withContext({
+																$event: "execution-fiber-plan",
+																$Actor: {
+																	id: actor.identifiers,
+																},
+															})
+															.debug("Yielding ExecutionPlan instance.");
 
+														yield* resourcelog.capture(
+															"ExecutionFiber-actor",
+															executiontrace.getContext.bind(executiontrace),
+														);
+
+														const contextprops = {
+															contextlog: resourcelog,
+														};
+														const actorplan = actor.actor.plan();
+														const { plan } = yield* actorplan(contextprops);
+
+														executiontrace
+															.withContext({
+																$ExecutionFiberPlan: {
+																	actor: actor.identifiers,
+																},
+															})
+															.debug("ExecutionPlan created.");
+
+														const plantask = plan.task(contextprops);
+														let taskoption: Effect.Effect.Success<
+															ReturnType<typeof plantask>
+														>;
+														executiontrace
+															.withContext({
+																$event: "execution-fiber-task",
+															})
+															.debug("Starting ExecutionPlan loop.");
+
+														while ((taskoption = yield* plantask())) {
+															if (Option.isNone(taskoption)) {
+																break;
+															}
+															const { task } = yield* taskoption;
+															const traceId = $$_traceId_$$();
+															executiontrace
+																.withContext({
+																	traceId,
+																})
+																.withMetadata({
+																	ExecutionFiberPlan: {
+																		task: task.activity,
+																	},
+																})
+																.debug("ExecutionPlan yielded task.");
+
+															try {
+																yield* Effect.promise(() => task.delta());
+															} catch (e: unknown) {
+																const message =
+																	"Could not execute Task delta()";
+																executiontrace
+																	.withMetadata({
+																		ExecutionFiberLoop: {
+																			actor,
+																			plan,
+																			task,
+																		},
+																	})
+																	.withError(deserializeError(e))
+																	.error(message);
+
+																yield* signals.exit.open;
+
+																throw new VError(deserializeError(e), message);
+															}
+
+															executiontrace.debug(
+																"ExecutionPlan task delta completed.",
+															);
+
+															yield* Effect.sleep(
+																Duration.seconds(INTERRUPT_FIBER_SECONDS),
+															);
+														}
+
+														return Option.some({
+															actor,
+															plan,
+														});
+													}),
+												).pipe(
+													Effect.catchAll((error) => {
+														looptrace
+															.withError(deserializeError(error))
+															.error("ExecutionPlan failed");
+														return Option.none();
+													}),
+												),
+											),
+											{
+												concurrency: "unbounded",
+											},
+										);
+										looptrace
+											.withMetadata({})
+											.debug("ExecutionPlan done. Forking Timeout fiber");
 										const timeoutFiber = yield* Effect.fork(
 											Effect.gen(function* () {
 												const interrupttrace = looptrace.child();
@@ -464,20 +569,20 @@ export const ExecutionFiberMain = Layer.effect(
 					queue,
 				} as const;
 			}),
-			Context.mergeAll(InternalContext),
+			Context.mergeAll(RuntimeContext),
 		),
 	),
 );
 // Todo: Use Schema/Zod
 const duplicates = (actors: Array<ExecutionFiberQueueItem>) => {
-	if (new Set(actors.map((c) => c.name)).size !== actors.length) {
+	if (new Set(actors.map((c) => c.identifiers.name)).size !== actors.length) {
 		return "Duplicate canary names detected.";
 	}
 	return;
 };
 
 const nameisfilesafe = (actors: Array<ExecutionFiberQueueItem>) => {
-	if (actors.some((c) => c.name.match(/[^a-zA-Z0-9]/))) {
+	if (actors.some((c) => c.identifiers.name.match(/[^a-zA-Z0-9]/))) {
 		return "Canary name is not file safe.";
 	}
 	return;

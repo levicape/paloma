@@ -1,19 +1,25 @@
 import { Effect } from "effect";
-import { InternalContext } from "../../server/ServerContext.mjs";
+import type { ILogLayer } from "loglayer";
+import { PalomaRepositoryConfig } from "../../repository/RepositoryConfig.mjs";
+import { RuntimeContext } from "../../server/RuntimeContext.mjs";
 import { LoggingContext } from "../../server/loglayer/LoggingContext.mjs";
-import type { Activity } from "./Activity.mjs";
+import { Activity } from "./Activity.mjs";
 
 const { trace } = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
+			const config = yield* PalomaRepositoryConfig;
 			const logging = yield* LoggingContext;
+			const trace = (yield* logging.logger).withContext({
+				$event: "activity-main[PromiseActivity]",
+			});
+
 			return {
-				trace: (yield* logging.logger).withContext({
-					$event: "promise-activity",
-				}),
+				config,
+				trace,
 			};
 		}),
-		InternalContext,
+		RuntimeContext,
 	),
 );
 
@@ -26,51 +32,44 @@ export type PromiseActivityEvents<Enter> = {
 	enter: Enter;
 };
 
-export type PromiseActivityTask<Enter> = (props: {
+export type PromiseActivityFunction<Enter> = (props: {
 	events: {
 		enter: Enter;
 	};
 }) => Promise<void> | void;
 
-export class PromiseActivity<Enter> implements Activity {
+export class PromiseActivity<Enter> extends Activity {
+	protected trace: ILogLayer;
+
 	$on: PromiseActivityOn<Enter>;
-	$events: PromiseActivityEvents<Enter>;
+	$events: PromiseActivityEvents<Enter> | undefined;
 	constructor(
 		private readonly props: {
 			events: PromiseActivityOn<Enter>;
 		},
-		private readonly task: PromiseActivityTask<Enter>,
+		readonly task: PromiseActivityFunction<Enter>,
 	) {
-		for (let i = 0; i < 10; i++) {
-			// biome-ignore lint:
-			continue;
-		}
-	}
-	$partial?: undefined;
-	hash(): string {
-		// createHash("md5")
-		// 		.update(
-		// 			`${Object.values(this)
-		// 				.map(
-		// 					(state) =>
-		// 						`${
-		// 							(
-		// 								state as TestHarness<
-		// 									S,
-		// 									M,
-		// 									Funnels,
-		// 									FunnelData,
-		// 									Prepared,
-		// 									Resolved,
-		// 									Clients,
-		// 									Previous
-		// 								>
-		// 							).test
-		// 						}`,
-		// 				)
-		// 				.join("")}`,
-		// 		)
-		// 		.digest("hex");
-		return "hash";
+		super();
+		this.$on = props.events;
+		this.identifiers = {
+			hash: "12345", //this.hash()
+		};
+
+		const unittrace = trace.child().withContext({
+			$event: "activity-instance[PromiseActivity]",
+			$action: "constructor()",
+			$Activity: {
+				id: this.identifiers,
+			},
+		});
+		this.trace = unittrace;
+		unittrace
+			.withMetadata({
+				PromiseActivity: {
+					$class: PromiseActivity.name,
+					$on: props.events,
+				},
+			})
+			.debug("PromiseActivity created");
 	}
 }

@@ -43,7 +43,7 @@
     "vite": "catalog:web-vite"
   },
   "engines": {
-    "node": "22"
+    "node": "^22"
   },
   "files": [
     "output"

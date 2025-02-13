@@ -5,11 +5,10 @@ packages:
   - iac/images/*
   - packages/*
 catalog:
-  "@levicape/fourtwo": "0.7.1-main.15"
-  "@levicape/fourtwo-pulumi": "0.7.1-main.15"
-  "@levicape/fourtwo-builders": "0.7.1-main.15"
-  "@levicape/spork": "0.3.0-main.4"
-
+  "@levicape/fourtwo": "0.8.0-main.16"
+  "@levicape/fourtwo-pulumi": "0.8.0-main.16"
+  "@levicape/fourtwo-builders": "0.8.0-main.16"
+  "@levicape/spork": "0.4.0-main.5"
 
 
 

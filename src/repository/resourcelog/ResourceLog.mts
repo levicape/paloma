@@ -4,7 +4,7 @@ import { stringify } from "csv/sync";
 import { Context, Effect, Layer, Scope } from "effect";
 import { gen } from "effect/Effect";
 import { deserializeError } from "serialize-error";
-import { InternalContext } from "../../server/ServerContext.mjs";
+import { RuntimeContext } from "../../server/RuntimeContext.mjs";
 import { FileContext } from "../../server/fs/FileContext.mjs";
 import { LoggingContext } from "../../server/loglayer/LoggingContext.mjs";
 
@@ -21,7 +21,7 @@ let { trace } = await Effect.runPromise(
 				trace,
 			};
 		}),
-		InternalContext,
+		RuntimeContext,
 	),
 );
 
@@ -161,6 +161,6 @@ export const ResourceLogFile = (scope: Scope.Scope) =>
 					},
 				};
 			}),
-			InternalContext,
+			RuntimeContext,
 		),
 	);

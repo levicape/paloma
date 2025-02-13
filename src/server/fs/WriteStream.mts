@@ -4,7 +4,7 @@ import { Context, Effect, Scope } from "effect";
 import { ensureFileSync } from "fs-extra/esm";
 import { deserializeError, serializeError } from "serialize-error";
 import VError from "verror";
-import { InternalContext } from "../ServerContext.mjs";
+import { RuntimeContext } from "../RuntimeContext.mjs";
 import { LoggingContext } from "../loglayer/LoggingContext.mjs";
 import { FileContext, type FileContextStats } from "./FileContext.mjs";
 import { WriteStreamHeaderlessCsv } from "./csv/WriteStreamCsv.mjs";
@@ -19,7 +19,7 @@ let { trace } = await Effect.runPromise(
 				}),
 			};
 		}),
-		InternalContext,
+		RuntimeContext,
 	),
 );
 

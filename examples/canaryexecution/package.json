@@ -8,9 +8,8 @@
     "outpaths": "./module",
     "canaryharness": "./module/canary/harness.mjs",
     "canaryserver": "./module/canary/server.mjs",
-    "canaryserverhttp": "./module/server/http.mjs",
-    "lambdacanaryharness": "./module/canary/harness.LambdaHandler",
-    "lambdacanaryserver": "./module/canary/server.LambdaHandler",
+    "canarypromiseactivity": "./module/canary/PromiseActivity.mjs",
+    "canaryserver_http": "./module/server/http.mjs",
     "esbuildpaths": "module/canary/*.mjs",
     "esbuildplatform": "node",
     "esbuildpackages": "bundle",
@@ -19,8 +18,11 @@
   "dependencies": {
     "@bufbuild/protobuf": "catalog:protobuf",
     "@levicape/paloma": "workspace:",
+    "effect": "catalog:effect",
     "ksuid": "catalog:id",
-    "ts-proto": "catalog:protobuf"
+    "std-env": "catalog:core",
+    "ts-proto": "catalog:protobuf",
+    "verror": "catalog:error"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
@@ -57,6 +59,11 @@
         ]
       },
       "canary:server": {
+        "dependsOn": [
+          "build:module"
+        ]
+      },
+      "canary:promiseactivity": {
         "dependsOn": [
           "build:module"
         ]
@@ -100,7 +107,8 @@
       "nx:test": {
         "dependsOn": [
           "canary:harness",
-          "canary:server"
+          "canary:server",
+          "canary:promiseactivity"
         ]
       }
     }
@@ -115,7 +123,8 @@
     "build:esbuild": "[ \"$ESBUILD_DISABLED\" = \"1\" ] && echo 'ESBUILD_DISABLED is set to 1. Skipping esbuild' || $npm_package_config_packageexecutor esbuild $npm_package_config_esbuildpaths --outdir=output/esbuild --outbase=module --platform=$npm_package_config_esbuildplatform --target=es2023 --format=esm --bundle --minify --packages=$npm_package_config_esbuildpackages --external:@aws-sdk --external:@smithy $npm_package_config_esbuildargs",
     "build:tsc": "$npm_package_config_packageexecutor tsc",
     "canary:harness": "node $npm_package_config_canaryharness",
-    "canary:server": "nohup node $npm_package_config_canaryserverhttp & node $npm_package_config_canaryserver",
+    "canary:promiseactivity": "node $npm_package_config_canarypromiseactivity",
+    "canary:server": "nohup node $npm_package_config_canaryserver_http & node $npm_package_config_canaryserver",
     "clean": "$npm_package_config_packageexecutor nx nx:clean",
     "clean:module": "rm -rf $npm_package_config_outpaths || true",
     "dx:precommit": "$npm_package_config_packageexecutor nx dx:precommit:pre && $npm_package_config_packageexecutor nx package:deps",

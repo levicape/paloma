@@ -1,4 +1,4 @@
-import type { Stats, WriteStream } from "node:fs";
+import type { Stats } from "node:fs";
 import { Context } from "effect";
 import type { Effect } from "effect/Effect";
 

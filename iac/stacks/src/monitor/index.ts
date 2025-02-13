@@ -69,11 +69,13 @@ const CANARY_PATHS = [
 		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/harness.LambdaHandler`,
 		environment: ENVIRONMENT,
 	},
-	// {
-	// 	name: "server",
-	// 	packageName: "@levicape/paloma-example",
-	// 	handler: "module/canary/server.handler",
-	// },
+	{
+		name: "promise_activity",
+		description: "Tests Paloma runtime PromiseActivity execution",
+		packageName: "@levicape/paloma-examples-canaryexecution",
+		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/PromiseActivity.basic`,
+		environment: ENVIRONMENT,
+	},
 ] as const;
 
 const CI = {

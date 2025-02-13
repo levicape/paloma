@@ -6,7 +6,10 @@ import {
 	HandlerSignal,
 	ReadySignal,
 } from "../execution/ExecutionSignals.mjs";
-import { withStructuredLogging } from "./loglayer/LoggingContext.mjs";
+import {
+	LoggingContext,
+	withStructuredLogging,
+} from "./loglayer/LoggingContext.mjs";
 
 const { signals } = await Effect.runPromise(
 	gen(function* () {
@@ -26,7 +29,7 @@ const { signals } = await Effect.runPromise(
 	}),
 );
 
-export const InternalContext = Context.empty().pipe(
+export const RuntimeContext = Context.empty().pipe(
 	withStructuredLogging({ prefix: "internal" }),
 	Context.merge(
 		Context.mergeAll(
@@ -44,3 +47,5 @@ export const InternalContext = Context.empty().pipe(
 		),
 	),
 );
+
+export { LoggingContext };

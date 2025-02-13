@@ -1,20 +1,14 @@
 /** @jsxImportSource @levicape/fourtwo */
 /** @jsxRuntime automatic */
 
-import {
-	GithubJobBuilder,
-	GithubWorkflowExpressions,
-} from "@levicape/fourtwo/ci/cd/pipeline/github";
-import {
-	GithubJobX,
-	GithubStepCheckoutX,
-	GithubStepX,
-	GithubWorkflowX,
-} from "@levicape/fourtwo/x/github";
-import {
-	GithubStepNodeInstallX,
-	GithubStepNodeSetupX,
-} from "@levicape/fourtwo/x/github/node";
+import { GithubJobBuilder } from "@levicape/fourtwo/ci/cd/pipeline/github/GithubJobBuilder";
+import { GithubWorkflowExpressions } from "@levicape/fourtwo/ci/cd/pipeline/github/GithubWorkflowExpressions";
+import { GithubJobX } from "@levicape/fourtwo/jsx/github/GithubJobX";
+import { GithubStepX } from "@levicape/fourtwo/jsx/github/GithubStepX";
+import { GithubWorkflowX } from "@levicape/fourtwo/jsx/github/GithubWorkflowX";
+import { GithubStepCheckoutX } from "@levicape/fourtwo/jsx/github/steps/GithubStepCheckoutX";
+import { GithubStepNodeInstallX } from "@levicape/fourtwo/jsx/github/steps/node/GithubStepNodeInstallX";
+import { GithubStepNodeSetupX } from "@levicape/fourtwo/jsx/github/steps/node/GithubStepNodeSetupX";
 
 const {
 	current: { register, context: _$_, env },

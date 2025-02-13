@@ -1,7 +1,7 @@
 import { Effect } from "effect";
-import { InternalContext } from "../../server/ServerContext.mjs";
+import { RuntimeContext } from "../../server/RuntimeContext.mjs";
 import { LoggingContext } from "../../server/loglayer/LoggingContext.mjs";
-import type { Activity } from "./Activity.mjs";
+import { Activity } from "./Activity.mjs";
 
 const { trace } = await Effect.runPromise(
 	Effect.provide(
@@ -13,7 +13,7 @@ const { trace } = await Effect.runPromise(
 				}),
 			};
 		}),
-		InternalContext,
+		RuntimeContext,
 	),
 );
 
@@ -67,10 +67,10 @@ export class StatefulActivity<
 	Enter,
 	Stop,
 	On extends StatefulActivityOn<Prepare, Start, Enter, Stop>,
-> implements Activity
-{
+> extends Activity {
 	$on: StatefulActivityOn<Prepare, Start, Enter, Stop>;
-	$events: StatefulActivityEvents<Prepare, Start, Enter, Stop>;
+	$events: StatefulActivityEvents<Prepare, Start, Enter, Stop> | undefined;
+	$partial?: undefined;
 
 	constructor(
 		readonly props: {
@@ -78,21 +78,11 @@ export class StatefulActivity<
 		},
 		readonly task: StatefulActivityTask<Prepare, Start, Enter, Stop>,
 	) {
-		for (let i = 0; i < 10; i++) {
-			// biome-ignore lint:
-			continue;
-		}
+		super();
+		this.$on = props.on;
 	}
-	$partial?: undefined;
+
 	hash(): string {
 		return "stateful-activity";
-	}
-
-	async plan() {}
-
-	async handler(_event: unknown, _context: unknown) {
-		await this.task({
-			events: this.$events,
-		});
 	}
 }

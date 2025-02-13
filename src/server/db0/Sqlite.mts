@@ -2,7 +2,7 @@ import type { Database } from "better-sqlite3";
 import { type Connector, createDatabase } from "db0";
 import sqlite from "db0/connectors/better-sqlite3";
 import { Context, Effect } from "effect";
-import { InternalContext } from "../ServerContext.mjs";
+import { RuntimeContext } from "../RuntimeContext.mjs";
 import { LoggingContext } from "../loglayer/LoggingContext.mjs";
 import { Db0Context } from "./DatabaseContext.mjs";
 
@@ -16,7 +16,7 @@ let { trace } = await Effect.runPromise(
 				}),
 			};
 		}),
-		InternalContext,
+		RuntimeContext,
 	),
 );
 

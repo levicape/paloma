@@ -53,10 +53,10 @@
     "node": "22.12.0"
   },
   "exports": {
-    ".": "./module/canary/*.mjs",
+    ".": "./module/canary/Canary.mjs",
+    "./*": "./module/canary/*.mjs",
     "./canary/*": "./module/canary/*.mjs",
-    "./runtime/execution/*": "./module/execution/*.mjs",
-    "./runtime/server/*": "./module/server/*.mjs"
+    "./runtime/*": "./module/*.mjs"
   },
   "files": [
     "iac",

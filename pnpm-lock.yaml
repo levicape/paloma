@@ -36,17 +36,17 @@ catalogs:
       version: 11.8.1
   default:
     '@levicape/fourtwo':
-      specifier: 0.7.1-main.15
-      version: 0.7.1-main.15
+      specifier: 0.8.0-main.16
+      version: 0.8.0-main.16
     '@levicape/fourtwo-builders':
-      specifier: 0.7.1-main.15
-      version: 0.7.1-main.15
+      specifier: 0.8.0-main.16
+      version: 0.8.0-main.16
     '@levicape/fourtwo-pulumi':
-      specifier: 0.7.1-main.15
-      version: 0.7.1-main.15
+      specifier: 0.8.0-main.16
+      version: 0.8.0-main.16
     '@levicape/spork':
-      specifier: 0.3.0-main.4
-      version: 0.3.0-main.4
+      specifier: 0.4.0-main.5
+      version: 0.4.0-main.5
   dev:
     tsx:
       specifier: ^4.19.2
@@ -265,7 +265,7 @@ importers:
         version: 1.9.4
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.7.1-main.15(projen@0.71.163)
+        version: 0.8.0-main.16(projen@0.71.163)
       '@types/better-sqlite3':
         specifier: catalog:types
         version: 7.6.12
@@ -305,12 +305,21 @@ importers:
       '@levicape/paloma':
         specifier: 'workspace:'
         version: link:../..
+      effect:
+        specifier: catalog:effect
+        version: 3.12.7
       ksuid:
         specifier: catalog:id
         version: 3.0.0
+      std-env:
+        specifier: catalog:core
+        version: 3.8.0
       ts-proto:
         specifier: catalog:protobuf
         version: 2.6.1
+      verror:
+        specifier: catalog:error
+        version: 1.10.1
     devDependencies:
       '@biomejs/biome':
         specifier: catalog:lint
@@ -335,7 +344,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.7.1-main.15(projen@0.71.163)
+        version: 0.8.0-main.16(projen@0.71.163)
       yaml:
         specifier: catalog:core
         version: 2.7.0
@@ -344,13 +353,13 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.7.1-main.15(projen@0.71.163)
+        version: 0.8.0-main.16(projen@0.71.163)
       '@levicape/fourtwo-builders':
         specifier: 'catalog:'
-        version: 0.7.1-main.15(projen@0.71.163)
+        version: 0.8.0-main.16(projen@0.71.163)
       '@levicape/fourtwo-pulumi':
         specifier: 'catalog:'
-        version: 0.7.1-main.15(typescript@5.7.3)
+        version: 0.8.0-main.16(typescript@5.7.3)
       '@pulumi/aws':
         specifier: catalog:pulumi
         version: 6.67.0(typescript@5.7.3)
@@ -393,7 +402,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.7.1-main.15(projen@0.71.163)
+        version: 0.8.0-main.16(projen@0.71.163)
 
   packages/nevada-io:
     dependencies:
@@ -405,7 +414,7 @@ importers:
         version: link:../..
       '@levicape/spork':
         specifier: 'catalog:'
-        version: 0.3.0-main.4(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.6.20))(hono@4.6.20)(jsonwebtoken@9.0.2)(zod@3.24.1)
+        version: 0.4.0-main.5(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.6.20))(hono@4.6.20)(jsonwebtoken@9.0.2)(zod@3.24.1)
       effect:
         specifier: catalog:effect
         version: 3.12.7
@@ -1246,22 +1255,22 @@ packages:
     resolution: {integrity: sha512-rsfF5t3sd5c+3ejUgcy8q0cVG2/BxT064L4Xz+CuKEe014u8T4MtFZiWjWZFpfMXSGKzFYEA6DJYm9CqjmIfZg==}
     engines: {node: '>=14'}
 
-  '@levicape/fourtwo-builders@0.7.1-main.15':
-    resolution: {integrity: sha512-9ufi/3gNeiSWETrEEgGHm+Jym4sJbD3XbKcHfX8XAezz4bLa9aP6J9c+kx+tZvsVn8VIwnKVehw5LJigR8wnuw==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.7.1-main.15/cf89f5a4ec6e292fac5821b6b5a6aa3b514ea601}
-    engines: {node: '22'}
+  '@levicape/fourtwo-builders@0.8.0-main.16':
+    resolution: {integrity: sha512-G+/AhcWMLMYoAIkjczlfyHJV5vOa025LfZ2opx9l3P4NR9+18+mefaT0soCSTm0royIAza7xWlvC0ZtYB6BhfQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.8.0-main.16/feb2494dfef78288aaa54391b082fd448954e03e}
+    engines: {node: ^22}
 
-  '@levicape/fourtwo-pulumi@0.7.1-main.15':
-    resolution: {integrity: sha512-KtU0NfwdieBvKTo7NuU7bitzM7AuZuRWUpH8LxTO3+NpdL1vrwfs+8f0LwzHxa5ykLBL51XVDGhmxehFYuv9jQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.7.1-main.15/db976e917555c3f99ceef10925f5b719e13ed3c6}
-    engines: {node: '22'}
+  '@levicape/fourtwo-pulumi@0.8.0-main.16':
+    resolution: {integrity: sha512-IUr8dRnIYAsp6JNpiBMyHk1R6BjcviLa8jhAcbELaWvVfSjDsSK2WDsAdeU7abgnhbMvrTy66RZlWH6L0yrwnQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.8.0-main.16/0b74d1f0a91def681c54ed881349fd947072e85e}
+    engines: {node: ^22}
 
-  '@levicape/fourtwo@0.7.1-main.15':
-    resolution: {integrity: sha512-0Xb+Ug/xhTBZ0697OUxYWUO4W8gEiKszn2MxfybTK/vIYcTujhkHrmxsGRr75eJSXHWL3+OG/UBsX43mSL0kCA==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.7.1-main.15/e841943bfdae292b39f1e74dff6dc15f141dd1ae}
-    engines: {node: ^22.13.1}
+  '@levicape/fourtwo@0.8.0-main.16':
+    resolution: {integrity: sha512-lI9lFq9aHUoqEVgBMxBnUZdwzXxtuCk0ub91FdwiXNJUdMOIJwqlPv9xIuf9sABempSmsoFiGNIxBZ4rt89ITA==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.8.0-main.16/ef25d18b771e9477d1501a6fb51d77b1aa7f48ac}
+    engines: {node: 22.12.0}
     hasBin: true
 
-  '@levicape/spork@0.3.0-main.4':
-    resolution: {integrity: sha512-r+LJdzwysZhMK509aEUa9F4ZBB2aFhcrjSex5YsONqNF5gnoARCh01MTeR7W/XYYtKxg45o9EqDTfprM8UQf7Q==, tarball: https://npm.pkg.github.com/download/@levicape/spork/0.3.0-main.4/c14f11e5b3232c15e26400934dbe9c481b59fbd5}
-    engines: {node: '22'}
+  '@levicape/spork@0.4.0-main.5':
+    resolution: {integrity: sha512-Mx+33hxE8xYDX66z7/jEV9t2b5srDCOhR1sBZbc02NIqAlw9xnuYQjBZRB9DtKv8lRWvUqwurDpxp0QKoIoxew==, tarball: https://npm.pkg.github.com/download/@levicape/spork/0.4.0-main.5/8caaab6530fe709a15998250ca830a323ee8cd91}
+    engines: {node: 22.12.0}
     hasBin: true
     peerDependencies:
       '@bufbuild/protobuf': ^2.2.3
@@ -6240,9 +6249,9 @@ snapshots:
     optionalDependencies:
       re2-wasm: 1.0.2
 
-  '@levicape/fourtwo-builders@0.7.1-main.15(projen@0.71.163)':
+  '@levicape/fourtwo-builders@0.8.0-main.16(projen@0.71.163)':
     dependencies:
-      '@levicape/fourtwo': 0.7.1-main.15(projen@0.71.163)
+      '@levicape/fourtwo': 0.8.0-main.16(projen@0.71.163)
     transitivePeerDependencies:
       - '@middy/core'
       - bufferutil
@@ -6256,7 +6265,7 @@ snapshots:
       - tedious
       - utf-8-validate
 
-  '@levicape/fourtwo-pulumi@0.7.1-main.15(typescript@5.7.3)':
+  '@levicape/fourtwo-pulumi@0.8.0-main.16(typescript@5.7.3)':
     dependencies:
       '@kubernetes-models/postgres-operator': 0.4.2
       '@pulumi/aws': 6.67.0(typescript@5.7.3)
@@ -6276,7 +6285,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@levicape/fourtwo@0.7.1-main.15(projen@0.71.163)':
+  '@levicape/fourtwo@0.8.0-main.16(projen@0.71.163)':
     dependencies:
       '@aws-lambda-powertools/logger': 2.13.1
       '@aws/codecatalyst-workflows-sdk': 0.1.5-preview.6(projen@0.71.163)
@@ -6315,7 +6324,7 @@ snapshots:
       - tedious
       - utf-8-validate
 
-  '@levicape/spork@0.3.0-main.4(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.6.20))(hono@4.6.20)(jsonwebtoken@9.0.2)(zod@3.24.1)':
+  '@levicape/spork@0.4.0-main.5(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.6.20))(hono@4.6.20)(jsonwebtoken@9.0.2)(zod@3.24.1)':
     dependencies:
       '@aws-lambda-powertools/logger': 2.13.1
       '@aws-sdk/client-dynamodb': 3.741.0
