@@ -20,7 +20,7 @@ const { trace } = await Effect.runPromise(
 );
 
 export const canary = new Canary(
-	"Canary",
+	"canary",
 	{
 		name: "canary",
 	},

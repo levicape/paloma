@@ -19,8 +19,8 @@ const { trace } = await Effect.runPromise(
 	),
 );
 
-export const basic = new Canary(
-	"BasicPromiseActivity",
+export const handler = new Canary(
+	"promiseactivity_basic",
 	{},
 	new PromiseActivity(
 		{

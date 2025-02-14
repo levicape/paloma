@@ -582,8 +582,14 @@ const duplicates = (actors: Array<ExecutionFiberQueueItem>) => {
 };
 
 const nameisfilesafe = (actors: Array<ExecutionFiberQueueItem>) => {
-	if (actors.some((c) => c.identifiers.name.match(/[^a-zA-Z0-9]/))) {
-		return "Canary name is not file safe.";
+	const unsafe = actors.filter((c) =>
+		c.identifiers.name.match(/[^a-zA-Z0-9-]/),
+	);
+	if (unsafe.length > 0) {
+		const yies = unsafe.length > 1 ? "ies" : "y";
+		const isare = unsafe.length > 1 ? "are" : "is";
+		const d = unsafe.length > 1 ? "d" : "";
+		return `Canar${yies} name${d} (${unsafe.join(", ")}) ${isare} not file safe. Only a-z, A-Z, 0-9, and - are allowed.`;
 	}
 	return;
 };

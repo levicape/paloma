@@ -1,6 +1,6 @@
 import { ConsolaTransport } from "@loglayer/transport-consola";
 import { createConsola } from "consola";
-import { Context, Effect, pipe } from "effect";
+import { Context, Effect } from "effect";
 import { LogLayer } from "loglayer";
 import { serializeError } from "serialize-error";
 import { env } from "std-env";
@@ -16,6 +16,7 @@ const rootloglayer = Effect.sync(() => {
 	return new LogLayer({
 		transport: new ConsolaTransport({
 			logger: createConsola({
+				fancy: false,
 				formatOptions: {
 					compact: false,
 				},

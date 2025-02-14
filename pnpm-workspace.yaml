@@ -5,10 +5,10 @@ packages:
   - iac/images/*
   - packages/*
 catalog:
-  "@levicape/fourtwo": "0.8.2-main.18"
-  "@levicape/fourtwo-pulumi": "0.8.2-main.18"
-  "@levicape/fourtwo-builders": "0.8.2-main.18"
-  "@levicape/spork": "0.4.1-main.6"
+  "@levicape/fourtwo": "0.8.3-main.19"
+  "@levicape/fourtwo-pulumi": "0.8.3-main.19"
+  "@levicape/fourtwo-builders": "0.8.3-main.19"
+  "@levicape/spork": "0.5.1-main.8"
 
 
 
@@ -128,7 +128,11 @@ catalogs:
   log-loglayer:
     "@loglayer/transport-aws-lambda-powertools": "^3.0.0"
     "@loglayer/transport-consola": "^2.0.0"
+    "@loglayer/transport-pino": "^2.0.0"
     "loglayer": "^6.0.0"
+  log-pino:
+    "pino": "^9.6.0"
+    "pino-pretty": "^13.0.0"
   package:
     "ci": "^2.3.0"
     "depcheck": "^1.4.7"

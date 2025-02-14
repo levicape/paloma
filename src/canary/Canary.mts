@@ -71,7 +71,7 @@ export type CanaryActorProps = {
 };
 export type CanaryProps = {};
 export type CanaryIdentifiers = {
-	name: string;
+	name: Lowercase<string>;
 	hash: string;
 	path: string;
 };
@@ -93,7 +93,7 @@ export class Canary extends Function {
 		 * Unique name for this canary. Must be URL safe alphanumeric, maximum 50 characters.
 		 * @see https://docs.paloma.levicape.cloud/canary-naming
 		 */
-		public readonly name: string,
+		public readonly name: Lowercase<string>,
 		public readonly props: CanaryProps,
 		/**
 		 * Activity to execute.

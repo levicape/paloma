@@ -73,7 +73,7 @@ const CANARY_PATHS = [
 		name: "promise_activity",
 		description: "Tests Paloma runtime PromiseActivity execution",
 		packageName: "@levicape/paloma-examples-canaryexecution",
-		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/PromiseActivity.basic`,
+		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/PromiseActivity.handler`,
 		environment: ENVIRONMENT,
 	},
 ] as const;

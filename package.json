@@ -21,6 +21,7 @@
     "@effect/platform-node": "catalog:effect",
     "@loglayer/transport-aws-lambda-powertools": "catalog:log-loglayer",
     "@loglayer/transport-consola": "catalog:log-loglayer",
+    "@loglayer/transport-pino": "catalog:log-loglayer",
     "@stricli/core": "catalog:cli",
     "better-sqlite3": "catalog:database-sqlite",
     "consola": "catalog:log-consola",
@@ -32,6 +33,8 @@
     "knex": "catalog:database-sql",
     "ksuid": "catalog:id",
     "loglayer": "catalog:log-loglayer",
+    "pino": "catalog:log-pino",
+    "pino-pretty": "catalog:log-pino",
     "serialize-error": "catalog:error",
     "std-env": "catalog:core",
     "verror": "catalog:error"
