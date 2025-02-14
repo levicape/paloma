@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import { NodeRuntime } from "@effect/platform-node";
 import {
 	Chunk,
@@ -582,14 +583,15 @@ const duplicates = (actors: Array<ExecutionFiberQueueItem>) => {
 };
 
 const nameisfilesafe = (actors: Array<ExecutionFiberQueueItem>) => {
-	const unsafe = actors.filter((c) =>
-		c.identifiers.name.match(/[^a-zA-Z0-9-]/),
-	);
+	const unsafe = actors
+		.filter((c) => c.identifiers.name.match(/[^a-zA-Z0-9-_]/))
+		.map((c) => inspect(c.identifiers.name, { depth: null }));
+
 	if (unsafe.length > 0) {
 		const yies = unsafe.length > 1 ? "ies" : "y";
 		const isare = unsafe.length > 1 ? "are" : "is";
-		const d = unsafe.length > 1 ? "d" : "";
-		return `Canar${yies} name${d} (${unsafe.join(", ")}) ${isare} not file safe. Only a-z, A-Z, 0-9, and - are allowed.`;
+		return `Canar${yies} (${unsafe.join(", ")}) ${isare} not file safe. Only a-z, A-Z, 0-9, '-', '_' are allowed.`;
 	}
+
 	return;
 };
