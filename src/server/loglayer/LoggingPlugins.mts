@@ -7,10 +7,10 @@ export const $$_spanId_$$ = () => randomBytes(8).toString("hex");
 type Depth = number;
 export const LoggingPlugins: Array<LogLayerPlugin> = [
 	{
-		id: "timestamp-plugin",
+		id: "unixtime-plugin",
 		onBeforeDataOut: ({ data }) => {
 			if (data) {
-				data.timestamp = Date.now();
+				data.unixtime = Date.now();
 			}
 			return data;
 		},

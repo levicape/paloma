@@ -33,7 +33,8 @@ const MAKE_DEPENDENCIES = [
 	"sqlite-devel",
 	"sqlite-libs",
 	"sqlite-tools",
-	"awscli",
+	"awscli2",
+	"git",
 ].join(" ");
 const CCR_URL =
 	"https://github.com/aws/codecatalyst-runner-cli/releases/latest/download/ccr_Linux_x86_64.tar.gz";

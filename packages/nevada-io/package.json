@@ -112,7 +112,7 @@
     "http:start": "$npm_package_config_packageexecutor spork server start $npm_package_config_server --port ${PORT:-64128} --import server",
     "http:watch": "rm nohup.out || true; nohup $npm_package_config_packageexecutor tsc -w & echo $! > .pidfile.tsc && pnpm run http:start --watch 'module'; kill $(cat .pidfile.tsc) || true; rm -f .pidfile.tsc || true",
     "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_srcpaths",
-    "lint:format": "$npm_package_config_packageexecutor biome format --write $npm_package_config_srcpaths",
+    "lint:format": "$npm_package_config_packageexecutor biome check --write $npm_package_config_srcpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_srcpaths",
     "lint:write": "$npm_package_config_packageexecutor biome check --write $npm_package_config_srcpaths",
     "package:deps": "$npm_package_config_packageexecutor nx exec -- depcheck",

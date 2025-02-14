@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "catalog:log-awspowertools",
+    "@effect/platform": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
     "@loglayer/transport-aws-lambda-powertools": "catalog:log-loglayer",
     "@loglayer/transport-consola": "catalog:log-loglayer",
