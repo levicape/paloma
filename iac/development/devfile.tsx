@@ -2,11 +2,13 @@
 /** @jsxImportSource @levicape/fourtwo */
 /** @jsxRuntime automatic */
 
-import { DevfileCommandX } from "@levicape/fourtwo/jsx/devfile/DevfileCommandX";
-import { DevfileSourceComponentX } from "@levicape/fourtwo/jsx/devfile/DevfileComponentX";
-import { DevfileEventX } from "@levicape/fourtwo/jsx/devfile/DevfileEventX";
-import { DevfileMetadataX } from "@levicape/fourtwo/jsx/devfile/DevfileMetadataX";
-import { DevfileX } from "@levicape/fourtwo/jsx/devfile/DevfileX";
+import {
+	DevfileCommandX,
+	DevfileEventX,
+	DevfileMetadataX,
+	DevfileSourceComponentX,
+	DevfileX,
+} from "@levicape/fourtwo/devfile";
 
 const APPLICATION_NAME = "paloma";
 const NODE_VERSION = "22.12.0";
@@ -31,6 +33,7 @@ const MAKE_DEPENDENCIES = [
 	"sqlite-devel",
 	"sqlite-libs",
 	"sqlite-tools",
+	"awscli",
 ].join(" ");
 const CCR_URL =
 	"https://github.com/aws/codecatalyst-runner-cli/releases/latest/download/ccr_Linux_x86_64.tar.gz";
@@ -122,7 +125,7 @@ let data = (
 							"> /etc/docker/daemon.json'",
 						].join(" "),
 						[
-							"sudo sh -c 'dockerd --storage-opt dm.basesize=60G",
+							"sudo sh -c 'dockerd",
 							"> /var/log/docker-daemon.log 2>&1 &'",
 						].join(" "),
 					].join(" && "),

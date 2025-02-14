@@ -1,6 +1,15 @@
 {
-	"name": "iac-development-osx",
 	"targets": {
+		"tart:bootstrap": {
+			"executor": "nx:run-commands",
+			"options": {
+				"commands": [
+					"sudo yum -y install nodejs22 pnpm corepack libtool || true;",
+					"sudo yum -y install docker yq jq || true;"
+				],
+				"parallel": false
+			}
+		},
 		"tart:configure": {
 			"executor": "nx:run-commands",
 			"options": {
@@ -23,7 +32,10 @@
 				"commands": [
 					"echo 'Run these commands in the vm to mount the workspace directory';",
 					"echo \"sudo mkdir /mnt/shared\";",
-					"echo \"sudo mount -t virtiofs com.apple.virtio-fs.automount /mnt/shared\";"
+					"echo \"sudo mount -t virtiofs com.apple.virtio-fs.automount /mnt/shared\";",
+					"echo \"------\";",
+					"echo \"sudo yum -y install nodejs22 pnpm corepack libtool\";",
+					"echo \"------\";"
 				],
 				"parallel": false
 			}

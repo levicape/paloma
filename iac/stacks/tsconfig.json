@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"strict": true,
 		"target": "es2022",
-		// "moduleResolution": "bundler",
+		"moduleResolution": "bundler",
 		"module": "preserve",
 		"jsx": "react-jsx",
 		"jsxImportSource": "@levicape/fourtwo",

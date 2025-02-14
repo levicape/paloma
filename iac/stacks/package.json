@@ -17,13 +17,15 @@
     "@pulumi/pulumi": "catalog:pulumi",
     "destr": "catalog:parse-json",
     "serialize-error": "catalog:error",
+    "ts-node": "catalog:dev",
+    "tslib": "catalog:dev",
+    "typescript": "catalog:dev",
     "verror": "catalog:error",
     "yaml": "catalog:core",
     "zod": "catalog:core"
   },
   "devDependencies": {
-    "@types/node": "catalog:types",
-    "typescript": "catalog:dev"
+    "@types/node": "catalog:types"
   },
   "nx": {
     "targets": {

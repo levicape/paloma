@@ -5,9 +5,9 @@ packages:
   - iac/images/*
   - packages/*
 catalog:
-  "@levicape/fourtwo": "0.8.0-main.16"
-  "@levicape/fourtwo-pulumi": "0.8.0-main.16"
-  "@levicape/fourtwo-builders": "0.8.0-main.16"
+  "@levicape/fourtwo": "0.8.1-main.17"
+  "@levicape/fourtwo-pulumi": "0.8.1-main.17"
+  "@levicape/fourtwo-builders": "0.8.1-main.17"
   "@levicape/spork": "0.4.0-main.5"
 
 
@@ -81,8 +81,10 @@ catalogs:
   data-row-avro:
     "avsc": "^5.7.7"
   dev:
-    "typescript": "^5.7.3"
+    "tslib": "^2.8.1"
     "tsx": "^4.19.2"
+    "ts-node": "^10.9.2"
+    "typescript": "^5.7.3"
   effect:
     "effect": "^3.12.7"
     "@effect/platform": "^0.75.1"
