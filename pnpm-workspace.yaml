@@ -5,9 +5,9 @@ packages:
   - iac/images/*
   - packages/*
 catalog:
-  "@levicape/fourtwo": "0.8.3-main.19"
-  "@levicape/fourtwo-pulumi": "0.8.3-main.19"
-  "@levicape/fourtwo-builders": "0.8.3-main.19"
+  "@levicape/fourtwo": "0.9.0-main.20"
+  "@levicape/fourtwo-pulumi": "0.9.0-main.20"
+  "@levicape/fourtwo-builders": "0.9.0-main.20"
   "@levicape/spork": "0.5.1-main.8"
 
 

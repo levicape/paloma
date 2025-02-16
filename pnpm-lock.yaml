@@ -36,14 +36,14 @@ catalogs:
       version: 11.8.1
   default:
     '@levicape/fourtwo':
-      specifier: 0.8.3-main.19
-      version: 0.8.3-main.19
+      specifier: 0.9.0-main.20
+      version: 0.9.0-main.20
     '@levicape/fourtwo-builders':
-      specifier: 0.8.3-main.19
-      version: 0.8.3-main.19
+      specifier: 0.9.0-main.20
+      version: 0.9.0-main.20
     '@levicape/fourtwo-pulumi':
-      specifier: 0.8.3-main.19
-      version: 0.8.3-main.19
+      specifier: 0.9.0-main.20
+      version: 0.9.0-main.20
     '@levicape/spork':
       specifier: 0.5.1-main.8
       version: 0.5.1-main.8
@@ -296,7 +296,7 @@ importers:
         version: 1.9.4
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.8.3-main.19(projen@0.71.163)
+        version: 0.9.0-main.20(projen@0.71.163)
       '@types/better-sqlite3':
         specifier: catalog:types
         version: 7.6.12
@@ -375,7 +375,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.8.3-main.19(projen@0.71.163)
+        version: 0.9.0-main.20(projen@0.71.163)
       yaml:
         specifier: catalog:core
         version: 2.7.0
@@ -384,13 +384,13 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.8.3-main.19(projen@0.71.163)
+        version: 0.9.0-main.20(projen@0.71.163)
       '@levicape/fourtwo-builders':
         specifier: 'catalog:'
-        version: 0.8.3-main.19(projen@0.71.163)
+        version: 0.9.0-main.20(projen@0.71.163)
       '@levicape/fourtwo-pulumi':
         specifier: 'catalog:'
-        version: 0.8.3-main.19(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)
+        version: 0.9.0-main.20(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/aws':
         specifier: catalog:pulumi
         version: 6.67.0(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)
@@ -439,7 +439,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.8.3-main.19(projen@0.71.163)
+        version: 0.9.0-main.20(projen@0.71.163)
 
   packages/nevada-io:
     dependencies:
@@ -452,6 +452,9 @@ importers:
       '@levicape/spork':
         specifier: 'catalog:'
         version: 0.5.1-main.8(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.7.1))(hono@4.7.1)(jsonwebtoken@9.0.2)(zod@3.24.1)
+      effect:
+        specifier: catalog:effect
+        version: 3.13.0
       hono:
         specifier: catalog:hono
         version: 4.7.1
@@ -1446,16 +1449,16 @@ packages:
     resolution: {integrity: sha512-rsfF5t3sd5c+3ejUgcy8q0cVG2/BxT064L4Xz+CuKEe014u8T4MtFZiWjWZFpfMXSGKzFYEA6DJYm9CqjmIfZg==}
     engines: {node: '>=14'}
 
-  '@levicape/fourtwo-builders@0.8.3-main.19':
-    resolution: {integrity: sha512-54WiCtlQeQ2fVQaO1Kbp0W6LvgWZCb7Gn2Q8Uoss0jVnO92D8+oY0atj43q/07CC/Plv4FuZ6tH9Al81Woe83w==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.8.3-main.19/0b6f9b6c565fd7f5f7ccf8e07b7e31a1a1f90019}
+  '@levicape/fourtwo-builders@0.9.0-main.20':
+    resolution: {integrity: sha512-2AAPCsuVE/bgYGhuyjzg/dWVbiKuDOZT0aiND+UQYS7mKVfokHJ0M9k7l1ZzZvlauX8FvlGkQSrO3qv1FDNUqw==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.9.0-main.20/150d1a8d8f8a7b33cd3dc8956d719330dc2bba8c}
     engines: {node: ^22}
 
-  '@levicape/fourtwo-pulumi@0.8.3-main.19':
-    resolution: {integrity: sha512-7GAUqfm/RvJ4iEE6Iy8j9qe2boJTXV+CizN2ZuhARB7ASckIP/ECUmayyKMuTQr3VvHSEMidTiCS94tsVi7OAg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.8.3-main.19/e9ef47628ef9d055c307a3bc391a0b85fa054be7}
+  '@levicape/fourtwo-pulumi@0.9.0-main.20':
+    resolution: {integrity: sha512-w/TQq0cH9WFLCGU/LTwzjntre8ka3AFtQ0S+db0mliwWOQDSAIixD6aLDN51obkmHtv527uWVV0rFVVqhLCdMg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.9.0-main.20/d80668ca62b00c98a9c6c7c69b96c2502b2902ce}
     engines: {node: ^22}
 
-  '@levicape/fourtwo@0.8.3-main.19':
-    resolution: {integrity: sha512-K+vj6IvSFirCN6Zm8Ww6sF9ay/Gy9VIPiPalF/Lq1KnD3uTdPU0hULNOvAR2Cm7Ce3ovyMdoQJLX3Hou9kCzoA==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.8.3-main.19/463489e8e77af187f093b195049230101123a14e}
+  '@levicape/fourtwo@0.9.0-main.20':
+    resolution: {integrity: sha512-UVuCN6GDyrrpBCkO6IHlGA3pF5WzapR1+T38BtZN0tkfECRIE+wcuXH4oXWJdVhE9AByLCFsFGboBJmmCRXXVg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.9.0-main.20/03a6d2b48626f8978bce99fd3833f0ef544860dc}
     engines: {node: 22.12.0}
     hasBin: true
 
@@ -6660,9 +6663,9 @@ snapshots:
     optionalDependencies:
       re2-wasm: 1.0.2
 
-  '@levicape/fourtwo-builders@0.8.3-main.19(projen@0.71.163)':
+  '@levicape/fourtwo-builders@0.9.0-main.20(projen@0.71.163)':
     dependencies:
-      '@levicape/fourtwo': 0.8.3-main.19(projen@0.71.163)
+      '@levicape/fourtwo': 0.9.0-main.20(projen@0.71.163)
     transitivePeerDependencies:
       - '@middy/core'
       - bufferutil
@@ -6676,7 +6679,7 @@ snapshots:
       - tedious
       - utf-8-validate
 
-  '@levicape/fourtwo-pulumi@0.8.3-main.19(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)':
+  '@levicape/fourtwo-pulumi@0.9.0-main.20(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
       '@kubernetes-models/postgres-operator': 0.4.2
       '@pulumi/aws': 6.67.0(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)
@@ -6696,7 +6699,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@levicape/fourtwo@0.8.3-main.19(projen@0.71.163)':
+  '@levicape/fourtwo@0.9.0-main.20(projen@0.71.163)':
     dependencies:
       '@aws-lambda-powertools/logger': 2.14.0
       '@aws/codecatalyst-workflows-sdk': 0.1.5-preview.6(projen@0.71.163)
@@ -6704,6 +6707,7 @@ snapshots:
       '@effect/platform-node': 0.73.0(@effect/platform@0.77.0(effect@3.13.0))(effect@3.13.0)
       '@loglayer/transport-aws-lambda-powertools': 3.0.0(@aws-lambda-powertools/logger@2.14.0)
       '@loglayer/transport-consola': 2.0.0(consola@3.4.0)
+      '@loglayer/transport-pino': 2.0.0(pino@9.6.0)
       '@stricli/core': 1.1.1
       aws4fetch: 1.0.20
       better-sqlite3: 11.8.1
@@ -6715,6 +6719,8 @@ snapshots:
       js-yaml: 4.1.0
       knex: 3.1.0(better-sqlite3@11.8.1)
       loglayer: 6.0.0
+      pino: 9.6.0
+      pino-pretty: 13.0.0
       pretty-ms: 9.2.0
       serialize-error: 12.0.0
       std-env: 3.8.0

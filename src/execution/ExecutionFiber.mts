@@ -308,14 +308,22 @@ export const ExecutionFiberMain = Layer.effect(
 										looptrace
 											.withMetadata({
 												ExecutionFiber: {
-													actorInstances,
+													actorInstances: actorInstances.map((actor) => ({
+														...Option.getOrUndefined(actor)?.identifiers,
+														canary:
+															Option.getOrUndefined(actor)?.actor?.props?.canary
+																?.identifiers,
+														activity:
+															Option.getOrUndefined(actor)?.actor?.props?.canary
+																?.activity?.identifiers,
+													})),
 												},
 											})
 											.debug(
 												"Actors created. Creating ExecutionPlans and iterating.",
 											);
 
-										const executions = yield* Effect.all(
+										yield* Effect.all(
 											actorInstances.flatMap((actorOption) =>
 												Effect.scoped(
 													Effect.gen(function* (_scope) {
@@ -427,6 +435,7 @@ export const ExecutionFiberMain = Layer.effect(
 										looptrace
 											.withMetadata({})
 											.debug("ExecutionPlan done. Forking Timeout fiber");
+
 										const timeoutFiber = yield* Effect.fork(
 											Effect.gen(function* () {
 												const interrupttrace = looptrace.child();
@@ -539,9 +548,6 @@ export const ExecutionFiberMain = Layer.effect(
 								what: "close",
 							})
 							.debug("Closed ResourceLogScope.");
-
-						// Result + Totals (Canaries -> Activity runs) (internally Actor -> ExecutionPlan runs)
-						// ExecutionPlan Result effect
 					}).pipe(
 						Effect.andThen(
 							Effect.gen(function* () {
@@ -574,7 +580,7 @@ export const ExecutionFiberMain = Layer.effect(
 		),
 	),
 );
-// Todo: Use Schema/Zod
+
 const duplicates = (actors: Array<ExecutionFiberQueueItem>) => {
 	if (new Set(actors.map((c) => c.identifiers.name)).size !== actors.length) {
 		return "Duplicate canary names detected.";
@@ -585,12 +591,12 @@ const duplicates = (actors: Array<ExecutionFiberQueueItem>) => {
 const nameisfilesafe = (actors: Array<ExecutionFiberQueueItem>) => {
 	const unsafe = actors
 		.filter((c) => c.identifiers.name.match(/[^a-zA-Z0-9-_]/))
-		.map((c) => inspect(c.identifiers.name, { depth: null }));
+		.map((c) => inspect(c.identifiers, { depth: null, compact: false }));
 
 	if (unsafe.length > 0) {
 		const yies = unsafe.length > 1 ? "ies" : "y";
 		const isare = unsafe.length > 1 ? "are" : "is";
-		return `Canar${yies} (${unsafe.join(", ")}) ${isare} not file safe. Only a-z, A-Z, 0-9, '-', '_' are allowed.`;
+		return `Canar${yies} (${unsafe.join(",\n")}) ${isare} not file safe. Only a-z, A-Z, 0-9, '-', '_' are allowed.`;
 	}
 
 	return;
