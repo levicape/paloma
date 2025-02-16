@@ -1,4 +1,3 @@
-name: paloma-datalayer
 description: | 
   Data layer: DynamoDB, SQS and EFS
 runtime:

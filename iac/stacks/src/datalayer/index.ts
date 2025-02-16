@@ -156,15 +156,6 @@ export = async () => {
 			);
 		})();
 
-		//   AwsDynamoDbTable.resourcePolicy(
-		// 	this,
-		// 	`${name}-lambda-data`,
-		// 	[
-		// 	  ["users", accountsTable],
-		// 	],
-		// 	role,
-		//   );
-
 		return {
 			roles: {
 				lambda,

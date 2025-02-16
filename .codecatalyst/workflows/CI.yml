@@ -43,14 +43,18 @@ Actions:
               Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
               Value: 22.12.0
-            - Name: NX_CACHE_DIRECTORY
-              Value: /cc/cache/nodejs/nxcache
             - Name: NPM_REGISTRY_PROTOCOL_LEVICAPE
               Value: https
             - Name: NPM_REGISTRY_HOST_LEVICAPE
               Value: npm.pkg.github.com
             - Name: NODE_AUTH_TOKEN_LEVICAPE
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
+            - Name: NODE_NO_WARNINGS
+              Value: "1"
+            - Name: NPM_CONFIG_UPDATE_NOTIFIER
+              Value: "false"
+            - Name: NX_CACHE_DIRECTORY
+              Value: /cc/cache/nodejs/nxcache
             - Name: AWS_REGION
               Value: us-west-2
             - Name: FRONTEND_HOSTNAME
@@ -172,14 +176,18 @@ Actions:
               Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
               Value: 22.12.0
-            - Name: NX_CACHE_DIRECTORY
-              Value: /cc/cache/nodejs/nxcache
             - Name: NPM_REGISTRY_PROTOCOL_LEVICAPE
               Value: https
             - Name: NPM_REGISTRY_HOST_LEVICAPE
               Value: npm.pkg.github.com
             - Name: NODE_AUTH_TOKEN_LEVICAPE
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
+            - Name: NODE_NO_WARNINGS
+              Value: "1"
+            - Name: NPM_CONFIG_UPDATE_NOTIFIER
+              Value: "false"
+            - Name: NX_CACHE_DIRECTORY
+              Value: /cc/cache/nodejs/nxcache
             - Name: PYTHON
               Value: /cc/cache/pyenv/shims/python3
             - Name: PYENV_ROOT
@@ -250,14 +258,18 @@ Actions:
               Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
               Value: 22.12.0
-            - Name: NX_CACHE_DIRECTORY
-              Value: /cc/cache/nodejs/nxcache
             - Name: NPM_REGISTRY_PROTOCOL_LEVICAPE
               Value: https
             - Name: NPM_REGISTRY_HOST_LEVICAPE
               Value: npm.pkg.github.com
             - Name: NODE_AUTH_TOKEN_LEVICAPE
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
+            - Name: NODE_NO_WARNINGS
+              Value: "1"
+            - Name: NPM_CONFIG_UPDATE_NOTIFIER
+              Value: "false"
+            - Name: NX_CACHE_DIRECTORY
+              Value: /cc/cache/nodejs/nxcache
             - Name: PYTHON
               Value: /cc/cache/pyenv/shims/python3
             - Name: PYENV_ROOT
@@ -308,7 +320,7 @@ Actions:
             - Run: docker save $APPLICATION_IMAGE_NAME | gzip > _images/application.tar.gz
             - Run: du -sh _images/application.tar.gz
             - Run: ls -la _images
-      Preview:
+      Deploy:
         Identifier: aws/build@v1.0.0
         DependsOn:
           - Install
@@ -335,14 +347,18 @@ Actions:
               Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
               Value: 22.12.0
-            - Name: NX_CACHE_DIRECTORY
-              Value: /cc/cache/nodejs/nxcache
             - Name: NPM_REGISTRY_PROTOCOL_LEVICAPE
               Value: https
             - Name: NPM_REGISTRY_HOST_LEVICAPE
               Value: npm.pkg.github.com
             - Name: NODE_AUTH_TOKEN_LEVICAPE
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
+            - Name: NODE_NO_WARNINGS
+              Value: "1"
+            - Name: NPM_CONFIG_UPDATE_NOTIFIER
+              Value: "false"
+            - Name: NX_CACHE_DIRECTORY
+              Value: /cc/cache/nodejs/nxcache
             - Name: AWS_REGION
               Value: us-west-2
             - Name: FRONTEND_HOSTNAME
@@ -390,91 +406,117 @@ Actions:
             - Run: cat .pulumi-ci | grep "export" >> .export-cd
             - Run: cat .export-cd
             - Run: source .export-cd
-            - Run: mkdir _pulumi
-            - Run: /cc/cache/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-codestar.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/codestar || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-codestar.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/codestar || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/codestar
+            - Run: echo $AWS_PROVIDER_KEY
+            - Run: mkdir -p _pulumi || true
+            - Run: 'echo "Deploying onto root: paloma"'
+            - Run: 'echo "Deploying: Stack: paloma-codestar.current. CWD: $(pwd)/iac/stacks/src/codestar. Output: _pulumi/codestar."'
+            - Run: 'echo "name: paloma-codestar" >> $(pwd)/iac/stacks/src/codestar/Pulumi.yaml'
+            - Run: cat $(pwd)/iac/stacks/src/codestar/Pulumi.yaml $(pwd)/iac/stacks/src/codestar/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-codestar.current -C $(pwd)/iac/stacks/src/codestar || true
+            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-codestar.current -C $(pwd)/iac/stacks/src/codestar || true
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/codestar
             - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/codestar
             - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/codestar
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/codestar
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path frontend:stack.dns.hostnames[0] paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/codestar
             - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/codestar
-            - Run: /cc/cache/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/codestar --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
-            - Run: /cc/cache/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/codestar  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
-            - Run: /cc/cache/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/codestar --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: cat $(pwd)/iac/stacks/src/codestar/Pulumi.yaml $(pwd)/iac/stacks/src/codestar/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/codestar --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/codestar --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/codestar --non-interactive --suppress-progress --diff --json
             - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/codestar --json > $(pwd)/_pulumi/codestar.json
             - Run: cat _pulumi/codestar.json
             - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/codestar --shell > $(pwd)/_pulumi/codestar.sh
             - Run: cat _pulumi/codestar.sh
-            - Run: /cc/cache/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-datalayer.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/datalayer || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-datalayer.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/datalayer || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/datalayer
+            - Run: 'echo "Deploying: Stack: paloma-datalayer.current. CWD: $(pwd)/iac/stacks/src/datalayer. Output: _pulumi/datalayer."'
+            - Run: 'echo "name: paloma-datalayer" >> $(pwd)/iac/stacks/src/datalayer/Pulumi.yaml'
+            - Run: cat $(pwd)/iac/stacks/src/datalayer/Pulumi.yaml $(pwd)/iac/stacks/src/datalayer/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-datalayer.current -C $(pwd)/iac/stacks/src/datalayer || true
+            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-datalayer.current -C $(pwd)/iac/stacks/src/datalayer || true
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/datalayer
             - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/datalayer
             - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/datalayer
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/datalayer
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path frontend:stack.dns.hostnames[0] paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/datalayer
             - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/datalayer
-            - Run: /cc/cache/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/datalayer --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
-            - Run: /cc/cache/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/datalayer  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
-            - Run: /cc/cache/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/datalayer --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: cat $(pwd)/iac/stacks/src/datalayer/Pulumi.yaml $(pwd)/iac/stacks/src/datalayer/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/datalayer --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/datalayer --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/datalayer --non-interactive --suppress-progress --diff --json
             - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/datalayer --json > $(pwd)/_pulumi/datalayer.json
             - Run: cat _pulumi/datalayer.json
             - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/datalayer --shell > $(pwd)/_pulumi/datalayer.sh
             - Run: cat _pulumi/datalayer.sh
-            - Run: /cc/cache/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-nevada-http.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/domains/nevada/http || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-nevada-http.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/domains/nevada/http || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/domains/nevada/http --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
-            - Run: /cc/cache/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/domains/nevada/http  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
-            - Run: /cc/cache/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/domains/nevada/http --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/http --json > $(pwd)/_pulumi/domains_nevada_http.json
-            - Run: cat _pulumi/domains_nevada_http.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/http --shell > $(pwd)/_pulumi/domains_nevada_http.sh
-            - Run: cat _pulumi/domains_nevada_http.sh
-            - Run: /cc/cache/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-nevada-web.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/domains/nevada/web || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-nevada-web.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/domains/nevada/web || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/domains/nevada/web --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
-            - Run: /cc/cache/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/domains/nevada/web  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
-            - Run: /cc/cache/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/domains/nevada/web --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/web --json > $(pwd)/_pulumi/domains_nevada_web.json
-            - Run: cat _pulumi/domains_nevada_web.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/web --shell > $(pwd)/_pulumi/domains_nevada_web.sh
-            - Run: cat _pulumi/domains_nevada_web.sh
-            - Run: /cc/cache/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-nevada-monitor.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/domains/nevada/monitor || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-nevada-monitor.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/domains/nevada/monitor || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/domains/nevada/monitor --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
-            - Run: /cc/cache/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/domains/nevada/monitor  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
-            - Run: /cc/cache/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/domains/nevada/monitor --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/monitor --json > $(pwd)/_pulumi/domains_nevada_monitor.json
-            - Run: cat _pulumi/domains_nevada_monitor.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/monitor --shell > $(pwd)/_pulumi/domains_nevada_monitor.sh
-            - Run: cat _pulumi/domains_nevada_monitor.sh
-            - Run: /cc/cache/pulumi/bin/pulumi stack init "$APPLICATION_IMAGE_NAME-monitor.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/monitor || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select "$APPLICATION_IMAGE_NAME-monitor.$CI_ENVIRONMENT" -C $(pwd)/iac/stacks/src/monitor || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/monitor
+            - Run: 'echo "Deploying: Stack: paloma-monitor.current. CWD: $(pwd)/iac/stacks/src/monitor. Output: _pulumi/monitor."'
+            - Run: 'echo "name: paloma-monitor" >> $(pwd)/iac/stacks/src/monitor/Pulumi.yaml'
+            - Run: cat $(pwd)/iac/stacks/src/monitor/Pulumi.yaml $(pwd)/iac/stacks/src/monitor/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-monitor.current -C $(pwd)/iac/stacks/src/monitor || true
+            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-monitor.current -C $(pwd)/iac/stacks/src/monitor || true
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/monitor
             - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/monitor
             - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' "$CI_ENVIRONMENT.$APPLICATION_IMAGE_NAME.cloud.$FRONTEND_HOSTNAME" -C $(pwd)/iac/stacks/src/monitor
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path frontend:stack.dns.hostnames[0] paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/monitor
             - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi refresh -C $(pwd)/iac/stacks/src/monitor --yes --skip-preview --clear-pending-creates --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh"
-            - Run: /cc/cache/pulumi/bin/pulumi preview -C $(pwd)/iac/stacks/src/monitor  --show-replacement-steps --json --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview"
-            - Run: /cc/cache/pulumi/bin/pulumi up -C $(pwd)/iac/stacks/src/monitor --yes --suppress-progress --non-interactive --diff --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up"
+            - Run: cat $(pwd)/iac/stacks/src/monitor/Pulumi.yaml $(pwd)/iac/stacks/src/monitor/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/monitor --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/monitor --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/monitor --non-interactive --suppress-progress --diff --json
             - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitor --json > $(pwd)/_pulumi/monitor.json
             - Run: cat _pulumi/monitor.json
             - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitor --shell > $(pwd)/_pulumi/monitor.sh
             - Run: cat _pulumi/monitor.sh
+            - Run: 'echo "Deploying: Stack: paloma-nevada-http.current. CWD: $(pwd)/iac/stacks/src/domains/nevada/http. Output: _pulumi/domains_nevada_http."'
+            - Run: 'echo "name: paloma-nevada-http" >> $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.yaml'
+            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-nevada-http.current -C $(pwd)/iac/stacks/src/domains/nevada/http || true
+            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-nevada-http.current -C $(pwd)/iac/stacks/src/domains/nevada/http || true
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/http
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/http
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/http
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path frontend:stack.dns.hostnames[0] paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/http
+            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/http
+            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/domains/nevada/http --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/domains/nevada/http --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/domains/nevada/http --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/http --json > $(pwd)/_pulumi/domains_nevada_http.json
+            - Run: cat _pulumi/domains_nevada_http.json
+            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/http --shell > $(pwd)/_pulumi/domains_nevada_http.sh
+            - Run: cat _pulumi/domains_nevada_http.sh
+            - Run: 'echo "Deploying: Stack: paloma-nevada-web.current. CWD: $(pwd)/iac/stacks/src/domains/nevada/web. Output: _pulumi/domains_nevada_web."'
+            - Run: 'echo "name: paloma-nevada-web" >> $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.yaml'
+            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-nevada-web.current -C $(pwd)/iac/stacks/src/domains/nevada/web || true
+            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-nevada-web.current -C $(pwd)/iac/stacks/src/domains/nevada/web || true
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/web
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/web
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/web
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path frontend:stack.dns.hostnames[0] paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/web
+            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/web
+            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/domains/nevada/web --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/domains/nevada/web --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/domains/nevada/web --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/web --json > $(pwd)/_pulumi/domains_nevada_web.json
+            - Run: cat _pulumi/domains_nevada_web.json
+            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/web --shell > $(pwd)/_pulumi/domains_nevada_web.sh
+            - Run: cat _pulumi/domains_nevada_web.sh
+            - Run: 'echo "Deploying: Stack: paloma-nevada-monitor.current. CWD: $(pwd)/iac/stacks/src/domains/nevada/monitor. Output: _pulumi/domains_nevada_monitor."'
+            - Run: 'echo "name: paloma-nevada-monitor" >> $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.yaml'
+            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-nevada-monitor.current -C $(pwd)/iac/stacks/src/domains/nevada/monitor || true
+            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-nevada-monitor.current -C $(pwd)/iac/stacks/src/domains/nevada/monitor || true
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/monitor
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/monitor
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/monitor
+            - Run: /cc/cache/pulumi/bin/pulumi config set --path frontend:stack.dns.hostnames[0] paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/monitor
+            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/monitor
+            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.*.yaml || true;
+            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/domains/nevada/monitor --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/domains/nevada/monitor --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/domains/nevada/monitor --non-interactive --suppress-progress --diff --json
+            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/monitor --json > $(pwd)/_pulumi/domains_nevada_monitor.json
+            - Run: cat _pulumi/domains_nevada_monitor.json
+            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/monitor --shell > $(pwd)/_pulumi/domains_nevada_monitor.sh
+            - Run: cat _pulumi/domains_nevada_monitor.sh
             - Run: du -sh _pulumi
   Deployment:
     DependsOn:
@@ -501,14 +543,18 @@ Actions:
               Value: pnpm@9.15.4
             - Name: NODEJS_VERSION
               Value: 22.12.0
-            - Name: NX_CACHE_DIRECTORY
-              Value: /cc/cache/nodejs/nxcache
             - Name: NPM_REGISTRY_PROTOCOL_LEVICAPE
               Value: https
             - Name: NPM_REGISTRY_HOST_LEVICAPE
               Value: npm.pkg.github.com
             - Name: NODE_AUTH_TOKEN_LEVICAPE
               Value: ${Secrets.GITHUB_LEVICAPE_PAT}
+            - Name: NODE_NO_WARNINGS
+              Value: "1"
+            - Name: NPM_CONFIG_UPDATE_NOTIFIER
+              Value: "false"
+            - Name: NX_CACHE_DIRECTORY
+              Value: /cc/cache/nodejs/nxcache
             - Name: APPLICATION_IMAGE_NAME
               Value: paloma
             - Name: AWS_REGION
@@ -548,17 +594,17 @@ Actions:
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_http.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_http.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_web.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_web.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_monitor.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_monitor.sh
-            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
-            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
             - Run: env
             - Run: |-
-                NODE_NO_WARNINGS=1 node -e '(function(){let outputs=JSON.parse(process.env["paloma_codestar_ecr"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":outputs.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
+                node -e '(function(){let outputs=JSON.parse(process.env["paloma_codestar_ecr"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":outputs.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
                 `)})})()' > .ci-env
             - Run: cat .ci-env
             - Run: source .ci-env
@@ -580,7 +626,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"435db9fa09c4ad9b083fe1bd22aeb6dadc0323fba46fa63d7e475c7c22287352"}
-#**:_$~- {"$$":"footer","started":"2025-02-16T00:33:19.536Z","now":"2025-02-16T00:33:19.549Z","elapsed":"13ms"}
+#**:_$~- {"$$":"body","hashed":"3a41068bd533c1a08f04daac91666af9d0b675d9bfa47b70964a34e0016d9729"}
+#**:_$~- {"$$":"footer","started":"2025-02-19T07:55:20.162Z","now":"2025-02-19T07:55:20.172Z","elapsed":"10ms"}
 # END OF GENERATED FILE
 

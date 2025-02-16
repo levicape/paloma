@@ -13,16 +13,6 @@ catalogs:
     '@stricli/core':
       specifier: ^1.1.1
       version: 1.1.1
-  core:
-    std-env:
-      specifier: ^3.8.0
-      version: 3.8.0
-    yaml:
-      specifier: ^2.7.0
-      version: 2.7.0
-    zod:
-      specifier: ^3.24.1
-      version: 3.24.1
   database-sql:
     db0:
       specifier: ^0.2.4
@@ -45,8 +35,8 @@ catalogs:
       specifier: 0.9.0-main.20
       version: 0.9.0-main.20
     '@levicape/spork':
-      specifier: 0.5.1-main.8
-      version: 0.5.1-main.8
+      specifier: 0.5.2-main.9
+      version: 0.5.2-main.9
   dev:
     ts-node:
       specifier: ^10.9.2
@@ -149,6 +139,10 @@ catalogs:
     destr:
       specifier: ^2.0.3
       version: 2.0.3
+  parse-yaml:
+    yaml:
+      specifier: ^2.7.0
+      version: 2.7.0
   project-nx:
     nx:
       specifier: ^20.4.0
@@ -176,6 +170,14 @@ catalogs:
     '@pulumi/pulumi':
       specifier: ^3.147.0
       version: 3.147.0
+  runtime-env:
+    std-env:
+      specifier: ^3.8.0
+      version: 3.8.0
+  schema-zod:
+    zod:
+      specifier: ^3.24.1
+      version: 3.24.1
   types:
     '@types/better-sqlite3':
       specifier: ^7.6.12
@@ -285,7 +287,7 @@ importers:
         specifier: catalog:error
         version: 12.0.0
       std-env:
-        specifier: catalog:core
+        specifier: catalog:runtime-env
         version: 3.8.0
       verror:
         specifier: catalog:error
@@ -343,7 +345,7 @@ importers:
         specifier: catalog:id
         version: 3.0.0
       std-env:
-        specifier: catalog:core
+        specifier: catalog:runtime-env
         version: 3.8.0
       ts-proto:
         specifier: catalog:protobuf
@@ -377,7 +379,7 @@ importers:
         specifier: 'catalog:'
         version: 0.9.0-main.20(projen@0.71.163)
       yaml:
-        specifier: catalog:core
+        specifier: catalog:parse-yaml
         version: 2.7.0
 
   iac/stacks:
@@ -425,10 +427,10 @@ importers:
         specifier: catalog:error
         version: 1.10.1
       yaml:
-        specifier: catalog:core
+        specifier: catalog:parse-yaml
         version: 2.7.0
       zod:
-        specifier: catalog:core
+        specifier: catalog:schema-zod
         version: 3.24.1
     devDependencies:
       '@types/node':
@@ -451,7 +453,7 @@ importers:
         version: link:../..
       '@levicape/spork':
         specifier: 'catalog:'
-        version: 0.5.1-main.8(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.7.1))(hono@4.7.1)(jsonwebtoken@9.0.2)(zod@3.24.1)
+        version: 0.5.2-main.9(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.7.1))(hono@4.7.1)(jsonwebtoken@9.0.2)(zod@3.24.1)
       effect:
         specifier: catalog:effect
         version: 3.13.0
@@ -514,7 +516,7 @@ importers:
         specifier: catalog:http-express
         version: 3.0.0
       std-env:
-        specifier: catalog:core
+        specifier: catalog:runtime-env
         version: 3.8.0
       ulidx:
         specifier: catalog:id
@@ -1462,8 +1464,8 @@ packages:
     engines: {node: 22.12.0}
     hasBin: true
 
-  '@levicape/spork@0.5.1-main.8':
-    resolution: {integrity: sha512-+JupTT3xhLGbMgK9DJru98wnZl4BZpWUIrgWpttIL3UXZFV8OuSf0idOpbIwA5WC8dWIk2kQuv0699o/JJURmw==, tarball: https://npm.pkg.github.com/download/@levicape/spork/0.5.1-main.8/4df5f63566e7f49c2d625b8e4ba42edd3b56753a}
+  '@levicape/spork@0.5.2-main.9':
+    resolution: {integrity: sha512-f4l+X3awzCR/PvTc97y+1+bCZjsGaB6TLV7944+FcPR7VjinkxuESETE0VqqaL3eFJBJN2QdDgZeMnU50xrapQ==, tarball: https://npm.pkg.github.com/download/@levicape/spork/0.5.2-main.9/cb13370c781f418ab71456c858b5d00c32800b0b}
     engines: {node: 22.12.0}
     hasBin: true
     peerDependencies:
@@ -6740,7 +6742,7 @@ snapshots:
       - tedious
       - utf-8-validate
 
-  '@levicape/spork@0.5.1-main.8(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.7.1))(hono@4.7.1)(jsonwebtoken@9.0.2)(zod@3.24.1)':
+  '@levicape/spork@0.5.2-main.9(@bufbuild/protobuf@2.2.3)(@hono/node-server@1.13.8(hono@4.7.1))(hono@4.7.1)(jsonwebtoken@9.0.2)(zod@3.24.1)':
     dependencies:
       '@aws-lambda-powertools/logger': 2.14.0
       '@aws-sdk/client-dynamodb': 3.744.0
@@ -6759,6 +6761,7 @@ snapshots:
       '@stricli/core': 1.1.1
       chokidar: 4.0.3
       consola: 3.4.0
+      dotenv: 16.4.7
       effect: 3.13.0
       hono: 4.7.1
       hono-rate-limiter: 0.4.2(hono@4.7.1)

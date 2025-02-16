@@ -1,4 +1,5 @@
-description: State bucket and associated SSM parameters
+description: | 
+  Lambda http handler, cloudmap service
 runtime:
   name: nodejs
   options:

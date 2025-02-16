@@ -2,7 +2,7 @@
   "name": "iac-development",
   "dependencies": {
     "@levicape/fourtwo": "catalog:",
-    "yaml": "catalog:core"
+    "yaml": "catalog:parse-yaml"
   },
   "private": "true",
   "type": "module"

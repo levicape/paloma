@@ -38,10 +38,12 @@ import { StringAsset } from "@pulumi/pulumi/asset/asset";
 import { serializeError } from "serialize-error";
 import { stringify } from "yaml";
 import type { z } from "zod";
-import { $deref, type DereferencedOutput } from "../Stack";
-import { PalomaCodestarStackExportsZod } from "../codestar/exports";
-import { PalomaDatalayerStackExportsZod } from "../datalayer/exports";
-import { PalomaMonitorStackExportsZod } from "./exports";
+import { $deref, type DereferencedOutput } from "../../../Stack";
+import { PalomaCodestarStackExportsZod } from "../../../codestar/exports";
+import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
+import { PalomaNevadaHttpStackExportsZod } from "../http/exports";
+import { PalomaNevadaWebStackExportsZod } from "../web/exports";
+import { PalomaNevadaMonitorStackExportsZod } from "./exports";
 
 const WORKSPACE_PACKAGE_NAME = "@levicape/paloma";
 
@@ -51,25 +53,25 @@ const LLRT_PLATFORM: "node" | "browser" | undefined = LLRT_ARCH
 	: undefined;
 
 const ENVIRONMENT = (
-	_$refs: DereferencedOutput<typeof STACKREF_CONFIG>["paloma"],
+	$refs: DereferencedOutput<typeof STACKREF_CONFIG>["fourtwo"],
 ) => {
-	return {} as const;
+	const { "nevada-http": nevada_http, "nevada-web": nevada_web } = $refs;
+	return {
+		NEVADA_HTTP_ROUTEMAP: nevada_http?.routemap,
+		NEVADA_HTTP_CLOUDMAP_NAMESPACE: nevada_http?.cloudmap?.namespace?.name,
+		NEVADA_HTTP_CLOUDMAP_SERVICE: nevada_http?.cloudmap?.service?.name,
+		NEVADA_WEB_S3: nevada_web?.s3?.staticwww?.public,
+		NEVADA_WEB_S3_ENDPOINT: nevada_web?.s3?.staticwww?.public?.websiteEndpoint,
+	} as const;
 };
 
 const OUTPUT_DIRECTORY = `output/esbuild`;
 const CANARY_PATHS = [
 	{
-		name: "execution",
-		description: "Tests basic Paloma state machine execution",
-		packageName: "@levicape/paloma-examples-canaryexecution",
-		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/harness.LambdaHandler`,
-		environment: ENVIRONMENT,
-	},
-	{
-		name: "promise_activity",
-		description: "Tests Paloma runtime PromiseActivity execution",
-		packageName: "@levicape/paloma-examples-canaryexecution",
-		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/PromiseActivity.handler`,
+		name: "HttpHandler",
+		description: "Tests Nevada http handlers",
+		packageName: "@levicape/paloma-nevada-io",
+		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/Http.handler`,
 		environment: ENVIRONMENT,
 	},
 ] as const;
@@ -97,6 +99,19 @@ const STACKREF_CONFIG = {
 					PalomaDatalayerStackExportsZod.shape.paloma_datalayer_cloudmap,
 			},
 		},
+		["nevada-web"]: {
+			refs: {
+				s3: PalomaNevadaWebStackExportsZod.shape.paloma_nevada_web_s3,
+			},
+		},
+		["nevada-http"]: {
+			refs: {
+				cloudmap:
+					PalomaNevadaHttpStackExportsZod.shape.paloma_nevada_http_cloudmap,
+				routemap:
+					PalomaNevadaHttpStackExportsZod.shape.paloma_nevada_http_routemap,
+			},
+		},
 	},
 } as const;
 
@@ -109,7 +124,12 @@ export = async () => {
 
 	// Stack references
 	const dereferenced$ = await $deref(STACKREF_CONFIG);
-	const { codestar: __codestar, datalayer: __datalayer } = dereferenced$;
+	const {
+		codestar: __codestar,
+		datalayer: __datalayer,
+		"nevada-http": __nevada_http,
+		"nevada-web": __nevada_web,
+	} = dereferenced$;
 
 	// Object Store
 	const s3 = (() => {
@@ -1617,35 +1637,39 @@ export = async () => {
 		eventbridgeRulesOutput,
 	]).apply(
 		([
-			paloma_monitor_s3,
-			paloma_monitor_cloudwatch,
-			paloma_monitor_lambda,
-			paloma_monitor_codebuild,
-			paloma_monitor_codepipeline,
-			paloma_monitor_eventbridge,
+			paloma_nevada_monitor_s3,
+			paloma_nevada_monitor_cloudwatch,
+			paloma_nevada_monitor_lambda,
+			paloma_nevada_monitor_codebuild,
+			paloma_nevada_monitor_codepipeline,
+			paloma_nevada_monitor_eventbridge,
 		]) => {
 			const exported = {
-				paloma_monitor_imports: {
+				paloma_nevada_monitor_imports: {
 					paloma: {
 						codestar: __codestar,
 						datalayer: __datalayer,
+						nevada_http: __nevada_http,
+						nevada_web: __nevada_web,
 					},
 				},
-				paloma_monitor_s3,
-				paloma_monitor_cloudwatch,
-				paloma_monitor_lambda,
-				paloma_monitor_codebuild,
-				paloma_monitor_codepipeline,
-				paloma_monitor_eventbridge,
-			} satisfies z.infer<typeof PalomaMonitorStackExportsZod> & {
-				paloma_monitor_imports: {
+				paloma_nevada_monitor_s3,
+				paloma_nevada_monitor_cloudwatch,
+				paloma_nevada_monitor_lambda,
+				paloma_nevada_monitor_codebuild,
+				paloma_nevada_monitor_codepipeline,
+				paloma_nevada_monitor_eventbridge,
+			} satisfies z.infer<typeof PalomaNevadaMonitorStackExportsZod> & {
+				paloma_nevada_monitor_imports: {
 					paloma: {
 						codestar: typeof __codestar;
 						datalayer: typeof __datalayer;
+						nevada_http: typeof __nevada_http;
+						nevada_web: typeof __nevada_web;
 					};
 				};
 			};
-			const validate = PalomaMonitorStackExportsZod.safeParse(exported);
+			const validate = PalomaNevadaMonitorStackExportsZod.safeParse(exported);
 			if (!validate.success) {
 				process.stderr.write(
 					`Validation failed: ${JSON.stringify(validate.error, null, 2)}`,

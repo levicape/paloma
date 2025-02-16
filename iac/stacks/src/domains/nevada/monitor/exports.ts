@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const PalomaMonitorStackExportsZod = z.object({
-	paloma_monitor_cloudwatch: z.object({
+export const PalomaNevadaMonitorStackExportsZod = z.object({
+	paloma_nevada_monitor_cloudwatch: z.object({
 		build: z.object({
 			logGroup: z.object({
 				arn: z.string(),
@@ -9,7 +9,7 @@ export const PalomaMonitorStackExportsZod = z.object({
 			}),
 		}),
 	}),
-	paloma_monitor_s3: z.object({
+	paloma_nevada_monitor_s3: z.object({
 		artifacts: z.object({
 			bucket: z.string(),
 			region: z.string(),
@@ -19,7 +19,7 @@ export const PalomaMonitorStackExportsZod = z.object({
 			region: z.string(),
 		}),
 	}),
-	paloma_monitor_codebuild: z.record(
+	paloma_nevada_monitor_codebuild: z.record(
 		z.object({
 			extractimage: z.object({
 				buildspec: z.object({
@@ -43,7 +43,7 @@ export const PalomaMonitorStackExportsZod = z.object({
 			}),
 		}),
 	),
-	paloma_monitor_codepipeline: z.object({
+	paloma_nevada_monitor_codepipeline: z.object({
 		pipeline: z.object({
 			arn: z.string(),
 			name: z.string(),
@@ -64,7 +64,7 @@ export const PalomaMonitorStackExportsZod = z.object({
 			),
 		}),
 	}),
-	paloma_monitor_eventbridge: z.record(
+	paloma_nevada_monitor_eventbridge: z.record(
 		z.object({
 			targets: z.record(
 				z.object({
@@ -80,7 +80,7 @@ export const PalomaMonitorStackExportsZod = z.object({
 			),
 		}),
 	),
-	paloma_monitor_lambda: z.record(
+	paloma_nevada_monitor_lambda: z.record(
 		z.object({
 			codedeploy: z.object({
 				deploymentGroup: z.object({

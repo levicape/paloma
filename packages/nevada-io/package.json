@@ -11,7 +11,7 @@
     "protocols": "./src/_protocols",
     "models": "./src/_models",
     "server": "module/http/PalomaNevadaHonoApp.mjs",
-    "httpcanary": "module/canary/HttpCanary.mjs",
+    "httpcanary": "module/canary/Http.mjs",
     "port": "64128"
   },
   "dependencies": {

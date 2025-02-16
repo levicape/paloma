@@ -36,7 +36,7 @@
     "pino": "catalog:log-pino",
     "pino-pretty": "catalog:log-pino",
     "serialize-error": "catalog:error",
-    "std-env": "catalog:core",
+    "std-env": "catalog:runtime-env",
     "verror": "catalog:error"
   },
   "devDependencies": {

@@ -20,7 +20,7 @@
     "@levicape/paloma": "workspace:",
     "effect": "catalog:effect",
     "ksuid": "catalog:id",
-    "std-env": "catalog:core",
+    "std-env": "catalog:runtime-env",
     "ts-proto": "catalog:protobuf",
     "verror": "catalog:error"
   },
