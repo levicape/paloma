@@ -19,7 +19,7 @@ const { trace } = await Effect.runPromise(
 	),
 );
 
-export const healthcheck = new Canary(
+const healthcheck = new Canary(
 	"httpcanary-healthcheck",
 	{},
 	new PromiseActivity(
@@ -63,3 +63,5 @@ export const healthcheck = new Canary(
 		},
 	),
 );
+
+export const handler = healthcheck;

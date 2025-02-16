@@ -13,6 +13,7 @@ import {
 	CODECATALYST_CI_MATRIX,
 	type CodeCatalystWorkflowProps,
 } from "../CodeCatalystMatrix.mts";
+import { CODECATALYST_PULUMI_STACKS } from "../PulumiStacks.mts";
 
 const APPLICATION = "paloma";
 const PUSH_IMAGE_ECR_STACK_OUTPUT = "paloma_codestar_ecr";
@@ -100,34 +101,6 @@ const OUTPUT_PULUMI_PATH = "_pulumi" as const;
 const OUTPUT_IMAGES = [
 	["application.tar.gz", "$APPLICATION_IMAGE_NAME"],
 ] as const;
-
-const PULUMI_STACKS: Array<{
-	stack: string;
-	output: string;
-	name?: string;
-}> = [
-	{
-		stack: "codestar",
-	},
-	{
-		stack: "datalayer",
-	},
-	{
-		stack: "domains/nevada/http",
-		name: "nevada-http",
-	},
-	{
-		stack: "domains/nevada/web",
-		name: "nevada-web",
-	},
-	{
-		stack: "domains/nevada/monitor",
-		name: "nevada-monitor",
-	},
-	{
-		stack: "monitor",
-	},
-].map((stack) => ({ ...stack, output: stack.stack.replaceAll("/", "_") }));
 
 const input = (name: `_${string}`) => `$CATALYST_SOURCE_DIR${name}/${name}`;
 
@@ -485,7 +458,7 @@ const cicd = <Preview extends boolean, Deploy extends boolean>(
 														<CodeCatalystStepX
 															run={`mkdir ${OUTPUT_PULUMI_PATH}`}
 														/>
-														{...PULUMI_STACKS.flatMap(
+														{...CODECATALYST_PULUMI_STACKS.flatMap(
 															({ stack, name, output }) => (
 																<>
 																	<CodeCatalystStepX
@@ -592,16 +565,18 @@ const cicd = <Preview extends boolean, Deploy extends boolean>(
 														<CodeCatalystStepX
 															run={`ls -la ${input(OUTPUT_PULUMI_PATH)}`}
 														/>
-														{...PULUMI_STACKS.flatMap(({ output }) => (
-															<>
-																<CodeCatalystStepX
-																	run={`cat ${input(OUTPUT_PULUMI_PATH)}/${output}.sh`}
-																/>
-																<CodeCatalystStepX
-																	run={`source ${input(OUTPUT_PULUMI_PATH)}/${output}.sh`}
-																/>
-															</>
-														))}
+														{...CODECATALYST_PULUMI_STACKS.flatMap(
+															({ output }) => (
+																<>
+																	<CodeCatalystStepX
+																		run={`cat ${input(OUTPUT_PULUMI_PATH)}/${output}.sh`}
+																	/>
+																	<CodeCatalystStepX
+																		run={`source ${input(OUTPUT_PULUMI_PATH)}/${output}.sh`}
+																	/>
+																</>
+															),
+														)}
 														<CodeCatalystStepX run={"env"} />
 														<CodeCatalystStepX
 															run={`NODE_NO_WARNINGS=1 node -e '(${
