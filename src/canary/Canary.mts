@@ -115,7 +115,7 @@ export class Canary extends Function {
 				throw new VError("Could not get caller from stack trace");
 			}
 			const MATCH_INDEX =
-				[...match].length < 4 ? Math.max(Math.max(match.length - 1, 0), 2) : 3;
+				[...match].length < 2 ? Math.max(Math.max(match.length - 1, 0), 1) : 2;
 			const path = match[MATCH_INDEX]?.split(":").at(-3) ?? ("" as string);
 			let hash: string;
 			const jsuniversalpath = path
