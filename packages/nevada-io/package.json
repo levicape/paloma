@@ -1,16 +1,20 @@
 {
   "name": "@levicape/paloma-nevada-io",
   "version": "0.0.0-local.0",
+  "author": "Pedro Cardona",
   "config": {
     "packagemanager": "pnpm",
     "packageexecutor": "pnpm exec",
+    "packagescript": "pnpm run",
+    "binspork": "pnpm exec spork",
+    "binatlas": "node module/canary/Atlas.mjs",
     "outpath": "./module",
     "srcpaths": "./src",
     "lintpaths": "./src",
     "i18n": "./src/_i18n",
     "protocols": "./src/_protocols",
     "models": "./src/_models",
-    "server": "module/http/PalomaNevadaHonoApp.mjs",
+    "server": "module/http/HonoApp.mjs",
     "httpcanary": "module/canary/Http.mjs",
     "port": "64128"
   },
@@ -18,6 +22,7 @@
     "@bufbuild/protobuf": "catalog:protobuf",
     "@levicape/paloma": "workspace:",
     "@levicape/spork": "catalog:",
+    "@levicape/spork-atlas": "catalog:",
     "effect": "catalog:effect",
     "hono": "catalog:hono",
     "ts-proto": "catalog:protobuf"
@@ -26,15 +31,24 @@
     "@biomejs/biome": "catalog:lint",
     "@types/node": "catalog:types",
     "publint": "catalog:package",
-    "syncpack": "catalog:package",
+    "ts-proto": "catalog:protobuf",
     "typescript": "catalog:dev"
+  },
+  "engines": {
+    "node": "22"
   },
   "files": [
     "module",
     "output"
   ],
+  "license": "AGPL-3.0-only",
   "nx": {
     "targets": {
+      "atlas": {
+        "dependsOn": [
+          "build:module"
+        ]
+      },
       "build:module": {
         "dependsOn": [
           "build:tsc"
@@ -98,6 +112,7 @@
   },
   "repository": "github:levicape/paloma",
   "scripts": {
+    "atlas": "$npm_package_config_binatlas",
     "build": "$npm_package_config_packageexecutor nx nx:compile",
     "build:tsc": "$npm_package_config_packageexecutor tsc",
     "clean": "$npm_package_config_packageexecutor nx nx:clean --verbose --no-cloud",
@@ -112,11 +127,10 @@
     "generate:protocols": "NODE_NO_WARNINGS=1 NPM_CONFIG_UPDATE_NOTIFIER=false $npm_package_config_packageexecutor spork code gen --root \"../../protocols\" --command \"$(which $npm_package_config_packagemanager) --silent run build\" --artifact gen --destination $npm_package_config_protocols --clean",
     "http:canary": "node $npm_package_config_httpcanary",
     "http:dev": "rm nohup.out || true; nohup $npm_package_config_packageexecutor tsc -w & echo $! > .pidfile.tsc && LOG_LEVEL=5 pnpm run http:start --watch module; kill $(cat .pidfile.tsc) || true; rm -f .pidfile.tsc || true",
-    "http:start": "pnpm exec spork server start $npm_package_config_server --port ${PORT:-64128}",
+    "http:start": "$npm_package_config_binspork server start $npm_package_config_server --port ${PORT:-64128}",
     "lint": "$npm_package_config_packageexecutor biome check $npm_package_config_srcpaths",
     "lint:format": "$npm_package_config_packageexecutor biome check --write $npm_package_config_srcpaths",
     "lint:unsafe": "$npm_package_config_packageexecutor biome check --write --unsafe $npm_package_config_srcpaths",
-    "lint:write": "$npm_package_config_packageexecutor biome check --write $npm_package_config_srcpaths",
     "package:deps": "$npm_package_config_packageexecutor nx exec -- depcheck",
     "package:fix": "$npm_package_config_packageexecutor nx exec -- syncpack fix-mismatches",
     "package:format": "$npm_package_config_packageexecutor nx exec -- syncpack format",
@@ -125,6 +139,7 @@
     "predx:lint": "$npm_package_config_packageexecutor nx clean",
     "prelint": "$npm_package_config_packageexecutor nx exec -- biome format $npm_package_config_lintpaths",
     "prepublish": "$npm_package_config_packageexecutor nx exec -- publint --strict",
+    "start": "$npm_package_config_packageexecutor spork server start $npm_package_config_server --port $PORT",
     "test": "$npm_package_config_packageexecutor nx nx:test --verbose --no-cloud",
     "test:module": "echo 'node --test  \"module/**/*.test.js\"'"
   },

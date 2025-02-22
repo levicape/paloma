@@ -9,3 +9,5 @@ export const { server, handler } = await SporkHonoHttpServer((app) =>
 		}),
 	),
 );
+
+export type NevadaHonoApp = typeof server.app;

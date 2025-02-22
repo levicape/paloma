@@ -1,16 +1,11 @@
+import assert from "node:assert";
 import { Canary, PromiseActivity } from "@levicape/paloma";
 import {
 	LoggingContext,
 	RuntimeContext,
 } from "@levicape/paloma/runtime/server/RuntimeContext";
 import { Effect } from "effect";
-import { hc } from "hono/client";
-import type { NevadaHonoApp } from "../http/HonoApp.mjs";
-import { NevadaIoRoutemap } from "./Atlas.mjs";
-
-const client = hc<NevadaHonoApp>(NevadaIoRoutemap["/~/v1/Paloma/Nevada"].url());
-// @ts-ignore
-const { Nevada } = client["~"].v1.Paloma;
+import { NevadaUiRoutemap } from "./Atlas.mjs";
 
 const { trace } = await Effect.runPromise(
 	Effect.provide(
@@ -28,7 +23,7 @@ const { trace } = await Effect.runPromise(
 
 trace
 	.withMetadata({
-		Nevada,
+		NevadaUiRoutemap,
 	})
 	.info("Loaded service clients");
 
@@ -64,15 +59,13 @@ export const healthcheck = new Canary(
 		},
 		async ({ events }) => {
 			trace.warn("Hello world");
-			trace.metadataOnly([
-				events,
-				{ a: 1, b: "Y" },
-				Nevada.test123.$url({}),
-				{ a: "Z", b: 2 },
-			]);
-			const response = await Nevada.test123.$get({});
-			const json = await response.json();
-			trace.withMetadata({ json }).info("Fetched");
+			trace.metadataOnly([events, NevadaUiRoutemap["/"].url()]);
+			{
+				const response = await fetch(NevadaUiRoutemap["/"].url());
+				const json = await response.text();
+				trace.withMetadata({ json }).info("Fetched");
+				assert(response.ok, `Response not ok: ${response.status}`);
+			}
 		},
 	),
 );

@@ -114,9 +114,35 @@ export class Canary extends Function {
 			if (!match) {
 				throw new VError("Could not get caller from stack trace");
 			}
-			const path = match[1].split(":").at(-3) as string;
-			const contents = readFileSync(path, "utf8");
-			const hash = createHash("sha256").update(contents).digest("hex");
+			const MATCH_INDEX =
+				[...match].length < 4 ? Math.max(Math.max(match.length - 1, 0), 2) : 3;
+			const path = match[MATCH_INDEX]?.split(":").at(-3) ?? ("" as string);
+			let hash: string;
+			const jsuniversalpath = path
+				.replace(/\.mts$/, ".mjs")
+				.replace(/\.cts$/, ".cjs")
+				.replace(/\.ts$/, ".js");
+			try {
+				hash = `sourcejs:${createHash("sha256").update(readFileSync(path, "utf8")).digest("hex")}`;
+			} catch (e: unknown) {
+				try {
+					hash = `sourcets:${createHash("sha256").update(readFileSync(path, "utf8")).digest("hex")}`;
+				} catch (e: unknown) {
+					hash = `name:${createHash("sha256").update(name).digest("hex")}`;
+
+					trace
+						.withMetadata({
+							hash,
+							jsuniversalpath,
+							path,
+						})
+						.withError(deserializeError(e))
+						.error(
+							"Could not calculate code hash, falling back to hashed Canary name",
+						);
+				}
+			}
+
 			return {
 				name,
 				hash,
