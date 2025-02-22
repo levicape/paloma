@@ -8,8 +8,8 @@ catalog:
   "@levicape/fourtwo": "0.9.1-main.21"
   "@levicape/fourtwo-pulumi": "0.9.1-main.21"
   "@levicape/fourtwo-builders": "0.9.1-main.21"
-  "@levicape/spork": "0.6.2-main.14"
-  "@levicape/spork-atlas": "0.6.2-main.14"
+  "@levicape/spork": "0.6.3-main.15"
+  "@levicape/spork-atlas": "0.6.3-main.15"
 
 
 
