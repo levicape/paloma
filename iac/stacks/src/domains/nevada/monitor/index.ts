@@ -38,6 +38,7 @@ import { StringAsset } from "@pulumi/pulumi/asset/asset";
 import { serializeError } from "serialize-error";
 import { stringify } from "yaml";
 import type { z } from "zod";
+import { AwsCodeBuildContainerRoundRobin } from "../../../RoundRobin";
 import { $deref, type DereferencedOutput } from "../../../Stack";
 import { PalomaCodestarStackExportsZod } from "../../../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
@@ -53,16 +54,18 @@ const LLRT_PLATFORM: "node" | "browser" | undefined = LLRT_ARCH
 	: undefined;
 
 const ENVIRONMENT = (
-	$refs: DereferencedOutput<typeof STACKREF_CONFIG>["fourtwo"],
+	$refs: DereferencedOutput<typeof STACKREF_CONFIG>["paloma"],
 ) => {
-	const { "nevada-http": nevada_http, "nevada-web": nevada_web } = $refs;
+	return {} as const;
+};
+
+const ROUTE_MAP = ({
+	"nevada-http": { routemap: nevada_http },
+	// "nevada-web": { routemap: nevada_web },
+}: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT]) => {
 	return {
-		NEVADA_HTTP_ROUTEMAP: nevada_http?.routemap,
-		NEVADA_HTTP_CLOUDMAP_NAMESPACE: nevada_http?.cloudmap?.namespace?.name,
-		NEVADA_HTTP_CLOUDMAP_SERVICE: nevada_http?.cloudmap?.service?.name,
-		NEVADA_WEB_S3: nevada_web?.s3?.staticwww?.public,
-		NEVADA_WEB_S3_ENDPOINT: nevada_web?.s3?.staticwww?.public?.websiteEndpoint,
-	} as const;
+		...nevada_http,
+	};
 };
 
 const OUTPUT_DIRECTORY = `output/esbuild`;
@@ -73,6 +76,15 @@ const CANARY_PATHS = [
 		packageName: "@levicape/paloma-nevada-io",
 		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/Http.handler`,
 		environment: ENVIRONMENT,
+		routemap: ROUTE_MAP,
+	},
+	{
+		name: "Ui",
+		description: "Tests Nevada UI",
+		packageName: "@levicape/paloma-nevada-ui",
+		handler: `${LLRT_ARCH ? OUTPUT_DIRECTORY : "module"}/canary/StaticWWW.handler`,
+		environment: ENVIRONMENT,
+		routemap: ROUTE_MAP,
 	},
 ] as const;
 
@@ -115,6 +127,8 @@ const STACKREF_CONFIG = {
 	},
 } as const;
 
+const ATLASFILE_PATH = `atlasfile.json`;
+
 export = async () => {
 	const context = await Context.fromConfig();
 	const _ = (name?: string) =>
@@ -124,12 +138,7 @@ export = async () => {
 
 	// Stack references
 	const dereferenced$ = await $deref(STACKREF_CONFIG);
-	const {
-		codestar: __codestar,
-		datalayer: __datalayer,
-		"nevada-http": __nevada_http,
-		"nevada-web": __nevada_web,
-	} = dereferenced$;
+	const { codestar: __codestar, datalayer: __datalayer } = dereferenced$;
 
 	// Object Store
 	const s3 = (() => {
@@ -215,7 +224,64 @@ export = async () => {
 		};
 	})();
 
+	// Bucket objects
+	const zip = new BucketObjectv2(_(`codezip`), {
+		bucket: s3.artifacts.bucket,
+		source: new AssetArchive({
+			"index.js": new StringAsset(
+				`export const handler = (${(
+					// @ts-ignore
+					(_event, context) => {
+						const {
+							functionName,
+							functionVersion,
+							getRemainingTimeInMillis,
+							invokedFunctionArn,
+							memoryLimitInMB,
+							awsRequestId,
+							logGroupName,
+							logStreamName,
+							identity,
+							clientContext,
+							deadline,
+						} = context;
+
+						console.log({
+							functionName,
+							functionVersion,
+							getRemainingTimeInMillis,
+							invokedFunctionArn,
+							memoryLimitInMB,
+							awsRequestId,
+							logGroupName,
+							logStreamName,
+							identity,
+							clientContext,
+							deadline,
+						});
+
+						return {
+							statusCode: 200,
+							body: JSON.stringify({
+								message: "Hello from Lambda!",
+							}),
+						};
+					}
+				).toString()})`,
+			),
+		}),
+		contentType: "application/zip",
+		key: `monitor.zip`,
+		tags: {
+			Name: _(`codezip`),
+			StackRef: STACKREF_ROOT,
+			PackageName: WORKSPACE_PACKAGE_NAME,
+			Handler: "Monitor",
+		},
+	});
+
 	// Compute
+	const HANDLER_TYPE = "monitorhandler" as const;
 	const handler = async (
 		{
 			name,
@@ -223,6 +289,7 @@ export = async () => {
 			packageName,
 			handler,
 			environment,
+			routemap,
 		}: (typeof CANARY_PATHS)[number],
 		{
 			datalayer,
@@ -296,63 +363,8 @@ export = async () => {
 			AWS_CLOUDMAP_NAMESPACE_NAME: datalayer.cloudmap.namespace.name,
 		};
 
-		const zip = new BucketObjectv2(_(`${name}-zip`), {
-			bucket: s3.artifacts.bucket,
-			source: new AssetArchive({
-				"index.js": new StringAsset(
-					`export const handler = (${(
-						// @ts-ignore
-						(_event, context) => {
-							const {
-								functionName,
-								functionVersion,
-								getRemainingTimeInMillis,
-								invokedFunctionArn,
-								memoryLimitInMB,
-								awsRequestId,
-								logGroupName,
-								logStreamName,
-								identity,
-								clientContext,
-								deadline,
-							} = context;
-
-							console.log({
-								functionName,
-								functionVersion,
-								getRemainingTimeInMillis,
-								invokedFunctionArn,
-								memoryLimitInMB,
-								awsRequestId,
-								logGroupName,
-								logStreamName,
-								identity,
-								clientContext,
-								deadline,
-							});
-
-							return {
-								statusCode: 200,
-								body: JSON.stringify({
-									message: "Hello from Lambda!",
-								}),
-							};
-						}
-					).toString()})`,
-				),
-			}),
-			contentType: "application/zip",
-			key: "monitor.zip",
-			tags: {
-				Name: _(`${name}-monitor`),
-				StackRef: STACKREF_ROOT,
-				PackageName: WORKSPACE_PACKAGE_NAME,
-				Handler: "Monitor",
-				Monitor: name,
-				MonitorPackageName: packageName,
-			},
-		});
 		const memorySize = context.environment.isProd ? 512 : 256;
+		const timeout = context.environment.isProd ? 93 : 55;
 		const lambda = new LambdaFn(
 			_(`${name}`),
 			{
@@ -360,7 +372,7 @@ export = async () => {
 				role: roleArn,
 				architectures: ["arm64"],
 				memorySize,
-				timeout: 93,
+				timeout,
 				packageType: "Zip",
 				runtime: LLRT_ARCH ? Runtime.CustomAL2023 : Runtime.NodeJS22dX,
 				handler: "index.handler",
@@ -384,15 +396,20 @@ export = async () => {
 				environment: all([cloudmapEnvironment]).apply(([cloudmapEnv]) => {
 					return {
 						variables: {
-							...cloudmapEnv,
+							NODE_OPTIONS: [
+								"--no-force-async-hooks-checks",
+								"--enable-source-maps",
+							].join(" "),
 							NODE_ENV: "production",
 							LOG_LEVEL: "5",
 							...(LLRT_PLATFORM
 								? {
 										LLRT_PLATFORM,
-										LLRT_GC_THRESHOLD_MB: String(memorySize / 4),
+										LLRT_GC_THRESHOLD_MB: String(memorySize / 2),
 									}
 								: {}),
+							ATLAS_ROUTES: `file://$LAMBDA_TASK_ROOT/${HANDLER_TYPE}/${ATLASFILE_PATH}`,
+							...cloudmapEnv,
 							...(environment !== undefined && typeof environment === "function"
 								? Object.fromEntries(
 										Object.entries(environment(dereferenced$))
@@ -529,7 +546,7 @@ export = async () => {
 					new CodeDeployAppspecBuilder()
 						.setResources([
 							{
-								httphandler: new CodeDeployAppspecResourceBuilder()
+								[HANDLER_TYPE]: new CodeDeployAppspecResourceBuilder()
 									.setName(props.name)
 									.setAlias(props.alias)
 									.setCurrentVersion(props.currentVersion)
@@ -544,7 +561,7 @@ export = async () => {
 			};
 
 			const project = (() => {
-				const PIPELINE_STAGE = "monitorhandler" as const;
+				const PIPELINE_STAGE = HANDLER_TYPE;
 				const EXTRACT_ACTION = "extractimage" as const;
 				const UPDATE_ACTION = "updatelambda" as const;
 
@@ -570,6 +587,7 @@ export = async () => {
 							S3_DEPLOY_KEY: "<S3_DEPLOY_KEY>",
 							CANARY_NAME: "<CANARY_NAME>",
 							PACKAGE_NAME: "<PACKAGE_NAME>",
+							ATLASFILE_OBJECT_KEY: "<ATLASFILE_OBJECT_KEY>",
 						},
 						exportedVariables: [
 							"STACKREF_CODESTAR_ECR_REPOSITORY_ARN",
@@ -581,7 +599,7 @@ export = async () => {
 						] as string[],
 						environment: {
 							type: "ARM_CONTAINER",
-							computeType: "BUILD_GENERAL1_SMALL",
+							computeType: AwsCodeBuildContainerRoundRobin.next().value,
 							image: "aws/codebuild/amazonlinux-aarch64-standard:3.0",
 							environmentVariables: [
 								{
@@ -629,6 +647,11 @@ export = async () => {
 									value: "<PACKAGE_NAME>",
 									type: "PLAINTEXT",
 								},
+								{
+									name: "ATLASFILE_OBJECT_KEY",
+									value: "<ATLASFILE_OBJECT_KEY>",
+									type: "PLAINTEXT",
+								},
 							] as { name: string; value: string; type: "PLAINTEXT" }[],
 						},
 						phases: {
@@ -638,7 +661,7 @@ export = async () => {
 								`aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $STACKREF_CODESTAR_ECR_REPOSITORY_URL`,
 								"docker pull $SOURCE_IMAGE_URI",
 								"docker images",
-								// node_module
+								// extract module
 								[
 									...[
 										"docker run",
@@ -694,6 +717,13 @@ export = async () => {
 											`rm -rf $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${OUTPUT_DIRECTORY} || true`,
 											`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
 										]),
+								// atlasfile
+								`echo "Rendering Atlasfile"`,
+								`echo "s3://$ATLASFILE_OBJECT_KEY"`,
+								`aws s3 cp s3://$ATLASFILE_OBJECT_KEY $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${ATLASFILE_PATH}`,
+								`cat $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${ATLASFILE_PATH}`,
+								// deploy key
+								`echo "Rendering deploy key to .deploykey"`,
 								`NODE_NO_WARNINGS=1 node -e '(${(
 									// biome-ignore lint/complexity/useArrowFunction:
 									function () {
@@ -735,10 +765,9 @@ export = async () => {
 						},
 						exportedVariables: undefined as string[] | undefined,
 						environment: {
-							type: "ARM_LAMBDA_CONTAINER",
-							computeType: "BUILD_LAMBDA_2GB",
-							image:
-								"aws/codebuild/amazonlinux-aarch64-lambda-standard:nodejs20",
+							type: "ARM_CONTAINER",
+							computeType: AwsCodeBuildContainerRoundRobin.next().value,
+							image: "aws/codebuild/amazonlinux-aarch64-standard:3.0",
 							environmentVariables: [
 								{
 									name: "SOURCE_IMAGE_REPOSITORY",
@@ -970,8 +999,29 @@ export = async () => {
 			} as const;
 		})();
 
+		const atlasfile = (() => {
+			const content = JSON.stringify(routemap(dereferenced$));
+			const object = new BucketObjectv2(_(`${name}-atlasfile`), {
+				bucket: s3.artifacts.bucket,
+				source: new StringAsset(content),
+				contentType: "application/json",
+				key: `${name}/${ATLASFILE_PATH}`,
+				tags: {
+					Name: _(`${name}-atlasfile`),
+					StackRef: STACKREF_ROOT,
+					PackageName: WORKSPACE_PACKAGE_NAME,
+				},
+			});
+
+			return {
+				object,
+				content,
+			};
+		})();
+
 		return {
 			role: datalayer.props.lambda.role,
+			atlasfile,
 			cloudwatch: {
 				loggroup,
 			},
@@ -1051,7 +1101,10 @@ export = async () => {
 					{
 						name: "MonitorHandler",
 						actions: Object.entries(canary).flatMap(
-							([name, { codebuild, lambda, codedeploy, environment }]) => {
+							([
+								name,
+								{ codebuild, lambda, codedeploy, environment, atlasfile },
+							]) => {
 								return [
 									{
 										runOrder: 1,
@@ -1071,6 +1124,8 @@ export = async () => {
 											__codestar.ecr.repository.url,
 											codebuild.extractimage.project.name,
 											s3.artifacts.bucket,
+											atlasfile.object.bucket,
+											atlasfile.object.key,
 										]).apply(
 											([
 												repositoryArn,
@@ -1078,6 +1133,8 @@ export = async () => {
 												repositoryUrl,
 												projectExtractImageName,
 												artifactBucketName,
+												atlasfileBucketName,
+												atlasfileObjectKey,
 											]) => {
 												return {
 													ProjectName: projectExtractImageName,
@@ -1125,6 +1182,11 @@ export = async () => {
 														{
 															name: "PACKAGE_NAME",
 															value: environment.PACKAGE_NAME,
+															type: "PLAINTEXT",
+														},
+														{
+															name: "ATLASFILE_OBJECT_KEY",
+															value: `${atlasfileBucketName}/${atlasfileObjectKey}`,
 															type: "PLAINTEXT",
 														},
 													]),
@@ -1649,8 +1711,8 @@ export = async () => {
 					paloma: {
 						codestar: __codestar,
 						datalayer: __datalayer,
-						nevada_http: __nevada_http,
-						nevada_web: __nevada_web,
+						nevada_http: dereferenced$["nevada-http"],
+						nevada_web: dereferenced$["nevada-web"],
 					},
 				},
 				paloma_nevada_monitor_s3,
@@ -1664,8 +1726,8 @@ export = async () => {
 					paloma: {
 						codestar: typeof __codestar;
 						datalayer: typeof __datalayer;
-						nevada_http: typeof __nevada_http;
-						nevada_web: typeof __nevada_web;
+						nevada_http: (typeof dereferenced$)["nevada-http"];
+						nevada_web: (typeof dereferenced$)["nevada-web"];
 					};
 				};
 			};
