@@ -26,14 +26,14 @@ catalogs:
       version: 11.8.1
   default:
     '@levicape/fourtwo':
-      specifier: 0.9.0-main.20
-      version: 0.9.0-main.20
+      specifier: 0.9.1-main.21
+      version: 0.9.1-main.21
     '@levicape/fourtwo-builders':
-      specifier: 0.9.0-main.20
-      version: 0.9.0-main.20
+      specifier: 0.9.1-main.21
+      version: 0.9.1-main.21
     '@levicape/fourtwo-pulumi':
-      specifier: 0.9.0-main.20
-      version: 0.9.0-main.20
+      specifier: 0.9.1-main.21
+      version: 0.9.1-main.21
     '@levicape/spork':
       specifier: 0.6.1-main.12
       version: 0.6.1-main.12
@@ -301,7 +301,7 @@ importers:
         version: 1.9.4
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.9.0-main.20(projen@0.71.163)
+        version: 0.9.1-main.21(projen@0.71.163)
       '@types/better-sqlite3':
         specifier: catalog:types
         version: 7.6.12
@@ -380,7 +380,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.9.0-main.20(projen@0.71.163)
+        version: 0.9.1-main.21(projen@0.71.163)
       yaml:
         specifier: catalog:parse-yaml
         version: 2.7.0
@@ -389,13 +389,13 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.9.0-main.20(projen@0.71.163)
+        version: 0.9.1-main.21(projen@0.71.163)
       '@levicape/fourtwo-builders':
         specifier: 'catalog:'
-        version: 0.9.0-main.20(projen@0.71.163)
+        version: 0.9.1-main.21(projen@0.71.163)
       '@levicape/fourtwo-pulumi':
         specifier: 'catalog:'
-        version: 0.9.0-main.20(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)
+        version: 0.9.1-main.21(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/aws':
         specifier: catalog:pulumi
         version: 6.67.0(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)
@@ -444,7 +444,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.9.0-main.20(projen@0.71.163)
+        version: 0.9.1-main.21(projen@0.71.163)
 
   packages/nevada-io:
     dependencies:
@@ -1460,18 +1460,13 @@ packages:
     resolution: {integrity: sha512-rsfF5t3sd5c+3ejUgcy8q0cVG2/BxT064L4Xz+CuKEe014u8T4MtFZiWjWZFpfMXSGKzFYEA6DJYm9CqjmIfZg==}
     engines: {node: '>=14'}
 
-  '@levicape/fourtwo-builders@0.9.0-main.20':
-    resolution: {integrity: sha512-2AAPCsuVE/bgYGhuyjzg/dWVbiKuDOZT0aiND+UQYS7mKVfokHJ0M9k7l1ZzZvlauX8FvlGkQSrO3qv1FDNUqw==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.9.0-main.20/150d1a8d8f8a7b33cd3dc8956d719330dc2bba8c}
+  '@levicape/fourtwo-builders@0.9.1-main.21':
+    resolution: {integrity: sha512-Kydce/zpe/sRJSG7tUbIdRQEFeUEwKmhFmQKh9ExhbhYmpngaUrcL1S/u/nqn6IHexJT28Zr0Ynk9JzZ2neFwA==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.9.1-main.21/2b5e95bed0b8a8b4dd81d08d57ab94788b2bbf87}
     engines: {node: ^22}
 
-  '@levicape/fourtwo-pulumi@0.9.0-main.20':
-    resolution: {integrity: sha512-w/TQq0cH9WFLCGU/LTwzjntre8ka3AFtQ0S+db0mliwWOQDSAIixD6aLDN51obkmHtv527uWVV0rFVVqhLCdMg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.9.0-main.20/d80668ca62b00c98a9c6c7c69b96c2502b2902ce}
+  '@levicape/fourtwo-pulumi@0.9.1-main.21':
+    resolution: {integrity: sha512-grYzYzjei4plLznGpmVXkhlux5hUTn7QkOBMYo8J1CC4gSsFDiVUiAHkrI2zI3OjqJr2oyy9HdD/mAl0toD3EQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.9.1-main.21/036b31384352297333a54545c186aed98beb6a15}
     engines: {node: ^22}
-
-  '@levicape/fourtwo@0.9.0-main.20':
-    resolution: {integrity: sha512-UVuCN6GDyrrpBCkO6IHlGA3pF5WzapR1+T38BtZN0tkfECRIE+wcuXH4oXWJdVhE9AByLCFsFGboBJmmCRXXVg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.9.0-main.20/03a6d2b48626f8978bce99fd3833f0ef544860dc}
-    engines: {node: 22.12.0}
-    hasBin: true
 
   '@levicape/fourtwo@0.9.1-main.21':
     resolution: {integrity: sha512-PzUaCHfUEiMADEkm9xqK4fhbvSepk5N5ZTrlGC3XAvRkGxi0i63WF39SeX+HZD8D51gLAQPwetcqQXSYIwJ7vw==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.9.1-main.21/7ade0ae84980de764f600ec6ae41fb157ea2c7fd}
@@ -6699,7 +6694,7 @@ snapshots:
     optionalDependencies:
       re2-wasm: 1.0.2
 
-  '@levicape/fourtwo-builders@0.9.0-main.20(projen@0.71.163)':
+  '@levicape/fourtwo-builders@0.9.1-main.21(projen@0.71.163)':
     dependencies:
       '@levicape/fourtwo': 0.9.1-main.21(projen@0.71.163)
     transitivePeerDependencies:
@@ -6715,7 +6710,7 @@ snapshots:
       - tedious
       - utf-8-validate
 
-  '@levicape/fourtwo-pulumi@0.9.0-main.20(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)':
+  '@levicape/fourtwo-pulumi@0.9.1-main.21(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
       '@kubernetes-models/postgres-operator': 0.4.2
       '@pulumi/aws': 6.67.0(ts-node@10.9.2(@swc/core@1.10.14(@swc/helpers@0.5.15))(@types/node@22.13.4)(typescript@5.7.3))(typescript@5.7.3)
@@ -6734,47 +6729,6 @@ snapshots:
       - supports-color
       - ts-node
       - typescript
-
-  '@levicape/fourtwo@0.9.0-main.20(projen@0.71.163)':
-    dependencies:
-      '@aws-lambda-powertools/logger': 2.14.0
-      '@aws/codecatalyst-workflows-sdk': 0.1.5-preview.6(projen@0.71.163)
-      '@effect/platform': 0.77.0(effect@3.13.0)
-      '@effect/platform-node': 0.73.0(@effect/platform@0.77.0(effect@3.13.0))(effect@3.13.0)
-      '@loglayer/transport-aws-lambda-powertools': 3.0.0(@aws-lambda-powertools/logger@2.14.0)
-      '@loglayer/transport-consola': 2.0.0(consola@3.4.0)
-      '@loglayer/transport-pino': 2.0.0(pino@9.6.0)
-      '@stricli/core': 1.1.1
-      aws4fetch: 1.0.20
-      better-sqlite3: 11.8.1
-      consola: 3.4.0
-      effect: 3.13.0
-      enquirer: 2.4.1
-      fast-xml-parser: 4.5.1
-      ini: 5.0.0
-      js-yaml: 4.1.0
-      knex: 3.1.0(better-sqlite3@11.8.1)(pg@8.13.1)
-      loglayer: 6.0.0
-      pino: 9.6.0
-      pino-pretty: 13.0.0
-      pretty-ms: 9.2.0
-      serialize-error: 12.0.0
-      std-env: 3.8.0
-      verror: 1.10.1
-      yaml: 2.7.0
-      zod: 3.24.1
-    transitivePeerDependencies:
-      - '@middy/core'
-      - bufferutil
-      - mysql
-      - mysql2
-      - pg
-      - pg-native
-      - projen
-      - sqlite3
-      - supports-color
-      - tedious
-      - utf-8-validate
 
   '@levicape/fourtwo@0.9.1-main.21(projen@0.71.163)':
     dependencies:
