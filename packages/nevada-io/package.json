@@ -25,10 +25,12 @@
     "@levicape/spork-atlas": "catalog:",
     "effect": "catalog:effect",
     "hono": "catalog:hono",
+    "jsonwebtoken": "catalog:crypto",
     "ts-proto": "catalog:protobuf"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
+    "@types/jsonwebtoken": "catalog:types",
     "@types/node": "catalog:types",
     "publint": "catalog:package",
     "ts-proto": "catalog:protobuf",
