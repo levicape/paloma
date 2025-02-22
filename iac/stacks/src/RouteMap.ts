@@ -35,9 +35,9 @@ export type LambdaRouteResource = {
 export type NoRouteResource = { [key: symbol]: never };
 export type RouteResource = LambdaRouteResource | NoRouteResource;
 export type Route<T = {}> = {
-	url?: string;
-	cdn?: string;
-	protocol?: RouteProtocol;
+	hostname: string;
+	protocol: RouteProtocol;
+	port?: string;
 } & T;
 
 export type RoutePaths<
@@ -105,9 +105,9 @@ type RouteMapZodTypecheck = RouteMapZodType extends Record<
 
 // @ts-ignore
 const _routeMapZodTypecheck: RouteMapZodTypecheck = true;
+_routeMapZodTypecheck;
 
-// biome-ignore lint/suspicious/noExplicitAny:
-export type ManifestVersion = any;
+export type ManifestVersion = unknown;
 export interface WebsiteManifest {
 	manifest:
 		| {
@@ -123,25 +123,6 @@ export interface WebsiteManifest {
 					website?: Omit<Route, keyof RouteResource>;
 					hostnames: string[];
 				};
-				version: ManifestVersion & { build: string; stage: string };
 		  }
 		| { ok: false };
-}
-
-export interface ComputeManifest {
-	manifest: {
-		ok: true;
-		routes: Record<
-			keyof RouteMap,
-			Record<
-				keyof RouteMap[string],
-				Omit<RouteMap[string][Prefix], keyof RouteResource>
-			>
-		>;
-		frontend: {
-			website?: Omit<Route, keyof RouteResource>;
-			hostnames: string[];
-		};
-		version: ManifestVersion;
-	};
 }

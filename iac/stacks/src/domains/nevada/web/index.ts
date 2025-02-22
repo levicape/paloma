@@ -208,7 +208,6 @@ export = async () => {
 	if (routemap) {
 		(() => {
 			const {
-				stage,
 				environment: { isProd },
 				frontend,
 			} = context;
@@ -228,15 +227,11 @@ export = async () => {
 										? {}
 										: {
 												website: {
-													url,
+													hostname: url,
 													protocol: "http",
 												},
 											}),
 									hostnames: hostnames ?? [],
-								},
-								version: {
-									sequence: Date.now().toString(),
-									stage,
 								},
 							},
 						} satisfies WebsiteManifest,
@@ -551,7 +546,7 @@ export = async () => {
 	const eventbridge = (() => {
 		const { name } = codestar.ecr.repository;
 
-		const rule = new EventRule(_("on-ecr"), {
+		const rule = new EventRule(_("on-ecr-push"), {
 			description: `(${PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${name}"`,
 			state: "ENABLED",
 			eventPattern: JSON.stringify({
