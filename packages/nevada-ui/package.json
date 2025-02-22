@@ -61,12 +61,13 @@
       },
       "build:tsc": {
         "dependsOn": [
+          "@levicape/paloma-nevada-io:build:module",
           "@levicape/paloma:build:module"
         ]
       },
       "staticwww:build": {
         "dependsOn": [
-          "build:tsc"
+          "build:module"
         ]
       },
       "webhttp:build": {
@@ -116,7 +117,7 @@
       },
       "nx:compile": {
         "dependsOn": [
-          "build:tsc",
+          "build:module",
           "staticwww:build",
           "webhttp:build"
         ]

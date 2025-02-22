@@ -58,12 +58,10 @@ const ENVIRONMENT = (
 	return {} as const;
 };
 
-const ROUTE_MAP = ({
-	"nevada-http": magmap_http,
-}: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT]) => {
-	return {
-		...magmap_http.routemap,
-	};
+const ROUTE_MAP = (
+	$stacks: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT],
+) => {
+	return {} as const;
 };
 
 const OUTPUT_DIRECTORY = `output/esbuild`;

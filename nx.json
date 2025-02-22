@@ -5,7 +5,7 @@
   "neverConnectToCloud": true,
   "targetDefaults": {
     "build:tsc": {
-      "cache": true,
+      "cache": false,
       "outputs": [
         "{projectRoot}/commonjs",
         "{projectRoot}/module"

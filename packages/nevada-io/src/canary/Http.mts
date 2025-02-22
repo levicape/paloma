@@ -9,9 +9,7 @@ import type { NevadaHonoApp } from "../http/HonoApp.mjs";
 import { NevadaIoRoutemap } from "./Atlas.mjs";
 
 const client = hc<NevadaHonoApp>(NevadaIoRoutemap["/~/v1/Paloma/Nevada"].url());
-// @ts-ignore
 const { Nevada } = client["~"].v1.Paloma;
-
 const { trace } = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
@@ -67,10 +65,10 @@ export const healthcheck = new Canary(
 			trace.metadataOnly([
 				events,
 				{ a: 1, b: "Y" },
-				Nevada.test123.$url({}),
+				Nevada.$url({}),
 				{ a: "Z", b: 2 },
 			]);
-			const response = await Nevada.test123.$get({});
+			const response = await Nevada.$get({});
 			const json = await response.json();
 			trace.withMetadata({ json }).info("Fetched");
 		},
