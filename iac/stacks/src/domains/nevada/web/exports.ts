@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RouteMapZod } from "../../../RouteMap";
 
 export const PalomaNevadaWebStackExportsZod = z.object({
 	paloma_nevada_web_s3: z.object({
@@ -44,4 +45,5 @@ export const PalomaNevadaWebStackExportsZod = z.object({
 			}),
 		}),
 	}),
+	paloma_nevada_web_routemap: RouteMapZod.valueSchema,
 });

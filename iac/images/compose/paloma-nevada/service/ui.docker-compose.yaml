@@ -1,0 +1,36 @@
+
+services:
+  ui:
+    image: $ROOT_IMAGE
+    entrypoint: project
+    environment: 
+      LOG_LEVEL: $LOG_LEVEL
+      STRUCTURED_LOGGING: $STRUCTURED_LOGGING
+      PROJECT_PATH: ./packages/nevada-ui
+      PROJECT_COMMAND: staticwww:dev
+      PORT: $NEVADA_UI
+    volumes: &workspace_volumes
+      - ../../../../..:/workspace
+    ports:
+      - $NEVADA_UI:$NEVADA_UI
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:$NEVADA_UI/"]
+      interval: 3s
+      timeout: 8s
+      retries: 5
+  ui-canary:
+    image: $ROOT_IMAGE
+    entrypoint: project
+    environment:
+      LOG_LEVEL: $LOG_LEVEL
+      STRUCTURED_LOGGING: $STRUCTURED_LOGGING
+      PROJECT_PATH: ./packages/nevada-ui
+      PROJECT_COMMAND: staticwww:canary
+      NEVADA_HTTP: $NEVADA_HTTP
+      NEVADA_UI: $NEVADA_UI
+    volumes: *workspace_volumes
+    depends_on:
+      http:
+        condition: service_healthy
+      ui:
+        condition: service_healthy

@@ -24,7 +24,11 @@ import { BucketWebsiteConfigurationV2 } from "@pulumi/aws/s3/bucketWebsiteConfig
 import { type Output, all } from "@pulumi/pulumi";
 import { stringify } from "yaml";
 import type { z } from "zod";
-import type { WebsiteManifest } from "../../../RouteMap";
+import type {
+	Route,
+	StaticRouteResource,
+	WebsiteManifest,
+} from "../../../RouteMap";
 import { $deref, type DereferencedOutput } from "../../../Stack";
 import { PalomaCodestarStackExportsZod } from "../../../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
@@ -186,6 +190,40 @@ export = async () => {
 							id: "ExpireObjects",
 							expiration: {
 								days: daysToRetain,
+							},
+							filter: {
+								objectSizeGreaterThan: 1,
+							},
+						},
+						{
+							status: "Enabled",
+							id: "DeleteMarkers",
+							expiration: {
+								days: context.environment.isProd ? 8 : 4,
+								expiredObjectDeleteMarker: true,
+							},
+							filter: {
+								objectSizeGreaterThan: 1,
+							},
+						},
+						{
+							status: "Enabled",
+							id: "NonCurrentVersions",
+							noncurrentVersionExpiration: {
+								noncurrentDays: context.environment.isProd ? 13 : 6,
+							},
+							filter: {
+								objectSizeGreaterThan: 1,
+							},
+						},
+						{
+							status: "Enabled",
+							id: "IncompleteMultipartUploads",
+							abortIncompleteMultipartUpload: {
+								daysAfterInitiation: context.environment.isProd ? 3 : 7,
+							},
+							filter: {
+								objectSizeGreaterThan: 1,
 							},
 						},
 					],
@@ -614,6 +652,17 @@ export = async () => {
 			eventTargetArn,
 			eventTargetId,
 		]) => {
+			const paloma_nevada_web_routemap = (() => {
+				const routes: Partial<Record<"/", Route<StaticRouteResource>>> = {
+					["/"]: {
+						$kind: "StaticRouteResource",
+						hostname: webBucketWebsiteEndpoint.replace("http://", ""),
+						protocol: "http",
+					},
+				};
+				return routes;
+			})();
+
 			const exported = {
 				paloma_nevada_web_imports: {
 					fourtwo: {
@@ -664,6 +713,7 @@ export = async () => {
 						},
 					},
 				},
+				paloma_nevada_web_routemap,
 			} satisfies z.infer<typeof PalomaNevadaWebStackExportsZod> & {
 				paloma_nevada_web_imports: {
 					fourtwo: {
