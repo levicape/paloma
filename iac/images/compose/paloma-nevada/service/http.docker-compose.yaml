@@ -1,0 +1,34 @@
+
+services:
+  http:
+    image: $ROOT_IMAGE
+    entrypoint: project
+    environment:      
+      LOG_LEVEL: $LOG_LEVEL
+      STRUCTURED_LOGGING: $STRUCTURED_LOGGING
+      PROJECT_PATH: ./packages/nevada-io
+      PROJECT_COMMAND: http:dev
+      PORT: $NEVADA_HTTP
+    volumes: &workspace_volumes
+      - ../../../../..:/workspace
+    ports:
+      - $NEVADA_HTTP:$NEVADA_HTTP
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:$NEVADA_HTTP/.well-known/healthcheck"]
+      interval: 3s
+      timeout: 8s
+      retries: 5
+  http-canary:
+    image: $ROOT_IMAGE
+    entrypoint: project
+    environment:
+      LOG_LEVEL: $LOG_LEVEL
+      STRUCTURED_LOGGING: $STRUCTURED_LOGGING
+      PROJECT_PATH: ./packages/nevada-io
+      PROJECT_COMMAND: http:canary
+      NEVADA_HTTP: $NEVADA_HTTP
+      NEVADA_UI: $NEVADA_UI
+    volumes: *workspace_volumes
+    depends_on:
+      http:
+        condition: service_healthy

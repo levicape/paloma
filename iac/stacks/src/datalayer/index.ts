@@ -218,6 +218,7 @@ export = async () => {
 				});
 			},
 		))(ec2, efs, iam);
+
 	return all([
 		props,
 		iam.roles.lambda.arn,

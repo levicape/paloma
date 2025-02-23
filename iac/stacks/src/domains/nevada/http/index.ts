@@ -149,7 +149,41 @@ export = async () => {
 						status: "Enabled",
 						id: "ExpireObjects",
 						expiration: {
-							days: context.environment.isProd ? 30 : 8,
+							days: context.environment.isProd ? 20 : 10,
+						},
+						filter: {
+							objectSizeGreaterThan: 1,
+						},
+					},
+					{
+						status: "Enabled",
+						id: "DeleteMarkers",
+						expiration: {
+							days: context.environment.isProd ? 8 : 4,
+							expiredObjectDeleteMarker: true,
+						},
+						filter: {
+							objectSizeGreaterThan: 1,
+						},
+					},
+					{
+						status: "Enabled",
+						id: "NonCurrentVersions",
+						noncurrentVersionExpiration: {
+							noncurrentDays: context.environment.isProd ? 13 : 6,
+						},
+						filter: {
+							objectSizeGreaterThan: 1,
+						},
+					},
+					{
+						status: "Enabled",
+						id: "IncompleteMultipartUploads",
+						abortIncompleteMultipartUpload: {
+							daysAfterInitiation: context.environment.isProd ? 3 : 7,
+						},
+						filter: {
+							objectSizeGreaterThan: 1,
 						},
 					},
 				],

@@ -64,7 +64,7 @@ Actions:
             - Name: PULUMI_HOME
               Value: /cc/cache/pulumi
             - Name: PULUMI_VERSION
-              Value: 3.147.0
+              Value: 3.152.0
             - Name: PYTHON
               Value: /cc/cache/pyenv/shims/python3
             - Name: PYENV_ROOT
@@ -368,7 +368,7 @@ Actions:
             - Name: PULUMI_HOME
               Value: /cc/cache/pulumi
             - Name: PULUMI_VERSION
-              Value: 3.147.0
+              Value: 3.152.0
             - Name: APPLICATION_IMAGE_NAME
               Value: paloma
             - Name: CI_ENVIRONMENT
@@ -638,7 +638,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"c41ce6d8c6b54c638d3967eb751c8df24904ba5b2c248581b9529145ba878405"}
-#**:_$~- {"$$":"footer","started":"2025-02-22T09:17:20.750Z","now":"2025-02-22T09:17:20.764Z","elapsed":"14ms"}
+#**:_$~- {"$$":"body","hashed":"e70b823fa93dd1a0f7ea367431ef369b2f09ced1ebd2aaf4abc7059b19755c75"}
+#**:_$~- {"$$":"footer","started":"2025-02-23T03:15:07.328Z","now":"2025-02-23T03:15:07.339Z","elapsed":"11ms"}
 # END OF GENERATED FILE
 
