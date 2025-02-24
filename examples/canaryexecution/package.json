@@ -100,8 +100,7 @@
       },
       "nx:compile": {
         "dependsOn": [
-          "build:module",
-          "build:esbuild"
+          "build:module"
         ]
       },
       "nx:test": {

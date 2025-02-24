@@ -5,11 +5,10 @@ import {
 } from "@levicape/paloma/runtime/server/RuntimeContext";
 import { Effect } from "effect";
 import { hc } from "hono/client";
+import { HTTP_BASE_PATH, NevadaIoRoutemap } from "../http/Atlas.mjs";
 import type { NevadaHonoApp } from "../http/HonoApp.mjs";
-import { NevadaIoRoutemap } from "./Atlas.mjs";
 
-const client = hc<NevadaHonoApp>(NevadaIoRoutemap["/~/v1/Paloma/Nevada"].url());
-const { Nevada } = client["~"].v1.Paloma;
+const client = hc<NevadaHonoApp>(NevadaIoRoutemap[HTTP_BASE_PATH].url());
 const { trace } = await Effect.runPromise(
 	Effect.provide(
 		Effect.gen(function* () {
@@ -23,12 +22,6 @@ const { trace } = await Effect.runPromise(
 		RuntimeContext,
 	),
 );
-
-trace
-	.withMetadata({
-		Nevada,
-	})
-	.info("Loaded service clients");
 
 export const healthcheck = new Canary(
 	"http-healthcheck",
@@ -65,10 +58,10 @@ export const healthcheck = new Canary(
 			trace.metadataOnly([
 				events,
 				{ a: 1, b: "Y" },
-				Nevada.$url({}),
+				client["~"].Paloma.Nevada.$url({}),
 				{ a: "Z", b: 2 },
 			]);
-			const response = await Nevada.$get({});
+			const response = await client["~"].Paloma.Nevada.$get({});
 			const json = await response.json();
 			trace.withMetadata({ json }).info("Fetched");
 		},

@@ -6,7 +6,7 @@ const { NEVADA_UI } = process.env;
 
 export const NevadaUiRoutemap = Atlas({
 	"/": {
-		$kind: "ComposeRouteResource",
+		$kind: "StaticRouteResource",
 		hostname: `ui:${NEVADA_UI}`,
 		protocol: "http",
 	},

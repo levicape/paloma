@@ -58,7 +58,7 @@ export const withPinoLogger = (props: {
 				spanId: loggerId,
 			});
 
-			loglayer.debug(`logger span`);
+			loglayer.info(`logger span`);
 
 			return loglayer;
 		}),

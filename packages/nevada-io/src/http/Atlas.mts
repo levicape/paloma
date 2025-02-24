@@ -1,17 +1,19 @@
 #!/usr/bin/env -S node --no-warnings --watch
 
 import { Atlas } from "@levicape/spork-atlas";
+import { env } from "std-env";
 
-const { NEVADA_UI, NEVADA_HTTP } = process.env;
+const { NEVADA_UI, NEVADA_HTTP } = env;
 
+export const HTTP_BASE_PATH = "/~/Paloma/Nevada";
 export const NevadaIoRoutemap = Atlas({
 	"/": {
-		$kind: "ComposeRouteResource",
+		$kind: "StaticRouteResource",
 		hostname: `ui:${NEVADA_UI}`,
 		protocol: "http",
 	},
-	"/~/v1/Paloma/Nevada": {
-		$kind: "ComposeRouteResource",
+	"/~/Paloma/Nevada": {
+		$kind: "StaticRouteResource",
 		hostname: `http:${NEVADA_HTTP}`,
 		protocol: "http",
 	},

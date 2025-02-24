@@ -7,7 +7,7 @@
     "packageexecutor": "pnpm exec",
     "packagescript": "pnpm run",
     "binspork": "pnpm exec spork",
-    "binatlas": "node module/canary/Atlas.mjs",
+    "binatlas": "node module/http/Atlas.mjs",
     "outpath": "./module",
     "srcpaths": "./src",
     "lintpaths": "./src",
@@ -26,6 +26,7 @@
     "effect": "catalog:effect",
     "hono": "catalog:hono",
     "jsonwebtoken": "catalog:crypto",
+    "std-env": "catalog:runtime-env",
     "ts-proto": "catalog:protobuf"
   },
   "devDependencies": {
