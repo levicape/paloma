@@ -1,8 +1,10 @@
 import { SporkHonoHttpServer } from "@levicape/spork/hono";
+
 import { Hono } from "hono";
+import { HTTP_BASE_PATH } from "./Atlas.mjs";
 
 export const { server, handler } = await SporkHonoHttpServer((app) =>
-	app.basePath("/~/v1/Paloma/Nevada").get("/", async (c) => {
+	app.basePath(HTTP_BASE_PATH).get("/", async (c) => {
 		return c.json({ message: `Hello, ${Hono.name}!` });
 	}),
 );

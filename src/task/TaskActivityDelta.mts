@@ -4,7 +4,10 @@ import type { Activity } from "../canary/activity/Activity.mjs";
 import { PromiseActivity } from "../canary/activity/PromiseActivity.mjs";
 import { PalomaRepositoryConfig } from "../repository/RepositoryConfig.mjs";
 import { RuntimeContext } from "../server/RuntimeContext.mjs";
-import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
+import {
+	$$_traceId_$$,
+	LoggingContext,
+} from "../server/loglayer/LoggingContext.mjs";
 import type { TaskDeltaFn } from "./Task.mjs";
 import { PromiseTaskActivityDelta } from "./delta/PromiseTaskActivityDelta.mjs";
 
@@ -13,9 +16,13 @@ let { trace } = await Effect.runPromise(
 		Effect.gen(function* () {
 			const config = yield* PalomaRepositoryConfig;
 			const logging = yield* LoggingContext;
-			const trace = (yield* logging.logger).withPrefix("delta").withContext({
-				$event: "taskactivitydelta-main",
-			});
+			const trace = (yield* logging.logger)
+				.withPrefix("delta")
+				.withContext({
+					$event: "taskactivitydelta-main",
+				})
+				.disableLogging();
+
 			const { rootId } = trace.getContext();
 
 			return {
@@ -30,12 +37,13 @@ let { trace } = await Effect.runPromise(
 
 export const TaskActivityDelta = (activity: Activity): TaskDeltaFn => {
 	let activitytrace = trace.child().withContext({
+		traceId: $$_traceId_$$(),
 		$event: "taskactivitydelta-instance",
 		$TaskActivityDelta: {
 			activity: activity.identifiers,
 		},
 	});
-	activitytrace.debug("TaskActivityDelta()");
+	activitytrace.debug("TaskActivityDelta(). Created new trace");
 
 	return () => {
 		if (activity instanceof PromiseActivity) {

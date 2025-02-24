@@ -30,7 +30,7 @@ const { signals } = await Effect.runPromise(
 );
 
 export const RuntimeContext = Context.empty().pipe(
-	withStructuredLogging({ prefix: "internal" }),
+	withStructuredLogging({ prefix: "otel" }),
 	Context.merge(
 		Context.mergeAll(
 			...signals.map(({ tag, latch }) =>

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { Context, Effect, Option, pipe } from "effect";
 import type { Tag } from "effect/Context";
 import { gen, makeSemaphore } from "effect/Effect";
@@ -104,26 +105,27 @@ export class Canary extends Function {
 		super();
 
 		this.identifiers = (() => {
-			const stack = new Error().stack;
-			if (!stack) {
-				throw new VError("Could not get stack trace");
-			}
-			const lines = stack.split("\n");
-			const caller = lines[2];
-			const match = caller.match(/\(([^)]+)\)/);
-			if (!match) {
-				throw new VError("Could not get caller from stack trace");
-			}
-			const MATCH_INDEX =
-				[...match].length < 2 ? Math.max(Math.max(match.length - 1, 0), 1) : 2;
-			const path = match[MATCH_INDEX]?.split(":").at(-3) ?? ("" as string);
+			let path = "";
+			let jsuniversalpath: string | undefined = undefined;
 			let hash: string;
-			const jsuniversalpath = path
-				.replace(/\.mts$/, ".mjs")
-				.replace(/\.cts$/, ".cjs")
-				.replace(/\.ts$/, ".js");
 			try {
-				hash = `sourcejs:${createHash("sha256").update(readFileSync(path, "utf8")).digest("hex")}`;
+				const stack = new Error().stack;
+				if (!stack) {
+					throw new VError("Could not get stack trace");
+				}
+				const lines = stack.split("\n");
+				const caller = lines[lines.length - 1];
+				const match = caller.match(/at (.*)/);
+				if (!match) {
+					throw new VError("Could not parse stack trace");
+				}
+				path =
+					fileURLToPath(match[1]?.trim() ?? "file://")?.split(":")?.[0] ?? "";
+				jsuniversalpath = path
+					.replace(/\.mts$/, ".mjs")
+					.replace(/\.cts$/, ".cjs")
+					.replace(/\.ts$/, ".js");
+				hash = `sourcejs:${createHash("sha256").update(readFileSync(jsuniversalpath, "utf8")).digest("hex")}`;
 			} catch (e: unknown) {
 				try {
 					hash = `sourcets:${createHash("sha256").update(readFileSync(path, "utf8")).digest("hex")}`;
