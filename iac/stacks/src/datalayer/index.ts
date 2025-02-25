@@ -8,15 +8,38 @@ import { PrivateDnsNamespace } from "@pulumi/aws/servicediscovery/privateDnsName
 import { Vpc } from "@pulumi/awsx/ec2/vpc";
 import { all } from "@pulumi/pulumi";
 import type { z } from "zod";
+import { $deref } from "../Stack";
+import { PalomaApplicationStackExportsZod } from "../application/exports";
 import { PalomaDatalayerStackExportsZod } from "./exports";
 
 const PACKAGE_NAME = "@levicape/paloma";
 const EFS_ROOT_DIRECTORY = "/paloma";
 const EFS_MOUNT_PATH = "/mnt/efs";
 
+const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? "paloma";
+const STACKREF_CONFIG = {
+	[STACKREF_ROOT]: {
+		application: {
+			refs: {
+				servicecatalog:
+					PalomaApplicationStackExportsZod.shape
+						.paloma_application_servicecatalog,
+			},
+		},
+	},
+};
+
 export = async () => {
-	const context = await Context.fromConfig();
+	// Stack references
+	const dereferenced$ = await $deref(STACKREF_CONFIG);
+	const context = await Context.fromConfig({
+		aws: {
+			awsApplication: dereferenced$.application.servicecatalog.application.tag,
+		},
+	});
 	const _ = (name: string) => `${context.prefix}-${name}`;
+	context.resourcegroups({ _ });
+
 	const ec2 = (() => {
 		const vpc = new Vpc(
 			_("vpc"),

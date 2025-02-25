@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RouteMapZod } from "../../../RouteMap";
+import { LambdaRouteResourceZod } from "../../../RouteMap";
 
 export const PalomaNevadaHttpStackExportsZod = z.object({
 	paloma_nevada_http_cloudmap: z.object({
@@ -121,5 +121,5 @@ export const PalomaNevadaHttpStackExportsZod = z.object({
 			region: z.string(),
 		}),
 	}),
-	paloma_nevada_http_routemap: RouteMapZod.valueSchema,
+	paloma_nevada_http_routemap: z.record(LambdaRouteResourceZod),
 });

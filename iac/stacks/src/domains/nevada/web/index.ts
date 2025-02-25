@@ -24,12 +24,15 @@ import { BucketWebsiteConfigurationV2 } from "@pulumi/aws/s3/bucketWebsiteConfig
 import { type Output, all } from "@pulumi/pulumi";
 import { stringify } from "yaml";
 import type { z } from "zod";
+import { AwsCodeBuildContainerRoundRobin } from "../../../RoundRobin";
 import type {
 	Route,
+	S3RouteResource,
 	StaticRouteResource,
 	WebsiteManifest,
 } from "../../../RouteMap";
 import { $deref, type DereferencedOutput } from "../../../Stack";
+import { PalomaApplicationStackExportsZod } from "../../../application/exports";
 import { PalomaCodestarStackExportsZod } from "../../../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../../../datalayer/exports";
 import { PalomaNevadaWebStackExportsZod } from "./exports";
@@ -41,6 +44,13 @@ const MANIFEST_PATH = "/_web/routemap.json" as const;
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? "paloma";
 const STACKREF_CONFIG = {
 	[STACKREF_ROOT]: {
+		application: {
+			refs: {
+				servicecatalog:
+					PalomaApplicationStackExportsZod.shape
+						.paloma_application_servicecatalog,
+			},
+		},
 		codestar: {
 			refs: {
 				codedeploy:
@@ -64,60 +74,98 @@ const ROUTE_MAP = (
 };
 
 export = async () => {
-	const context = await Context.fromConfig();
-	const _ = (name?: string) =>
-		name ? `${context.prefix}-${name}` : context.prefix;
-	const stage = process.env.CI_ENVIRONMENT ?? "unknown";
-	const farRole = await getRole({ name: "FourtwoAccessRole" });
-
 	// Stack references
 	const dereferenced$ = await $deref(STACKREF_CONFIG);
 	const { codestar, datalayer } = dereferenced$;
+
+	const context = await Context.fromConfig({
+		aws: {
+			awsApplication: dereferenced$.application.servicecatalog.application.tag,
+		},
+	});
+	const _ = (name?: string) =>
+		name ? `${context.prefix}-${name}` : context.prefix;
+	context.resourcegroups({ _ });
+
+	const stage = process.env.CI_ENVIRONMENT ?? "unknown";
+	const farRole = await getRole({ name: "FourtwoAccessRole" });
+
 	const routemap = ROUTE_MAP(dereferenced$);
 
 	// Object Store
 	const s3 = (() => {
 		const bucket = (
 			name: string,
-			props: {
+			props?: {
 				daysToRetain?: number;
 				www?: boolean;
-			} = {
-				daysToRetain: context.environment.isProd ? 30 : 8,
-				www: false,
 			},
 		) => {
-			const { daysToRetain, www } = props;
-			const bucket = new Bucket(_(name), {
-				acl: "private",
-				forceDestroy: !context.environment.isProd,
-				tags: {
-					Name: _(name),
-					StackRef: STACKREF_ROOT,
-					PackageName: PACKAGE_NAME,
-					Key: name,
-				},
-			});
-
-			new BucketServerSideEncryptionConfigurationV2(_(`${name}-encryption`), {
-				bucket: bucket.bucket,
-				rules: [
-					{
-						applyServerSideEncryptionByDefault: {
-							sseAlgorithm: "AES256",
-						},
+			const { daysToRetain, www } = {
+				daysToRetain:
+					props?.www === true ? undefined : context.environment.isProd ? 30 : 8,
+				www: false,
+				...props,
+			};
+			const bucket = new Bucket(
+				_(name),
+				{
+					acl: "private",
+					forceDestroy: !context.environment.isProd,
+					tags: {
+						Name: _(name),
+						StackRef: STACKREF_ROOT,
+						PackageName: PACKAGE_NAME,
+						Key: name,
 					},
-				],
-			});
-			new BucketVersioningV2(_(`${name}-versioning`), {
-				bucket: bucket.bucket,
-				versioningConfiguration: {
-					status: "Enabled",
 				},
-			});
+				{
+					ignoreChanges: [
+						"acl",
+						"lifecycleRules",
+						"loggings",
+						"policy",
+						"serverSideEncryptionConfiguration",
+						"versioning",
+						"website",
+						"websiteDomain",
+						"websiteEndpoint",
+					],
+				},
+			);
+
+			new BucketServerSideEncryptionConfigurationV2(
+				_(`${name}-encryption`),
+				{
+					bucket: bucket.bucket,
+					rules: [
+						{
+							applyServerSideEncryptionByDefault: {
+								sseAlgorithm: "AES256",
+							},
+						},
+					],
+				},
+				{
+					deletedWith: bucket,
+				},
+			);
+
+			new BucketVersioningV2(
+				_(`${name}-versioning`),
+				{
+					bucket: bucket.bucket,
+					versioningConfiguration: {
+						status: "Enabled",
+					},
+				},
+				{
+					deletedWith: bucket,
+				},
+			);
 
 			let website: BucketWebsiteConfigurationV2 | undefined;
-			if (www) {
+			if (www === true) {
 				const bucketName = bucket.bucket;
 				const publicAccessBlock = new BucketPublicAccessBlock(
 					_(`${name}-public-access`),
@@ -129,9 +177,7 @@ export = async () => {
 						restrictPublicBuckets: false,
 					},
 					{
-						dependsOn: [bucket],
-						replaceOnChanges: ["*"],
-						deleteBeforeReplace: true,
+						deletedWith: bucket,
 					},
 				);
 
@@ -145,6 +191,7 @@ export = async () => {
 					},
 					{
 						dependsOn: [bucket, publicAccessBlock],
+						deletedWith: bucket,
 					},
 				);
 
@@ -161,6 +208,7 @@ export = async () => {
 					},
 					{
 						dependsOn: [bucket, publicAccessBlock, ownershipControls],
+						deletedWith: bucket,
 					},
 				);
 			} else {
@@ -174,60 +222,57 @@ export = async () => {
 						restrictPublicBuckets: true,
 					},
 					{
-						dependsOn: [bucket],
-						replaceOnChanges: ["*"],
-						deleteBeforeReplace: true,
+						deletedWith: bucket,
 					},
 				);
 			}
 
-			if (daysToRetain) {
-				new BucketLifecycleConfigurationV2(_(`${name}-lifecycle`), {
-					bucket: bucket.bucket,
-					rules: [
-						{
-							status: "Enabled",
-							id: "ExpireObjects",
-							expiration: {
-								days: daysToRetain,
+			if (daysToRetain && daysToRetain > 0) {
+				new BucketLifecycleConfigurationV2(
+					_(`${name}-lifecycle`),
+					{
+						bucket: bucket.bucket,
+						rules: [
+							{
+								status: "Enabled",
+								id: "DeleteMarkers",
+								expiration: {
+									expiredObjectDeleteMarker: true,
+								},
 							},
-							filter: {
-								objectSizeGreaterThan: 1,
+							{
+								status: "Enabled",
+								id: "IncompleteMultipartUploads",
+								abortIncompleteMultipartUpload: {
+									daysAfterInitiation: context.environment.isProd ? 3 : 7,
+								},
 							},
-						},
-						{
-							status: "Enabled",
-							id: "DeleteMarkers",
-							expiration: {
-								days: context.environment.isProd ? 8 : 4,
-								expiredObjectDeleteMarker: true,
+							{
+								status: "Enabled",
+								id: "NonCurrentVersions",
+								noncurrentVersionExpiration: {
+									noncurrentDays: context.environment.isProd ? 13 : 6,
+								},
+								filter: {
+									objectSizeGreaterThan: 1,
+								},
 							},
-							filter: {
-								objectSizeGreaterThan: 1,
+							{
+								status: "Enabled",
+								id: "ExpireObjects",
+								expiration: {
+									days: context.environment.isProd ? 20 : 10,
+								},
+								filter: {
+									objectSizeGreaterThan: 1,
+								},
 							},
-						},
-						{
-							status: "Enabled",
-							id: "NonCurrentVersions",
-							noncurrentVersionExpiration: {
-								noncurrentDays: context.environment.isProd ? 13 : 6,
-							},
-							filter: {
-								objectSizeGreaterThan: 1,
-							},
-						},
-						{
-							status: "Enabled",
-							id: "IncompleteMultipartUploads",
-							abortIncompleteMultipartUpload: {
-								daysAfterInitiation: context.environment.isProd ? 3 : 7,
-							},
-							filter: {
-								objectSizeGreaterThan: 1,
-							},
-						},
-					],
-				});
+						],
+					},
+					{
+						deletedWith: bucket,
+					},
+				);
 			}
 
 			return {
@@ -235,6 +280,7 @@ export = async () => {
 				website,
 			};
 		};
+
 		return {
 			pipeline: bucket("pipeline"),
 			artifacts: bucket("artifacts"),
@@ -277,11 +323,14 @@ export = async () => {
 				},
 			);
 
-			const upload = new BucketObjectv2(_("manifest-upload"), {
-				bucket: s3.staticwww.bucket.bucket,
-				content: content.apply((c) => JSON.stringify(c, null, 2)),
-				key: MANIFEST_PATH,
-			});
+			let upload: BucketObjectv2 | undefined;
+			if (content) {
+				upload = new BucketObjectv2(_("manifest-upload"), {
+					bucket: s3.staticwww.bucket.bucket,
+					content: content.apply((c) => JSON.stringify(c, null, 2)),
+					key: MANIFEST_PATH,
+				});
+			}
 
 			return {
 				routemap: {
@@ -379,7 +428,7 @@ export = async () => {
 					},
 					environment: {
 						type: "ARM_CONTAINER",
-						computeType: "BUILD_GENERAL1_SMALL",
+						computeType: AwsCodeBuildContainerRoundRobin.next().value,
 						image: "aws/codebuild/amazonlinux-aarch64-standard:3.0",
 						environmentVariables: [
 							{
@@ -653,11 +702,20 @@ export = async () => {
 			eventTargetId,
 		]) => {
 			const paloma_nevada_web_routemap = (() => {
-				const routes: Partial<Record<"/", Route<StaticRouteResource>>> = {
+				const routes: Partial<Record<"/", Route<S3RouteResource>>> = {
 					["/"]: {
-						$kind: "StaticRouteResource",
+						$kind: "S3RouteResource",
 						hostname: webBucketWebsiteEndpoint.replace("http://", ""),
 						protocol: "http",
+						bucket: {
+							arn: webBucketArn,
+							name: webBucketName,
+							domainName: webBucketDomainName,
+						},
+						website: {
+							domain: webBucketWebsiteDomain,
+							endpoint: webBucketWebsiteEndpoint,
+						},
 					},
 				};
 				return routes;
