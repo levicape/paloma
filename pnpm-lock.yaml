@@ -30,14 +30,14 @@ catalogs:
       version: 11.8.1
   default:
     '@levicape/fourtwo':
-      specifier: 0.9.1-main.21
-      version: 0.9.1-main.21
+      specifier: 0.10.0-main.23
+      version: 0.10.0-main.23
     '@levicape/fourtwo-builders':
-      specifier: 0.9.1-main.21
-      version: 0.9.1-main.21
+      specifier: 0.10.0-main.23
+      version: 0.10.0-main.23
     '@levicape/fourtwo-pulumi':
-      specifier: 0.9.1-main.21
-      version: 0.9.1-main.21
+      specifier: 0.10.0-main.23
+      version: 0.10.0-main.23
     '@levicape/spork':
       specifier: 0.6.4-main.16
       version: 0.6.4-main.16
@@ -171,6 +171,9 @@ catalogs:
     '@pulumi/awsx':
       specifier: ^2.21.0
       version: 2.21.0
+    '@pulumi/command':
+      specifier: ^1.0.1
+      version: 1.0.2
     '@pulumi/docker-build':
       specifier: ^0.0.10
       version: 0.0.10
@@ -308,7 +311,7 @@ importers:
         version: 1.9.4
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.9.1-main.21(projen@0.71.163)
+        version: 0.10.0-main.23(projen@0.71.163)
       '@types/better-sqlite3':
         specifier: catalog:types
         version: 7.6.12
@@ -387,7 +390,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.9.1-main.21(projen@0.71.163)
+        version: 0.10.0-main.23(projen@0.71.163)
       yaml:
         specifier: catalog:parse-yaml
         version: 2.7.0
@@ -396,13 +399,13 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.9.1-main.21(projen@0.71.163)
+        version: 0.10.0-main.23(projen@0.71.163)
       '@levicape/fourtwo-builders':
         specifier: 'catalog:'
-        version: 0.9.1-main.21(projen@0.71.163)
+        version: 0.10.0-main.23(projen@0.71.163)
       '@levicape/fourtwo-pulumi':
         specifier: 'catalog:'
-        version: 0.9.1-main.21(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+        version: 0.10.0-main.23(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/aws':
         specifier: catalog:pulumi
         version: 6.69.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
@@ -412,6 +415,9 @@ importers:
       '@pulumi/awsx':
         specifier: catalog:pulumi
         version: 2.21.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+      '@pulumi/command':
+        specifier: catalog:pulumi
+        version: 1.0.2(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/docker-build':
         specifier: catalog:pulumi
         version: 0.0.10(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
@@ -451,7 +457,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.9.1-main.21(projen@0.71.163)
+        version: 0.10.0-main.23(projen@0.71.163)
 
   packages/nevada-io:
     dependencies:
@@ -1220,32 +1226,16 @@ packages:
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
 
-  '@kubernetes-models/apimachinery@2.0.2':
-    resolution: {integrity: sha512-4gDnPbIPCdmFx+v+bDtP/5J/z7RfCbAQ6iBwTAP5DFX+VPq3ulZ0C++4Ih/M+GRIk6FGejDxZxmkEmh5cs55xQ==}
-    engines: {node: '>=14'}
-
-  '@kubernetes-models/base@5.0.1':
-    resolution: {integrity: sha512-Yfzmh965y/hT8qs9eE+Ms9sO1iT31c/sPoJerBFRGS9KechXXfxHgeqtpOzq+eByQ1INblkcZ09rt2V0FxG0lA==}
-    engines: {node: '>=14'}
-
-  '@kubernetes-models/postgres-operator@0.4.2':
-    resolution: {integrity: sha512-agr0Tz6mL00K4+VxmU1OywTnq0/oRaWqereoujcRKEH7aaxXU08peUI0+FBcIq94nh1IQSIn+4vfKV2cKPxMMQ==}
-    engines: {node: '>=14'}
-
-  '@kubernetes-models/validate@4.0.0':
-    resolution: {integrity: sha512-rsfF5t3sd5c+3ejUgcy8q0cVG2/BxT064L4Xz+CuKEe014u8T4MtFZiWjWZFpfMXSGKzFYEA6DJYm9CqjmIfZg==}
-    engines: {node: '>=14'}
-
-  '@levicape/fourtwo-builders@0.9.1-main.21':
-    resolution: {integrity: sha512-Kydce/zpe/sRJSG7tUbIdRQEFeUEwKmhFmQKh9ExhbhYmpngaUrcL1S/u/nqn6IHexJT28Zr0Ynk9JzZ2neFwA==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.9.1-main.21/2b5e95bed0b8a8b4dd81d08d57ab94788b2bbf87}
+  '@levicape/fourtwo-builders@0.10.0-main.23':
+    resolution: {integrity: sha512-Ltn3KTN5tulSVrRxl9w4f+T9z9YZ+dqs5ndwIo2r4m4g/lk2HS+cMpQNMaB/tPXse5CMbuGFqneqzs+fONlBEA==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.10.0-main.23/5b9caf0d6608525846ea4cf452dd7829fbcd4afd}
     engines: {node: ^22}
 
-  '@levicape/fourtwo-pulumi@0.9.1-main.21':
-    resolution: {integrity: sha512-grYzYzjei4plLznGpmVXkhlux5hUTn7QkOBMYo8J1CC4gSsFDiVUiAHkrI2zI3OjqJr2oyy9HdD/mAl0toD3EQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.9.1-main.21/036b31384352297333a54545c186aed98beb6a15}
+  '@levicape/fourtwo-pulumi@0.10.0-main.23':
+    resolution: {integrity: sha512-z1U9Xd58Vf+c/BWpLzDfj0PWPjiYkUL9jZw3PKvF480tBC10CbEhgZ+kpbDYmVsTHXv8lyLic3aa5lP9fB/1mg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.10.0-main.23/d326cf8dd5fa88aceb7c20c59e68f92a0ac05173}
     engines: {node: ^22}
 
-  '@levicape/fourtwo@0.9.1-main.21':
-    resolution: {integrity: sha512-PzUaCHfUEiMADEkm9xqK4fhbvSepk5N5ZTrlGC3XAvRkGxi0i63WF39SeX+HZD8D51gLAQPwetcqQXSYIwJ7vw==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.9.1-main.21/7ade0ae84980de764f600ec6ae41fb157ea2c7fd}
+  '@levicape/fourtwo@0.10.0-main.23':
+    resolution: {integrity: sha512-3np/x9YQ5lJEFF2WyBuCw1am15IJFeOnYN6IyBk+oIko3G/y0kDQ98sEG7xMgFA+G8gAzI+qZKD9XDmUOaLYBg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.10.0-main.23/e97ddde1868a7836ebde783721c0a8d5eea5e364}
     engines: {node: 22.12.0}
     hasBin: true
 
@@ -1267,35 +1257,17 @@ packages:
     resolution: {integrity: sha512-XGSsWDweP80Fks16lwkAUIr54ICyBs6PsI4mpfTLQaWgEJRtY9xEV+PeyDpJ+sJEGZxqINlpmAwe/6tS1pP8Ng==}
     engines: {node: '>=10.3.0'}
 
-  '@loglayer/context-manager@1.0.1':
-    resolution: {integrity: sha512-fzwAd+y/pr8gecKB0l+M6RP0QAcn2RhYQL0KFHGfzJwp2/v6M69FSjTNo8iEqg7vnZR20nlRc0KZGEwpkzuIHA==}
-    engines: {node: '>=18'}
-
   '@loglayer/context-manager@1.0.2':
     resolution: {integrity: sha512-arElnl3jEjdOFwLA3OKwd7A5Z00ueSCHO62APTUAsDtC/OwNJTmrKCEimNE7i9GQvwpQLaTb0buE2gHD/ZqT3g==}
-    engines: {node: '>=18'}
-
-  '@loglayer/plugin@2.0.1':
-    resolution: {integrity: sha512-OTQFwnPK47uyeTtgbrZTJ1Dl+2kdSEfDIFW9cE/aeDFcgNBbD0cbvB9njomUDb4kmW8IF2tllFgBtohSKyEPnw==}
     engines: {node: '>=18'}
 
   '@loglayer/plugin@2.0.2':
     resolution: {integrity: sha512-lFfGRmqHiMoCScUJy25m2vBJxEiSBeG/H38qY0jO2E5aS/ez+NcPHWPPVF3FLCyftGPldqxgYeQeIOO6HTitGQ==}
     engines: {node: '>=18'}
 
-  '@loglayer/shared@2.1.0':
-    resolution: {integrity: sha512-ABBySilot2wKIVlxFC3uawmLYUjZ3DpQI0h4+/e570gCYEfw1E6c69Zwrt7NT4eSOYo5X/hAHvm3mibYz+vuTw==}
-    engines: {node: '>=18'}
-
   '@loglayer/shared@2.1.1':
     resolution: {integrity: sha512-6CO5sroYFhDcBgxlmxPugPdt0WIAy3yzfi4sioLr2kxU+TWebF+aHOTgx88J4vTXsojGc6NWl8yduCBlwzX05A==}
     engines: {node: '>=18'}
-
-  '@loglayer/transport-aws-lambda-powertools@3.0.1':
-    resolution: {integrity: sha512-CCLUujTHHczdTqWsRWjxpVJrtHaTDtbjhGlt6/72qjkrY6ZV9Sh2iuwXgEQYA73Gc3ZI6kch2nHv1ESuMB2baw==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      '@aws-lambda-powertools/logger': '*'
 
   '@loglayer/transport-aws-lambda-powertools@3.0.2':
     resolution: {integrity: sha512-MRqH83PoBaAsz47nI2eMaRR118jS7aMHOUYkA74/PcvRqKxDdz/3Du89FC+ok+pI7IWPF7VbDyuJdVibuUk1ww==}
@@ -1303,33 +1275,17 @@ packages:
     peerDependencies:
       '@aws-lambda-powertools/logger': '*'
 
-  '@loglayer/transport-consola@2.0.1':
-    resolution: {integrity: sha512-oFlqs/qazOQS1IrgFCK/OJdnH3z2wjWIDlFw2ZU7qNbmcw27hglvQLsDtl3gGpu8/DhtQB3jUydXP4sv/hq7XA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      consola: '*'
-
   '@loglayer/transport-consola@2.0.2':
     resolution: {integrity: sha512-2y9EI3qiT7rv7BYSONqXoEqcDtGgnexEodopjLtOr5lLNHnjy4NLcj0zTcubAPOGEpkyDHC6G5nzHlNqyEXdLQ==}
     engines: {node: '>=18'}
     peerDependencies:
       consola: '*'
 
-  '@loglayer/transport-pino@2.0.1':
-    resolution: {integrity: sha512-TEn16Xjs/h/Te/EnRtpmMyLMEk/6QU4FrJamRl+JO+BFMuWbjIZlWyDU8jaFKf33g31m4QXSf6D1AHr0okxHYg==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      pino: '*'
-
   '@loglayer/transport-pino@2.0.2':
     resolution: {integrity: sha512-C1BGVg2f4Z62Qa90VXB/zrU0pO6QXhEe6cqwZiLZmw1F1pcPfX8ErKJPISqejRH9mjPLfc66KS+8DF0qRXUlNg==}
     engines: {node: '>=18'}
     peerDependencies:
       pino: '*'
-
-  '@loglayer/transport@2.0.1':
-    resolution: {integrity: sha512-woJhmHNX44FCnaLEIXrvyX/bf16QIhTsgZ1n9s90BeUd/8Nv/vI47Lv4Enz1zIQidFqKPg3E78ZIPSaxE4oYEQ==}
-    engines: {node: '>=18'}
 
   '@loglayer/transport@2.0.2':
     resolution: {integrity: sha512-UPco5+uKwSm/15E2vP4FFBMZG/7h4BurVPN49g3xzPFJJkaeqbpp8tzKzFhdbepuRylQXSmr8+2WGjlBcqrY1g==}
@@ -1689,17 +1645,11 @@ packages:
   '@pulumi/docker-build@0.0.8':
     resolution: {integrity: sha512-tS6UUgmDjQ+LVekMXGC/6ND7riY75h3oO9fLiVOrvNafCBumxK+Cjm6ZZ9tUChLYvw6H+rZRExZEhfC8F/SQgQ==}
 
-  '@pulumi/docker-build@0.0.9':
-    resolution: {integrity: sha512-3Oqz4NBwUsTR1FuMHG2XQEA7jBb86cWdtP8mKmCtA24u284uFfwPQ1I5PMelFeykObPFjWlMtBf4KsxalP5pmQ==}
-
   '@pulumi/docker@3.6.1':
     resolution: {integrity: sha512-BZME50QkT556v+LvmTXPT8ssB2xxNkp9+msB5xYFEnUnWcdGAx5yUysQw70RJCb+U0GbkJSbxtlgMJgOQf/now==}
 
   '@pulumi/docker@4.6.1':
     resolution: {integrity: sha512-csJWLgwq+kAQzJSNbCknXydxDXz9xhss7nI6Crq3hbz/TYifrUImpV22rNSp0dieJz7vGx2QoW+8vxjIBs+HnA==}
-
-  '@pulumi/kubernetes@4.21.1':
-    resolution: {integrity: sha512-+mhO7xM4+Sy7Bqu9DKsmJEpqn34qb3ZQxPqGgrphYqiYnUiS8SWL6pDvecZWYFWBlr85KcGdaCoHRLg2paa8Ng==}
 
   '@pulumi/pulumi@3.152.0':
     resolution: {integrity: sha512-rY3bIuu+oGv7WAAuicZjXebiTCDCN7lehje3EUs7o9XFOkJY4t0pOtiLjmjMhmY9I2PBT+5l6k3RZsAxBKuNVw==}
@@ -1715,15 +1665,6 @@ packages:
 
   '@pulumi/query@0.3.0':
     resolution: {integrity: sha512-xfo+yLRM2zVjVEA4p23IjQWzyWl1ZhWOGobsBqRpIarzLvwNH/RAGaoehdxlhx4X92302DrpdIFgTICMN4P38w==}
-
-  '@pulumi/random@4.17.0':
-    resolution: {integrity: sha512-zJxTp5F7fANhm6CgIpWQEhF1/G0zUj6x+Y3g1JkHmLM5tVLmW5FTzD4K+JDLL0m2iZL7iQET0hx/kO4Aj3MizQ==}
-
-  '@pulumi/synced-folder@0.11.1':
-    resolution: {integrity: sha512-PiqgIWZE8jpEKEf7CxU5Sjn1rVzjLBR70EjTD5DgJVmv0952pguERD6FWjg34aDmhgsOZHtImbNkXk/9fV3aug==}
-
-  '@pulumiverse/time@0.1.1':
-    resolution: {integrity: sha512-M5twzGcPVir5BO3p57taxrGY8oSM896aoLufxDXJ91S508ruKfLiVejusc84sbblU2us90T8lJFGCq7j7tuwCQ==}
 
   '@rollup/rollup-android-arm-eabi@4.34.8':
     resolution: {integrity: sha512-q217OSE8DTp8AFHuNHXo0Y86e1wtlfVrXiAlwkIvGRQv9zbc6mE3sjIVfwI8sYUyNxwOg0j/Vm1RKM04JcWLJw==}
@@ -2415,27 +2356,6 @@ packages:
     resolution: {integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==}
     engines: {node: '>=8'}
 
-  ajv-formats-draft2019@1.6.1:
-    resolution: {integrity: sha512-JQPvavpkWDvIsBp2Z33UkYCtXCSpW4HD3tAZ+oL4iEFOk9obQZffx0yANwECt6vzr6ET+7HN5czRyqXbnq/u0Q==}
-    peerDependencies:
-      ajv: '*'
-
-  ajv-formats@2.1.1:
-    resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
-    peerDependencies:
-      ajv: ^8.0.0
-    peerDependenciesMeta:
-      ajv:
-        optional: true
-
-  ajv-i18n@4.2.0:
-    resolution: {integrity: sha512-v/ei2UkCEeuKNXh8RToiFsUclmU+G57LO1Oo22OagNMENIw+Yb8eMwvHu7Vn9fmkjJyv6XclhJ8TbuigSglPkg==}
-    peerDependencies:
-      ajv: ^8.0.0-beta.0
-
-  ajv@8.17.1:
-    resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
-
   ansi-colors@4.1.3:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
     engines: {node: '>=6'}
@@ -2611,10 +2531,6 @@ packages:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
 
-  cidr-regex@3.1.1:
-    resolution: {integrity: sha512-RBqYd32aDwbCMFJRL6wHOlDNYJsPNTt8vC82ErHF5vKt8QQzxm1FrkW8s/R5pVrXMf17sba09Uoy91PKiddAsw==}
-    engines: {node: '>=10'}
-
   cjs-module-lexer@1.4.3:
     resolution: {integrity: sha512-9z8TZaGM1pfswYeXrUpzPrkx8UnWYdhJclsiYMm6x/w5+nN+8Tf/LnAgfLGQCm59qAOxU8WwHEq2vNwF6i4j+Q==}
 
@@ -2680,9 +2596,6 @@ packages:
   commander@13.1.0:
     resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
     engines: {node: '>=18'}
-
-  commander@2.20.3:
-    resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
   common-ancestor-path@1.0.1:
     resolution: {integrity: sha512-L3sHRo1pXXEqX8VU28kfgUY+YGsk09hPqZiZmLacNib6XNTCM8ubYeT7ryXQw8asB1sKgcU5lkB7ONug08aB8w==}
@@ -2868,9 +2781,6 @@ packages:
     resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
     engines: {node: '>=0.3.1'}
 
-  discontinuous-range@1.0.0:
-    resolution: {integrity: sha512-c68LpLbO+7kP/b1Hr1qs8/BJ09F5khZGTxqxZuhzxpmwJKOgRFHJWIb9/KmqnqHhLdO55aOxFH/EGBvUQbL/RQ==}
-
   dotenv-expand@11.0.7:
     resolution: {integrity: sha512-zIHwmZPRshsCdpMDyVsqGmgyP0yT8GAgXUnkdAoJisxvf33k7yO6OuoKmcTGuXPWSsm8Oh88nZicRLA9Y0rUeA==}
     engines: {node: '>=12'}
@@ -3022,9 +2932,6 @@ packages:
     resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
     engines: {node: '>= 0.10.0'}
 
-  extend@3.0.2:
-    resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
-
   extsprintf@1.4.1:
     resolution: {integrity: sha512-Wrk35e8ydCKDj/ArClo1VrPVmN8zph5V4AtHwIuHhvMXsKf73UT3BOD+azBIW+3wOJ4FhEH7zyaJCFvChjYvMA==}
     engines: {'0': node >=0.6.0}
@@ -3035,9 +2942,6 @@ packages:
 
   fast-copy@3.0.2:
     resolution: {integrity: sha512-dl0O9Vhju8IrcLndv2eU4ldt1ftXMqqfgN4H1cpmGV7P6jeB9FwpN9a2c8DPGE1Ys88rNUJVYDHq73CGAGOPfQ==}
-
-  fast-deep-equal@3.1.3:
-    resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
   fast-glob@3.3.3:
     resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
@@ -3053,9 +2957,6 @@ packages:
 
   fast-safe-stringify@2.1.1:
     resolution: {integrity: sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==}
-
-  fast-uri@3.0.6:
-    resolution: {integrity: sha512-Atfo14OibSv5wAp4VWNsFYE1AchQRTv9cBGWET4pZWHzYshFSS9NQI6I57rdKn9croWVMbYFbLhJ+yJvmZIIHw==}
 
   fast-xml-parser@4.4.1:
     resolution: {integrity: sha512-xkjOecfnKGkSsOwtZ5Pz7Us/T6mrbPQrq0nh+aCO5V9nk5NLWmasAHumTKjiPJPWANe+kAZ84Jc8ooJkzZ88Sw==}
@@ -3374,20 +3275,12 @@ packages:
     resolution: {integrity: sha512-zHtQzGojZXTwZTHQqra+ETKd4Sn3vgi7uBmlPoXVWZqYvuKmtI0l/VZTjqGmJY9x88GGOaZ9+G9ES8hC4T4X8g==}
     engines: {node: '>= 12'}
 
-  ip-regex@4.3.0:
-    resolution: {integrity: sha512-B9ZWJxHHOHUhUjCPrMpLD4xEq35bUTClHM1S6CBU5ixQnkZmwipwgc96vAd7AAGM9TGHvJR+Uss+/Ak6UphK+Q==}
-    engines: {node: '>=8'}
-
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
     engines: {node: '>= 0.10'}
 
   is-arrayish@0.2.1:
     resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
-
-  is-cidr@4.0.2:
-    resolution: {integrity: sha512-z4a1ENUajDbEl/Q6/pVBpTR1nBjjEE1X7qb7bmWYanNnPoKAvUCPFKeXV6Fe4mgTkWKBqiHIcwsI3SndiO5FeA==}
-    engines: {node: '>=10'}
 
   is-core-module@2.16.1:
     resolution: {integrity: sha512-UfoeMA6fIJ8wTYFEUjelnaGI67v6+N7qXJEvQuIGa99l4xsCruSYOVSQ0uPANn4dAzm8lkYPaKLrrijLq7x23w==}
@@ -3424,10 +3317,6 @@ packages:
   is-number@7.0.0:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
-
-  is-plain-object@5.0.0:
-    resolution: {integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==}
-    engines: {node: '>=0.10.0'}
 
   is-stream@2.0.1:
     resolution: {integrity: sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==}
@@ -3510,9 +3399,6 @@ packages:
   json-parse-even-better-errors@3.0.2:
     resolution: {integrity: sha512-fi0NG4bPjCHunUJffmLd0gxssIgkNmArMvis4iNah6Owg1MCJjWhEcDLmsK6iGkJq3tHwbDkTlce70/tmXN4cQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
-
-  json-schema-traverse@1.0.0:
-    resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
 
   json-stringify-nice@1.1.4:
     resolution: {integrity: sha512-5Z5RFW63yxReJ7vANgW6eZFGWaQvnPE3WNmZoOJrSkGju2etKA2L5rrOa1sm877TVTFt57A80BH1bArcmlLfPw==}
@@ -3708,10 +3594,6 @@ packages:
     resolution: {integrity: sha512-i24m8rpwhmPIS4zscNzK6MSEhk0DUWa/8iYQWxhffV8jkI4Phvs3F+quL5xvS0gdQR0FyTCMMH33Y78dDTzzIw==}
     engines: {node: '>=18'}
 
-  loglayer@6.1.1:
-    resolution: {integrity: sha512-ufprK+u/Nk7yg9Qbj9VcA30nailo8ZxK/MwRlU7Hk9nKSOsIwH4aKu00Qxv0Zc6VS223ZSP2+PKSkXyOWnF4TA==}
-    engines: {node: '>=18'}
-
   loglayer@6.1.3:
     resolution: {integrity: sha512-/vAOpwgBUG99lgAATbhf49qjyBFUheOhz9L28Fy36NNiKMls24Oc6zdSVsaQo5Vp2i/5jkYjhFaAEy6yGOMPcA==}
     engines: {node: '>=18'}
@@ -3872,9 +3754,6 @@ packages:
   module-details-from-path@1.0.3:
     resolution: {integrity: sha512-ySViT69/76t8VhE1xXHK6Ch4NcDd26gx0MzKXLO+F7NOtnqH68d9zF94nT8ZWSxXh8ELOERsnJO/sWt1xZYw5A==}
 
-  moo@0.5.2:
-    resolution: {integrity: sha512-iSAJLHYKnX41mKcJKjqvnAN9sf0LMDTXDEvFv+ffuRR9a1MIuXLjMNL6EsnDHSkKLTWNqQQ5uo61P4EbU4NU+Q==}
-
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
@@ -3906,10 +3785,6 @@ packages:
 
   napi-build-utils@2.0.0:
     resolution: {integrity: sha512-GEbrYkbfF7MoNaoh2iGG84Mnf/WZfB0GdGEsM8wz7Expx/LlWf5U8t9nvJKXSp3qr5IsEbK04cBGhol/KwOsWA==}
-
-  nearley@2.20.1:
-    resolution: {integrity: sha512-+Mc8UaAebFzgV+KpI5n7DasuuQCHA89dmwm7JXw3TV43ukfNQ9DnBH3Mdb2g/I4Fdxc26pwimBWvjIw0UAILSQ==}
-    hasBin: true
 
   negotiator@0.6.3:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
@@ -4339,10 +4214,6 @@ packages:
   pump@3.0.2:
     resolution: {integrity: sha512-tUPXtzlGM8FE3P0ZL6DVs/3P58k9nk8/jZeQCurTJylQA8qFYzHFfhBJkuqyE0FifOsQ0uKWekiZ5g8wtr28cw==}
 
-  punycode@2.3.1:
-    resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
-    engines: {node: '>=6'}
-
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
@@ -4360,13 +4231,6 @@ packages:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
 
-  railroad-diagrams@1.0.0:
-    resolution: {integrity: sha512-cz93DjNeLY0idrCNOH6PviZGRN9GJhsdm9hpn1YCS879fj4W+x5IFJhhkRZcwVgMmFF7R82UA/7Oh+R8lLZg6A==}
-
-  randexp@0.4.6:
-    resolution: {integrity: sha512-80WNmd9DA0tmZrw9qQa62GPPWfuXJknrmVmLcxvq4uZBdYqb1wYoKTmnlGUchvVWe0XiLupYkBoXVOxz3C8DYQ==}
-    engines: {node: '>=0.12'}
-
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
@@ -4378,10 +4242,6 @@ packages:
   rc@1.2.8:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
-
-  re2-wasm@1.0.2:
-    resolution: {integrity: sha512-VXUdgSiUrE/WZXn6gUIVVIsg0+Hp6VPZPOaHCay+OuFKy6u/8ktmeNEf+U5qSA8jzGGFsg8jrDNu1BeHpz2pJA==}
-    engines: {node: '>=10'}
 
   react-dom@19.0.0:
     resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
@@ -4480,10 +4340,6 @@ packages:
     resolution: {integrity: sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA==}
     engines: {node: '>=18'}
 
-  ret@0.1.15:
-    resolution: {integrity: sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==}
-    engines: {node: '>=0.12'}
-
   retry@0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
     engines: {node: '>= 4'}
@@ -4520,9 +4376,6 @@ packages:
 
   scheduler@0.25.0:
     resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
-
-  schemes@1.4.0:
-    resolution: {integrity: sha512-ImFy9FbCsQlVgnE3TCWmLPCFnVzx0lHL/l+umHplDqAKd0dzFpnS6lFZIpagBlYhKwzVmlV36ec0Y1XTu8JBAQ==}
 
   secure-json-parse@2.7.0:
     resolution: {integrity: sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==}
@@ -4570,10 +4423,6 @@ packages:
   shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
-
-  shell-quote@1.8.2:
-    resolution: {integrity: sha512-AzqKpGKjrj7EM6rKVQEPpB288oCfnrEIuyoT9cyF4nmGa7V8Zk6f7RRqYisX8X9m+Q7bd632aZW4ky7EhbQztA==}
-    engines: {node: '>= 0.4'}
 
   shimmer@1.2.1:
     resolution: {integrity: sha512-sQTKC1Re/rM6XyFM6fIAGHRPVGvyXfgzIDvzoq608vM+jeyVD0Tu1E6Np0Kc2zAIFWIj963V2800iF/9LPieQw==}
@@ -4631,10 +4480,6 @@ packages:
   smart-buffer@4.2.0:
     resolution: {integrity: sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==}
     engines: {node: '>= 6.0.0', npm: '>= 3.0.0'}
-
-  smtp-address-parser@1.1.0:
-    resolution: {integrity: sha512-Gz11jbNU0plrReU9Sj7fmshSBxxJ9ShdD2q4ktHIHo/rpTH6lFyQoYHYKINPJtPe8aHFnsbtW46Ls0tCCBsIZg==}
-    engines: {node: '>=0.10'}
 
   socks-proxy-agent@8.0.5:
     resolution: {integrity: sha512-HehCEsotFqbPW9sJ8WVYB6UbmIMv7kUUORIF2Nncq4VQvBfNBLibW9YZR5dlYCSUhwcD628pRllm7n+E+YTzJw==}
@@ -4918,9 +4763,6 @@ packages:
   upath@1.2.0:
     resolution: {integrity: sha512-aZwGpamFO61g3OlfT7OQCHqhGnW43ieH9WZeP7QxN/G/jS4jfqUkZxoryvJgVPEcrl5NL/ggHsSmLMHuH64Lhg==}
     engines: {node: '>=4'}
-
-  uri-js@4.4.1:
-    resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -5965,39 +5807,9 @@ snapshots:
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
-  '@kubernetes-models/apimachinery@2.0.2':
+  '@levicape/fourtwo-builders@0.10.0-main.23(projen@0.71.163)':
     dependencies:
-      '@kubernetes-models/base': 5.0.1
-      '@kubernetes-models/validate': 4.0.0
-      '@swc/helpers': 0.5.15
-
-  '@kubernetes-models/base@5.0.1':
-    dependencies:
-      '@kubernetes-models/validate': 4.0.0
-      is-plain-object: 5.0.0
-      tslib: 2.8.1
-
-  '@kubernetes-models/postgres-operator@0.4.2':
-    dependencies:
-      '@kubernetes-models/apimachinery': 2.0.2
-      '@kubernetes-models/base': 5.0.1
-      '@kubernetes-models/validate': 4.0.0
-      '@swc/helpers': 0.5.15
-
-  '@kubernetes-models/validate@4.0.0':
-    dependencies:
-      ajv: 8.17.1
-      ajv-formats: 2.1.1(ajv@8.17.1)
-      ajv-formats-draft2019: 1.6.1(ajv@8.17.1)
-      ajv-i18n: 4.2.0(ajv@8.17.1)
-      is-cidr: 4.0.2
-      tslib: 2.8.1
-    optionalDependencies:
-      re2-wasm: 1.0.2
-
-  '@levicape/fourtwo-builders@0.9.1-main.21(projen@0.71.163)':
-    dependencies:
-      '@levicape/fourtwo': 0.9.1-main.21(projen@0.71.163)
+      '@levicape/fourtwo': 0.10.0-main.23(projen@0.71.163)
     transitivePeerDependencies:
       - '@middy/core'
       - bufferutil
@@ -6011,27 +5823,17 @@ snapshots:
       - tedious
       - utf-8-validate
 
-  '@levicape/fourtwo-pulumi@0.9.1-main.21(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
+  '@levicape/fourtwo-pulumi@0.10.0-main.23(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
-      '@kubernetes-models/postgres-operator': 0.4.2
       '@pulumi/aws': 6.69.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      '@pulumi/awsx': 2.21.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      '@pulumi/command': 1.0.2(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      '@pulumi/docker': 4.6.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      '@pulumi/docker-build': 0.0.9(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      '@pulumi/kubernetes': 4.21.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      '@pulumi/random': 4.17.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      '@pulumi/synced-folder': 0.11.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      '@pulumiverse/time': 0.1.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
     transitivePeerDependencies:
-      - aws-crt
       - bluebird
       - supports-color
       - ts-node
       - typescript
 
-  '@levicape/fourtwo@0.9.1-main.21(projen@0.71.163)':
+  '@levicape/fourtwo@0.10.0-main.23(projen@0.71.163)':
     dependencies:
       '@aws-lambda-powertools/logger': 2.14.0
       '@aws/codecatalyst-workflows-sdk': 0.1.5-preview.6(projen@0.71.163)
@@ -6077,9 +5879,9 @@ snapshots:
       '@aws-lambda-powertools/logger': 2.14.0
       '@effect/platform': 0.77.2(effect@3.13.2)
       '@effect/platform-node': 0.73.2(@effect/platform@0.77.2(effect@3.13.2))(effect@3.13.2)
-      '@loglayer/transport-aws-lambda-powertools': 3.0.1(@aws-lambda-powertools/logger@2.14.0)
-      '@loglayer/transport-consola': 2.0.1(consola@3.4.0)
-      '@loglayer/transport-pino': 2.0.1(pino@9.6.0)
+      '@loglayer/transport-aws-lambda-powertools': 3.0.2(@aws-lambda-powertools/logger@2.14.0)
+      '@loglayer/transport-consola': 2.0.2(consola@3.4.0)
+      '@loglayer/transport-pino': 2.0.2(pino@9.6.0)
       '@stricli/core': 1.1.1
       better-sqlite3: 11.8.1
       consola: 3.4.0
@@ -6090,7 +5892,7 @@ snapshots:
       fs-extra: 11.3.0
       knex: 3.1.0(better-sqlite3@11.8.1)(pg@8.13.3)
       ksuid: 3.0.0
-      loglayer: 6.1.1
+      loglayer: 6.1.3
       pino: 9.6.0
       pino-pretty: 13.0.0
       serialize-error: 12.0.0
@@ -6181,59 +5983,30 @@ snapshots:
 
   '@logdna/tail-file@2.2.0': {}
 
-  '@loglayer/context-manager@1.0.1':
-    dependencies:
-      '@loglayer/shared': 2.1.0
-
   '@loglayer/context-manager@1.0.2':
     dependencies:
       '@loglayer/shared': 2.1.1
-
-  '@loglayer/plugin@2.0.1':
-    dependencies:
-      '@loglayer/shared': 2.1.0
 
   '@loglayer/plugin@2.0.2':
     dependencies:
       '@loglayer/shared': 2.1.1
 
-  '@loglayer/shared@2.1.0': {}
-
   '@loglayer/shared@2.1.1': {}
-
-  '@loglayer/transport-aws-lambda-powertools@3.0.1(@aws-lambda-powertools/logger@2.14.0)':
-    dependencies:
-      '@aws-lambda-powertools/logger': 2.14.0
-      '@loglayer/transport': 2.0.1
 
   '@loglayer/transport-aws-lambda-powertools@3.0.2(@aws-lambda-powertools/logger@2.14.0)':
     dependencies:
       '@aws-lambda-powertools/logger': 2.14.0
       '@loglayer/transport': 2.0.2
 
-  '@loglayer/transport-consola@2.0.1(consola@3.4.0)':
-    dependencies:
-      '@loglayer/transport': 2.0.1
-      consola: 3.4.0
-
   '@loglayer/transport-consola@2.0.2(consola@3.4.0)':
     dependencies:
       '@loglayer/transport': 2.0.2
       consola: 3.4.0
 
-  '@loglayer/transport-pino@2.0.1(pino@9.6.0)':
-    dependencies:
-      '@loglayer/transport': 2.0.1
-      pino: 9.6.0
-
   '@loglayer/transport-pino@2.0.2(pino@9.6.0)':
     dependencies:
       '@loglayer/transport': 2.0.2
       pino: 9.6.0
-
-  '@loglayer/transport@2.0.1':
-    dependencies:
-      '@loglayer/shared': 2.1.0
 
   '@loglayer/transport@2.0.2':
     dependencies:
@@ -6652,15 +6425,6 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/docker-build@0.0.9(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
-    dependencies:
-      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-      - ts-node
-      - typescript
-
   '@pulumi/docker@3.6.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
       '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
@@ -6675,17 +6439,6 @@ snapshots:
     dependencies:
       '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       semver: 5.7.2
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-      - ts-node
-      - typescript
-
-  '@pulumi/kubernetes@4.21.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
-    dependencies:
-      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-      glob: 10.4.5
-      shell-quote: 1.8.2
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -6732,33 +6485,6 @@ snapshots:
       - supports-color
 
   '@pulumi/query@0.3.0': {}
-
-  '@pulumi/random@4.17.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
-    dependencies:
-      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-      - ts-node
-      - typescript
-
-  '@pulumi/synced-folder@0.11.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
-    dependencies:
-      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-      - ts-node
-      - typescript
-
-  '@pulumiverse/time@0.1.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
-    dependencies:
-      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-      - ts-node
-      - typescript
 
   '@rollup/rollup-android-arm-eabi@4.34.8':
     optional: true
@@ -7238,6 +6964,7 @@ snapshots:
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
+    optional: true
 
   '@swc/types@0.1.17':
     dependencies:
@@ -7512,29 +7239,6 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  ajv-formats-draft2019@1.6.1(ajv@8.17.1):
-    dependencies:
-      ajv: 8.17.1
-      punycode: 2.3.1
-      schemes: 1.4.0
-      smtp-address-parser: 1.1.0
-      uri-js: 4.4.1
-
-  ajv-formats@2.1.1(ajv@8.17.1):
-    optionalDependencies:
-      ajv: 8.17.1
-
-  ajv-i18n@4.2.0(ajv@8.17.1):
-    dependencies:
-      ajv: 8.17.1
-
-  ajv@8.17.1:
-    dependencies:
-      fast-deep-equal: 3.1.3
-      fast-uri: 3.0.6
-      json-schema-traverse: 1.0.0
-      require-from-string: 2.0.2
-
   ansi-colors@4.1.3: {}
 
   ansi-regex@5.0.1: {}
@@ -7716,10 +7420,6 @@ snapshots:
 
   chownr@2.0.0: {}
 
-  cidr-regex@3.1.1:
-    dependencies:
-      ip-regex: 4.3.0
-
   cjs-module-lexer@1.4.3: {}
 
   clean-stack@2.2.0: {}
@@ -7773,8 +7473,6 @@ snapshots:
   commander@10.0.1: {}
 
   commander@13.1.0: {}
-
-  commander@2.20.3: {}
 
   common-ancestor-path@1.0.1: {}
 
@@ -7915,8 +7613,6 @@ snapshots:
   diff-sequences@29.6.3: {}
 
   diff@4.0.2: {}
-
-  discontinuous-range@1.0.0: {}
 
   dotenv-expand@11.0.7:
     dependencies:
@@ -8135,8 +7831,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  extend@3.0.2: {}
-
   extsprintf@1.4.1: {}
 
   fast-check@3.23.2:
@@ -8144,8 +7838,6 @@ snapshots:
       pure-rand: 6.1.0
 
   fast-copy@3.0.2: {}
-
-  fast-deep-equal@3.1.3: {}
 
   fast-glob@3.3.3:
     dependencies:
@@ -8160,8 +7852,6 @@ snapshots:
   fast-redact@3.5.0: {}
 
   fast-safe-stringify@2.1.1: {}
-
-  fast-uri@3.0.6: {}
 
   fast-xml-parser@4.4.1:
     dependencies:
@@ -8322,7 +8012,7 @@ snapshots:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.8
+      minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
 
@@ -8495,15 +8185,9 @@ snapshots:
       jsbn: 1.1.0
       sprintf-js: 1.1.3
 
-  ip-regex@4.3.0: {}
-
   ipaddr.js@1.9.1: {}
 
   is-arrayish@0.2.1: {}
-
-  is-cidr@4.0.2:
-    dependencies:
-      cidr-regex: 3.1.1
 
   is-core-module@2.16.1:
     dependencies:
@@ -8526,8 +8210,6 @@ snapshots:
   is-lambda@1.0.1: {}
 
   is-number@7.0.0: {}
-
-  is-plain-object@5.0.0: {}
 
   is-stream@2.0.1: {}
 
@@ -8588,8 +8270,6 @@ snapshots:
   json-parse-even-better-errors@2.3.1: {}
 
   json-parse-even-better-errors@3.0.2: {}
-
-  json-schema-traverse@1.0.0: {}
 
   json-stringify-nice@1.1.4: {}
 
@@ -8754,13 +8434,6 @@ snapshots:
       chalk: 5.4.1
       is-unicode-supported: 1.3.0
 
-  loglayer@6.1.1:
-    dependencies:
-      '@loglayer/context-manager': 1.0.1
-      '@loglayer/plugin': 2.0.1
-      '@loglayer/shared': 2.1.0
-      '@loglayer/transport': 2.0.1
-
   loglayer@6.1.3:
     dependencies:
       '@loglayer/context-manager': 1.0.2
@@ -8903,8 +8576,6 @@ snapshots:
 
   module-details-from-path@1.0.3: {}
 
-  moo@0.5.2: {}
-
   mri@1.2.0: {}
 
   mrmime@2.0.1: {}
@@ -8928,13 +8599,6 @@ snapshots:
   nanoid@3.3.8: {}
 
   napi-build-utils@2.0.0: {}
-
-  nearley@2.20.1:
-    dependencies:
-      commander: 2.20.3
-      moo: 0.5.2
-      railroad-diagrams: 1.0.0
-      randexp: 0.4.6
 
   negotiator@0.6.3: {}
 
@@ -9442,8 +9106,6 @@ snapshots:
       end-of-stream: 1.4.4
       once: 1.4.0
 
-  punycode@2.3.1: {}
-
   pure-rand@6.1.0: {}
 
   qs@6.13.0:
@@ -9455,13 +9117,6 @@ snapshots:
   quick-format-unescaped@4.0.4: {}
 
   quick-lru@5.1.1: {}
-
-  railroad-diagrams@1.0.0: {}
-
-  randexp@0.4.6:
-    dependencies:
-      discontinuous-range: 1.0.0
-      ret: 0.1.15
 
   range-parser@1.2.1: {}
 
@@ -9478,9 +9133,6 @@ snapshots:
       ini: 1.3.8
       minimist: 1.2.8
       strip-json-comments: 2.0.1
-
-  re2-wasm@1.0.2:
-    optional: true
 
   react-dom@19.0.0(react@19.0.0):
     dependencies:
@@ -9570,8 +9222,6 @@ snapshots:
       onetime: 7.0.0
       signal-exit: 4.1.0
 
-  ret@0.1.15: {}
-
   retry@0.12.0: {}
 
   reusify@1.0.4: {}
@@ -9622,10 +9272,6 @@ snapshots:
   safer-buffer@2.1.2: {}
 
   scheduler@0.25.0: {}
-
-  schemes@1.4.0:
-    dependencies:
-      extend: 3.0.2
 
   secure-json-parse@2.7.0: {}
 
@@ -9679,8 +9325,6 @@ snapshots:
       shebang-regex: 3.0.0
 
   shebang-regex@3.0.0: {}
-
-  shell-quote@1.8.2: {}
 
   shimmer@1.2.1: {}
 
@@ -9763,10 +9407,6 @@ snapshots:
       - pg-native
 
   smart-buffer@4.2.0: {}
-
-  smtp-address-parser@1.1.0:
-    dependencies:
-      nearley: 2.20.1
 
   socks-proxy-agent@8.0.5:
     dependencies:
@@ -10053,10 +9693,6 @@ snapshots:
   unpipe@1.0.0: {}
 
   upath@1.2.0: {}
-
-  uri-js@4.4.1:
-    dependencies:
-      punycode: 2.3.1
 
   util-deprecate@1.0.2: {}
 

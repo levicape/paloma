@@ -20,6 +20,9 @@ export const CODECATALYST_PULUMI_STACKS: Array<{
 	output: string;
 }> = [
 	{
+		stack: "application",
+	},
+	{
 		stack: "codestar",
 	},
 	{
@@ -39,5 +42,9 @@ export const CODECATALYST_PULUMI_STACKS: Array<{
 	{
 		stack: "domains/nevada/monitor",
 		name: "nevada-monitor",
+	},
+	{
+		stack: "domains/nevada/wwwroot",
+		name: "nevada-wwwroot",
 	},
 ].map((stack) => ({ ...stack, output: stack.stack.replaceAll("/", "_") }));

@@ -92,22 +92,10 @@ Actions:
             - Run: mkdir -p /cc/cache/nodejs/pnpmglobal
             - Run: mkdir -p /cc/cache/nodejs/nxcache
             - Run: mkdir -p /cc/cache/docker/images
-            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project
-            - Run: npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
-            - Run: sudo npm config set prefix=/cc/cache/nodejs/npm
-            - Run: sudo corepack -g install $PNPM_VERSION
-            - Run: sudo corepack enable pnpm
-            - Run: sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: sudo pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: sudo pnpx n $NODEJS_VERSION
-            - Run: npm config set prefix=/cc/cache/nodejs/npm
-            - Run: corepack -g install $PNPM_VERSION
-            - Run: corepack enable pnpm
-            - Run: pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: pnpx n $NODEJS_VERSION
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project; npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
             - Run: sudo npm root -g
             - Run: pnpm install --ignore-scripts
             - Run: echo $PNPM_HOME
@@ -203,22 +191,10 @@ Actions:
             Registry: CODECATALYST
             Image: CodeCatalystLinux_Arm64:2024_03
           Steps:
-            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project
-            - Run: npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
-            - Run: sudo npm config set prefix=/cc/cache/nodejs/npm
-            - Run: sudo corepack -g install $PNPM_VERSION
-            - Run: sudo corepack enable pnpm
-            - Run: sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: sudo pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: sudo pnpx n $NODEJS_VERSION
-            - Run: npm config set prefix=/cc/cache/nodejs/npm
-            - Run: corepack -g install $PNPM_VERSION
-            - Run: corepack enable pnpm
-            - Run: pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: pnpx n $NODEJS_VERSION
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project; npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
             - Run: pnpm install --prefer-offline --ignore-scripts
             - Run: python3 -c "print('ok')" || true
             - Run: pnpm rebuild || true
@@ -291,22 +267,10 @@ Actions:
             - Run: docker load --input /cc/cache/docker/images/cli-pack.tar.gz || true
             - Run: docker load --input /cc/cache/docker/images/builder.tar.gz || true
             - Run: docker load --input /cc/cache/docker/images/launcher.tar.gz || true
-            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project
-            - Run: npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
-            - Run: sudo npm config set prefix=/cc/cache/nodejs/npm
-            - Run: sudo corepack -g install $PNPM_VERSION
-            - Run: sudo corepack enable pnpm
-            - Run: sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: sudo pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: sudo pnpx n $NODEJS_VERSION
-            - Run: npm config set prefix=/cc/cache/nodejs/npm
-            - Run: corepack -g install $PNPM_VERSION
-            - Run: corepack enable pnpm
-            - Run: pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: pnpx n $NODEJS_VERSION
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project; npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
             - Run: pnpm install --prefer-offline --ignore-scripts
             - Run: sudo yum install -y make cmake zip unzip automake autoconf || true
             - Run: sudo yum install -y zlib bzip2 || true
@@ -383,152 +347,184 @@ Actions:
             Registry: CODECATALYST
             Image: CodeCatalystLinux_Arm64:2024_03
           Steps:
-            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project
-            - Run: npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
-            - Run: sudo npm config set prefix=/cc/cache/nodejs/npm
-            - Run: sudo corepack -g install $PNPM_VERSION
-            - Run: sudo corepack enable pnpm
-            - Run: sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: sudo pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: sudo pnpx n $NODEJS_VERSION
-            - Run: npm config set prefix=/cc/cache/nodejs/npm
-            - Run: corepack -g install $PNPM_VERSION
-            - Run: corepack enable pnpm
-            - Run: pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: pnpx n $NODEJS_VERSION
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project; npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
             - Run: pnpm install --prefer-offline --ignore-scripts
             - Run: aws ssm get-parameter --name /fourtwo/_principal/pulumi/backend/StateBackendCommandReference
             - Run: pnpm exec fourtwo aws pulumi ci --region $AWS_REGION > .pulumi-ci
             - Run: cat .pulumi-ci
             - Run: cat .pulumi-ci | grep "export" >> .export-cd
-            - Run: cat .export-cd
-            - Run: source .export-cd
+            - Run: cat .export-cd && source .export-cd
             - Run: echo $AWS_PROVIDER_KEY
-            - Run: mkdir -p _pulumi || true
-            - Run: 'echo "Deploying onto root: paloma"'
-            - Run: 'echo "Deploying: Stack: paloma-codestar.current. CWD: $(pwd)/iac/stacks/src/codestar. Output: _pulumi/codestar."'
-            - Run: 'echo "name: paloma-codestar" >> $(pwd)/iac/stacks/src/codestar/Pulumi.yaml'
-            - Run: cat $(pwd)/iac/stacks/src/codestar/Pulumi.yaml $(pwd)/iac/stacks/src/codestar/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-codestar.current -C $(pwd)/iac/stacks/src/codestar || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-codestar.current -C $(pwd)/iac/stacks/src/codestar || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/codestar
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/codestar
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/codestar
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/codestar
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[1]' current.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/codestar
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[2]' paloma-codestar.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/codestar
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/codestar
-            - Run: cat $(pwd)/iac/stacks/src/codestar/Pulumi.yaml $(pwd)/iac/stacks/src/codestar/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/codestar --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/codestar --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/codestar --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/codestar --json > $(pwd)/_pulumi/codestar.json
-            - Run: cat _pulumi/codestar.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/codestar --shell > $(pwd)/_pulumi/codestar.sh
-            - Run: cat _pulumi/codestar.sh
-            - Run: 'echo "Deploying: Stack: paloma-datalayer.current. CWD: $(pwd)/iac/stacks/src/datalayer. Output: _pulumi/datalayer."'
-            - Run: 'echo "name: paloma-datalayer" >> $(pwd)/iac/stacks/src/datalayer/Pulumi.yaml'
-            - Run: cat $(pwd)/iac/stacks/src/datalayer/Pulumi.yaml $(pwd)/iac/stacks/src/datalayer/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-datalayer.current -C $(pwd)/iac/stacks/src/datalayer || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-datalayer.current -C $(pwd)/iac/stacks/src/datalayer || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/datalayer
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/datalayer
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/datalayer
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/datalayer
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[1]' current.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/datalayer
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[2]' paloma-datalayer.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/datalayer
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/datalayer
-            - Run: cat $(pwd)/iac/stacks/src/datalayer/Pulumi.yaml $(pwd)/iac/stacks/src/datalayer/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/datalayer --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/datalayer --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/datalayer --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/datalayer --json > $(pwd)/_pulumi/datalayer.json
-            - Run: cat _pulumi/datalayer.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/datalayer --shell > $(pwd)/_pulumi/datalayer.sh
-            - Run: cat _pulumi/datalayer.sh
-            - Run: 'echo "Deploying: Stack: paloma-monitor.current. CWD: $(pwd)/iac/stacks/src/monitor. Output: _pulumi/monitor."'
-            - Run: 'echo "name: paloma-monitor" >> $(pwd)/iac/stacks/src/monitor/Pulumi.yaml'
-            - Run: cat $(pwd)/iac/stacks/src/monitor/Pulumi.yaml $(pwd)/iac/stacks/src/monitor/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-monitor.current -C $(pwd)/iac/stacks/src/monitor || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-monitor.current -C $(pwd)/iac/stacks/src/monitor || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[1]' current.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[2]' paloma-monitor.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/monitor
-            - Run: cat $(pwd)/iac/stacks/src/monitor/Pulumi.yaml $(pwd)/iac/stacks/src/monitor/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/monitor --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/monitor --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/monitor --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitor --json > $(pwd)/_pulumi/monitor.json
-            - Run: cat _pulumi/monitor.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/monitor --shell > $(pwd)/_pulumi/monitor.sh
-            - Run: cat _pulumi/monitor.sh
-            - Run: 'echo "Deploying: Stack: paloma-nevada-http.current. CWD: $(pwd)/iac/stacks/src/domains/nevada/http. Output: _pulumi/domains_nevada_http."'
-            - Run: 'echo "name: paloma-nevada-http" >> $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.yaml'
-            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-nevada-http.current -C $(pwd)/iac/stacks/src/domains/nevada/http || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-nevada-http.current -C $(pwd)/iac/stacks/src/domains/nevada/http || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[1]' current.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[2]' paloma-nevada-http.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/http
-            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/http/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/domains/nevada/http --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/domains/nevada/http --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/domains/nevada/http --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/http --json > $(pwd)/_pulumi/domains_nevada_http.json
-            - Run: cat _pulumi/domains_nevada_http.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/http --shell > $(pwd)/_pulumi/domains_nevada_http.sh
-            - Run: cat _pulumi/domains_nevada_http.sh
-            - Run: 'echo "Deploying: Stack: paloma-nevada-web.current. CWD: $(pwd)/iac/stacks/src/domains/nevada/web. Output: _pulumi/domains_nevada_web."'
-            - Run: 'echo "name: paloma-nevada-web" >> $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.yaml'
-            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-nevada-web.current -C $(pwd)/iac/stacks/src/domains/nevada/web || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-nevada-web.current -C $(pwd)/iac/stacks/src/domains/nevada/web || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[1]' current.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[2]' paloma-nevada-web.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/web
-            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/web/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/domains/nevada/web --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/domains/nevada/web --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/domains/nevada/web --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/web --json > $(pwd)/_pulumi/domains_nevada_web.json
-            - Run: cat _pulumi/domains_nevada_web.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/web --shell > $(pwd)/_pulumi/domains_nevada_web.sh
-            - Run: cat _pulumi/domains_nevada_web.sh
-            - Run: 'echo "Deploying: Stack: paloma-nevada-monitor.current. CWD: $(pwd)/iac/stacks/src/domains/nevada/monitor. Output: _pulumi/domains_nevada_monitor."'
-            - Run: 'echo "name: paloma-nevada-monitor" >> $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.yaml'
-            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi stack init paloma-nevada-monitor.current -C $(pwd)/iac/stacks/src/domains/nevada/monitor || true
-            - Run: /cc/cache/pulumi/bin/pulumi stack select paloma-nevada-monitor.current -C $(pwd)/iac/stacks/src/domains/nevada/monitor || true
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path aws:skipMetadataApiCheck false -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.isProd false -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path context:stack.environment.features aws -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[0]' paloma.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[1]' current.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi config set --path 'frontend:stack.dns.hostnames[2]' paloma-nevada-monitor.cloud.$FRONTEND_HOSTNAME -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: /cc/cache/pulumi/bin/pulumi stack change-secrets-provider $AWS_PROVIDER_KEY -C $(pwd)/iac/stacks/src/domains/nevada/monitor
-            - Run: cat $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.yaml $(pwd)/iac/stacks/src/domains/nevada/monitor/Pulumi.*.yaml || true;
-            - Run: /cc/cache/pulumi/bin/pulumi refresh --yes --skip-preview --clear-pending-creates --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-refresh" -C $(pwd)/iac/stacks/src/domains/nevada/monitor --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi preview --show-replacement-steps --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-preview" -C $(pwd)/iac/stacks/src/domains/nevada/monitor --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi up --yes --message "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}-up" -C $(pwd)/iac/stacks/src/domains/nevada/monitor --non-interactive --suppress-progress --diff --json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/monitor --json > $(pwd)/_pulumi/domains_nevada_monitor.json
-            - Run: cat _pulumi/domains_nevada_monitor.json
-            - Run: /cc/cache/pulumi/bin/pulumi stack output -C $(pwd)/iac/stacks/src/domains/nevada/monitor --shell > $(pwd)/_pulumi/domains_nevada_monitor.sh
-            - Run: cat _pulumi/domains_nevada_monitor.sh
+            - Run: |-
+                echo '
+                configure_stack() {
+                	local step="$1"
+                	local stack_name="$2"
+                	local stack_cwd="$3"
+                	local project="$4"
+                	local output="$5"
+
+                	echo "${step}: Stack: ${stack_name}. CWD: ${stack_cwd}. Output: ${output}."
+                	echo "name: ${project}" >> "${stack_cwd}/Pulumi.yaml"
+                	cat "${stack_cwd}"/Pulumi.{yaml,"*".yaml} || true
+                }
+                setup_stack() {
+                	local binary="$1"
+                	local stack_name="$2"
+                	local stack_cwd="$3"
+                	
+                	echo "Setting up stack: ${stack_name}. CWD: ${stack_cwd}."
+                	for cmd in init select; do
+                		${binary} stack ${cmd} ${stack_name} -C ${stack_cwd} || true
+                	done
+                }
+                configure_stack_settings() {
+                	local binary="$1"
+                	local stack_cwd="$2"
+                	local configs="$3"
+                	
+                	echo "Configuring stack settings"
+                	
+                	while IFS= read -r line; do
+                	  if [[ -n "$line" ]]; then
+                		key="${line%%=*}"
+                		value="${line#*=}"
+                      	
+                		# Expand variables in value
+                		eval "value="$value""
+                		
+                		if [[ -n "$key" && -n "$value" ]]; then
+                		  echo "Setting $key to $value"
+                		  $binary config set --path "$key" "$value" -C "$stack_cwd"
+                		fi
+                	  fi
+                	done <<< "$configs"
+                  }
+                set_state_backend() {
+                	local binary="$1"
+                	local provider="$2"
+                	local stack_cwd="$3"
+
+                	${binary} stack change-secrets-provider "${provider}" -C "${stack_cwd}"
+                	cat "${stack_cwd}"/Pulumi.{yaml,"*".yaml} || true
+                }
+                refresh_and_preview() {
+                	local binary="$1"
+                	local message="$2"
+                	local stack_cwd="$3"
+                	shift 3
+                	local -a default_args=("$@")
+
+                	${binary} refresh --yes --skip-preview --clear-pending-creates --message "${message}-refresh" -C "${stack_cwd}" "${default_args[@]}"
+                	${binary} preview --show-replacement-steps --message "${message}-preview" -C "${stack_cwd}" "${default_args[@]}"
+                }
+                deploy_stack() {
+                	local binary="$1"
+                	local message="$2"
+                	local stack_cwd="$3"
+                	shift 3
+                	local -a default_args=("$@")
+
+                	${binary} up --yes --message "${message}-up" -C "${stack_cwd}" "${default_args[@]}"
+
+                }
+
+                capture_outputs() {
+                	local binary="$1"
+                	local stack_cwd="$2"
+                	local output="$3"
+
+                	${binary} stack output -C "${stack_cwd}" --json > "$(pwd)/${output}.json"
+                	cat "${output}.json"
+                	${binary} stack output -C "${stack_cwd}" --shell > "$(pwd)/${output}.sh"
+                	cat "${output}.sh"
+                }
+                ' > .pulumi-ci-helper;
+                source .pulumi-ci-helper
+            - Run: 'mkdir -p _pulumi || true && echo "Deploy onto root: paloma"'
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-application.current" "$(pwd)/iac/stacks/src/application" "paloma-application" "_pulumi/application" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-application.current" "$(pwd)/iac/stacks/src/application" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/application" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-application.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/application" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/application" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/application" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/application" "_pulumi/application"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-codestar.current" "$(pwd)/iac/stacks/src/codestar" "paloma-codestar" "_pulumi/codestar" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-codestar.current" "$(pwd)/iac/stacks/src/codestar" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/codestar" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-codestar.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/codestar" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/codestar" "_pulumi/codestar"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-datalayer.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/datalayer" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/datalayer" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/datalayer" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/datalayer" "_pulumi/datalayer"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-monitor.current" "$(pwd)/iac/stacks/src/monitor" "paloma-monitor" "_pulumi/monitor" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-monitor.current" "$(pwd)/iac/stacks/src/monitor" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/monitor" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-monitor.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/monitor" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/monitor" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/monitor" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/monitor" "_pulumi/monitor"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-http.current" "$(pwd)/iac/stacks/src/domains/nevada/http" "paloma-nevada-http" "_pulumi/domains_nevada_http" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-http.current" "$(pwd)/iac/stacks/src/domains/nevada/http" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/http" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-nevada-http.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/domains/nevada/http" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/http" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/http" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/http" "_pulumi/domains_nevada_http"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-web.current" "$(pwd)/iac/stacks/src/domains/nevada/web" "paloma-nevada-web" "_pulumi/domains_nevada_web" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-web.current" "$(pwd)/iac/stacks/src/domains/nevada/web" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/web" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-nevada-web.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/domains/nevada/web" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/web" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/web" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/web" "_pulumi/domains_nevada_web"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-monitor.current" "$(pwd)/iac/stacks/src/domains/nevada/monitor" "paloma-nevada-monitor" "_pulumi/domains_nevada_monitor" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-monitor.current" "$(pwd)/iac/stacks/src/domains/nevada/monitor" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/monitor" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-nevada-monitor.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/domains/nevada/monitor" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/monitor" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/monitor" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/monitor" "_pulumi/domains_nevada_monitor"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-wwwroot.current" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" "paloma-nevada-wwwroot" "_pulumi/domains_nevada_wwwroot" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-wwwroot.current" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-nevada-wwwroot.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" "_pulumi/domains_nevada_wwwroot"
             - Run: du -sh _pulumi
   Deployment:
     DependsOn:
@@ -581,27 +577,17 @@ Actions:
             Registry: CODECATALYST
             Image: CodeCatalystLinux_Arm64:2024_03
           Steps:
-            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project
-            - Run: npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
-            - Run: sudo npm config set prefix=/cc/cache/nodejs/npm
-            - Run: sudo corepack -g install $PNPM_VERSION
-            - Run: sudo corepack enable pnpm
-            - Run: sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: sudo pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: sudo pnpx n $NODEJS_VERSION
-            - Run: npm config set prefix=/cc/cache/nodejs/npm
-            - Run: corepack -g install $PNPM_VERSION
-            - Run: corepack enable pnpm
-            - Run: pnpm config set cache-dir /cc/cache/nodejs/pnpmcache
-            - Run: pnpm config set global-dir /cc/cache/nodejs/pnpmglobal
-            - Run: pnpm config set store-dir /cc/cache/nodejs/addressable
-            - Run: pnpx n $NODEJS_VERSION
+            - Run: npm config set @levicape:registry=$NPM_REGISTRY_PROTOCOL_LEVICAPE://$NPM_REGISTRY_HOST_LEVICAPE --location project; npm config set //$NPM_REGISTRY_HOST_LEVICAPE/:_authToken=$NODE_AUTH_TOKEN_LEVICAPE --location project
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION;echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable;echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
+            - Run: echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo npm config set prefix=/cc/cache/nodejs/npm' && echo '' && sudo npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack -g install $PNPM_VERSION' && echo '' && sudo corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo corepack enable pnpm' && echo '' && sudo corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && sudo pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && sudo pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && sudo pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'sudo pnpx n $NODEJS_VERSION' && echo '' && sudo pnpx n $NODEJS_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'npm config set prefix=/cc/cache/nodejs/npm' && echo '' && npm config set prefix=/cc/cache/nodejs/npm; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack -g install $PNPM_VERSION' && echo '' && corepack -g install $PNPM_VERSION; echo '' && echo '>>>>>>>>>>>>>' && echo 'corepack enable pnpm' && echo '' && corepack enable pnpm; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set cache-dir /cc/cache/nodejs/pnpmcache' && echo '' && pnpm config set cache-dir /cc/cache/nodejs/pnpmcache; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set global-dir /cc/cache/nodejs/pnpmglobal' && echo '' && pnpm config set global-dir /cc/cache/nodejs/pnpmglobal; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpm config set store-dir /cc/cache/nodejs/addressable' && echo '' && pnpm config set store-dir /cc/cache/nodejs/addressable; echo '' && echo '>>>>>>>>>>>>>' && echo 'pnpx n $NODEJS_VERSION' && echo '' && pnpx n $NODEJS_VERSION
             - Run: pnpm install --prefer-offline --ignore-scripts
             - Run: ls -la $CATALYST_SOURCE_DIR_images/_images
             - Run: docker load --input $CATALYST_SOURCE_DIR_images/_images/application.tar.gz
             - Run: docker images
             - Run: ls -la $CATALYST_SOURCE_DIR_pulumi/_pulumi
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/application.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/application.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
@@ -614,6 +600,8 @@ Actions:
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_web.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_monitor.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_monitor.sh
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_wwwroot.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/domains_nevada_wwwroot.sh
             - Run: env
             - Run: |-
                 node -e '(function(){let outputs=JSON.parse(process.env["paloma_codestar_ecr"]??"");let envs={"_PALOMA_CODE_REPOSITORY_URL":outputs.repository.url};Object.entries(envs).forEach(([key,value])=>{process.stdout.write(`export ${key}="${value}"
@@ -638,7 +626,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"e70b823fa93dd1a0f7ea367431ef369b2f09ced1ebd2aaf4abc7059b19755c75"}
-#**:_$~- {"$$":"footer","started":"2025-02-23T03:15:07.328Z","now":"2025-02-23T03:15:07.339Z","elapsed":"11ms"}
+#**:_$~- {"$$":"body","hashed":"8c543bf8f604ee437281a985885cff919bcce52e4afedd713e7e3e2151d6c8d2"}
+#**:_$~- {"$$":"footer","started":"2025-02-25T18:51:50.834Z","now":"2025-02-25T18:51:50.846Z","elapsed":"12ms"}
 # END OF GENERATED FILE
 
