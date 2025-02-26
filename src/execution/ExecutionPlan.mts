@@ -1,7 +1,7 @@
 import { Context, Effect, Option } from "effect";
 import { gen } from "effect/Effect";
 import type { ILogLayer } from "loglayer";
-import { deserializeError } from "serialize-error";
+import { deserializeError, serializeError } from "serialize-error";
 import VError from "verror";
 import type { ActorIdentifiers, ActorPlanProps } from "../actor/Actor.mjs";
 import { ActorSchedule } from "../actor/ActorSchedule.mjs";
@@ -107,8 +107,8 @@ export class ExecutionPlan {
 									activity: plan.activity.identifiers,
 									schedule: plan.schedule,
 								},
+								err: serializeError(e),
 							})
-							.withError(deserializeError(e))
 							.error(message);
 
 						yield* (yield* exit).open;
