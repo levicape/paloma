@@ -189,6 +189,9 @@ catalogs:
       specifier: ^3.24.2
       version: 3.24.2
   types:
+    '@types/aws-lambda':
+      specifier: ^8.10.147
+      version: 8.10.147
     '@types/better-sqlite3':
       specifier: ^7.6.12
       version: 7.6.12
@@ -312,6 +315,9 @@ importers:
       '@levicape/fourtwo':
         specifier: 'catalog:'
         version: 0.10.0-main.23(projen@0.71.163)
+      '@types/aws-lambda':
+        specifier: catalog:types
+        version: 8.10.147
       '@types/better-sqlite3':
         specifier: catalog:types
         version: 7.6.12

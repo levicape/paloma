@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { Context, Effect, Option, pipe } from "effect";
+import type { Context as AwsLambdaContext } from "aws-lambda";
+import { Context, Effect, Option, Ref, pipe } from "effect";
 import type { Tag } from "effect/Context";
 import { gen, makeSemaphore } from "effect/Effect";
 import type { ILogLayer } from "loglayer";
@@ -26,19 +27,31 @@ import {
 } from "../repository/resourcelog/ResourceLog.mjs";
 import { RuntimeContext } from "../server/RuntimeContext.mjs";
 import { withWriteStream } from "../server/fs/WriteStream.mjs";
+import {
+	type HandlerContext,
+	type HandlerEvent,
+	HandlerEventRef,
+	HandlerEventRefMain,
+	type ParsedHandlerContext,
+} from "../server/handler/Handler.mjs";
+import { HandlerConfigMain } from "../server/handler/config/HandlerConfig.mjs";
+import {
+	HandlerContextRef,
+	HandlerContextRefMain,
+} from "../server/handler/refs/HandlerContextRef.mjs";
 import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
 import { PromiseActivity } from "./activity/PromiseActivity.mjs";
 
 const {
-	config,
+	config: { paloma, handler: handlerConfiguration },
 	logging: { trace },
 	signals: { handler, done, ready, mutex, exit },
+	refs,
 	registry,
 } = await Effect.runPromise(
 	Effect.provide(
 		Effect.provide(
 			Effect.gen(function* () {
-				const config = yield* PalomaRepositoryConfig;
 				const registry = yield* ExecutionFiber;
 				const logging = yield* LoggingContext;
 				const trace = (yield* logging.logger).withPrefix("canary").withContext({
@@ -46,7 +59,10 @@ const {
 				});
 
 				return {
-					config,
+					config: {
+						paloma: yield* PalomaRepositoryConfig,
+						handler: yield* HandlerConfigMain,
+					},
 					logging: {
 						trace,
 					},
@@ -57,9 +73,13 @@ const {
 						done: yield* yield* DoneSignal,
 						mutex: yield* makeSemaphore(1),
 					},
+					refs: {
+						event: yield* HandlerEventRef,
+						context: yield* HandlerContextRef,
+					},
 					registry,
 				};
-			}),
+			}).pipe(HandlerEventRefMain, HandlerContextRefMain),
 			RuntimeContext,
 		),
 		ExecutionFiberMain,
@@ -80,7 +100,7 @@ export type CanaryIdentifiers = {
 export const CanaryResourceLogPath = ({
 	canary,
 }: { canary: CanaryIdentifiers }) =>
-	`${config.data_path}/canary/${canary.name}/-canary/actor`;
+	`${paloma.data_path}/canary/${canary.name}/-canary/actor`;
 
 /**
  * Canary classes define an Activity that the Paloma runtime will run.
@@ -180,7 +200,20 @@ export class Canary extends Function {
 		});
 	}
 
-	private handler = async (_event: unknown, _context: unknown) => {
+	private updateRefs = async (event: HandlerEvent, context: HandlerContext) => {
+		return Effect.gen(function* () {
+			yield* Ref.update(refs.event, (_) => event);
+
+			if (handlerConfiguration.aws.AWS_LAMBDA_FUNCTION_NAME !== undefined) {
+				const handlerContext: ParsedHandlerContext = {
+					$kind: "AwsLambdaHandlerContext",
+					aws: context as AwsLambdaContext,
+				};
+				yield* Ref.update(refs.context, (_) => handlerContext);
+			}
+		});
+	};
+	private handler = async (event: HandlerEvent, context: HandlerContext) => {
 		const handlertrace = this.trace.child().withContext({
 			$event: "canary-handler",
 		});
@@ -189,17 +222,21 @@ export class Canary extends Function {
 			.withMetadata({
 				Canary: {
 					handler: {
-						event: _event,
-						context: _context,
+						event,
+						context,
 					},
 				},
 			})
 			.debug("Canary handler() called");
 
+		const updateRefs = await this.updateRefs(event, context);
+
 		await Effect.runPromise(
 			Effect.gen(function* () {
 				const result = yield* mutex.withPermitsIfAvailable(1)(
 					Effect.gen(function* () {
+						yield* updateRefs;
+
 						yield* ready.await;
 						handlertrace
 							.withMetadata({
