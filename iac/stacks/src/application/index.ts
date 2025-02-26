@@ -1,5 +1,9 @@
 import { Context } from "@levicape/fourtwo-pulumi";
 import { Budget } from "@pulumi/aws/budgets/budget";
+import { getOrganization } from "@pulumi/aws/organizations/getOrganization";
+import { PrincipalAssociation } from "@pulumi/aws/ram/principalAssociation";
+import { ResourceAssociation } from "@pulumi/aws/ram/resourceAssociation";
+import { ResourceShare } from "@pulumi/aws/ram/resourceShare";
 import { Group } from "@pulumi/aws/resourcegroups";
 import { AppregistryApplication } from "@pulumi/aws/servicecatalog";
 import { Topic } from "@pulumi/aws/sns/topic";
@@ -7,12 +11,21 @@ import { type Input, all } from "@pulumi/pulumi";
 import type { z } from "zod";
 import { PalomaApplicationStackExportsZod } from "./exports";
 
+const PACKAGE_NAME = "@levicape/paloma";
+
 export = async () => {
 	const context = await Context.fromConfig({});
 	const _ = (name: string) => `${context.prefix}-${name}`;
 
 	const servicecatalog = (() => {
-		return { application: new AppregistryApplication(_("servicecatalog"), {}) };
+		const application = new AppregistryApplication(_("servicecatalog"), {
+			tags: {
+				Name: _("servicecatalog"),
+				PackageName: "@levicape/paloma",
+			},
+		});
+
+		return { application };
 	})();
 
 	const awsApplication = servicecatalog.application.applicationTag.apply(
@@ -20,6 +33,35 @@ export = async () => {
 			return tagMap["awsApplication"] ?? "";
 		},
 	);
+
+	const organization = await getOrganization({});
+	(() => {
+		const resourceShare = new ResourceShare(_("ram"), {
+			allowExternalPrincipals: false,
+			tags: {
+				Name: _("ram"),
+				PackageName: PACKAGE_NAME,
+			},
+		});
+
+		const principalAssociation = new PrincipalAssociation(
+			_("ram-principal-owner"),
+			{
+				principal: organization.masterAccountArn,
+				resourceShareArn: resourceShare.arn,
+			},
+		);
+
+		const resourceAssociation = new ResourceAssociation(
+			_("ram-resource-application"),
+			{
+				resourceArn: servicecatalog.application.arn,
+				resourceShareArn: resourceShare.arn,
+			},
+		);
+
+		return { resourceShare, principalAssociation, resourceAssociation };
+	})();
 
 	const resourcegroups = (() => {
 		const group = (
