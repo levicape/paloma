@@ -6,7 +6,7 @@ import { Context, Effect, Option, Ref, pipe } from "effect";
 import type { Tag } from "effect/Context";
 import { gen, makeSemaphore } from "effect/Effect";
 import type { ILogLayer } from "loglayer";
-import { deserializeError } from "serialize-error";
+import { deserializeError, serializeError } from "serialize-error";
 import VError from "verror";
 import { Actor } from "../actor/Actor.mjs";
 import { Activity } from "../canary/activity/Activity.mjs";
@@ -126,6 +126,7 @@ export class Canary extends Function {
 
 		this.identifiers = (() => {
 			let path = "";
+			let match: RegExpMatchArray | null = null;
 			let jsuniversalpath: string | undefined = undefined;
 			let hash: string;
 			try {
@@ -135,7 +136,7 @@ export class Canary extends Function {
 				}
 				const lines = stack.split("\n");
 				const caller = lines[lines.length - 1];
-				const match = caller.match(/at (.*)/);
+				match = caller.match(/at .*\((.*)\)/);
 				if (!match) {
 					throw new VError("Could not parse stack trace");
 				}
@@ -154,11 +155,12 @@ export class Canary extends Function {
 
 					trace
 						.withMetadata({
+							err: serializeError(e),
 							hash,
 							jsuniversalpath,
+							match,
 							path,
 						})
-						.withError(deserializeError(e))
 						.error(
 							"Could not calculate code hash, falling back to hashed Canary name",
 						);
