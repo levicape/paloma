@@ -7,6 +7,7 @@ import type { Tag } from "effect/Context";
 import { gen, makeSemaphore } from "effect/Effect";
 import type { ILogLayer } from "loglayer";
 import { deserializeError, serializeError } from "serialize-error";
+import { process } from "std-env";
 import VError from "verror";
 import { Actor } from "../actor/Actor.mjs";
 import { Activity } from "../canary/activity/Activity.mjs";
@@ -129,6 +130,7 @@ export class Canary extends Function {
 			let match: RegExpMatchArray | null = null;
 			let jsuniversalpath: string | undefined = undefined;
 			let hash: string;
+			const main = process?.argv?.[1];
 			try {
 				const stack = new Error().stack;
 				if (!stack) {
@@ -140,30 +142,44 @@ export class Canary extends Function {
 				if (!match) {
 					throw new VError("Could not parse stack trace");
 				}
-				path =
-					fileURLToPath(match[1]?.trim() ?? "file://")?.split(":")?.[0] ?? "";
+
+				let filepath = match[1]?.trim();
+				if (filepath?.startsWith("file://")) {
+					filepath = fileURLToPath(filepath);
+				}
+
+				path = filepath?.split(":")?.[0] ?? "";
 				jsuniversalpath = path
 					.replace(/\.mts$/, ".mjs")
 					.replace(/\.cts$/, ".cjs")
 					.replace(/\.ts$/, ".js");
-				hash = `sourcejs:${createHash("sha256").update(readFileSync(jsuniversalpath, "utf8")).digest("hex")}`;
+				hash = `main:${createHash("sha256")
+					.update(readFileSync(main ?? "", "utf8"))
+					.digest("hex")}`;
 			} catch (e: unknown) {
 				try {
-					hash = `sourcets:${createHash("sha256").update(readFileSync(path, "utf8")).digest("hex")}`;
+					hash = `filejs:${createHash("sha256")
+						.update(readFileSync(jsuniversalpath ?? "file://", "utf8"))
+						.digest("hex")}`;
 				} catch (e: unknown) {
-					hash = `name:${createHash("sha256").update(name).digest("hex")}`;
+					try {
+						hash = `filets:${createHash("sha256").update(readFileSync(path, "utf8")).digest("hex")}`;
+					} catch (e: unknown) {
+						hash = `name:${createHash("sha256").update(name).digest("hex")}`;
 
-					trace
-						.withMetadata({
-							err: serializeError(e),
-							hash,
-							jsuniversalpath,
-							match,
-							path,
-						})
-						.error(
-							"Could not calculate code hash, falling back to hashed Canary name",
-						);
+						trace
+							.withMetadata({
+								err: serializeError(e),
+								hash,
+								jsuniversalpath,
+								match,
+								path,
+								main,
+							})
+							.error(
+								"Could not calculate code hash, falling back to hashed Canary name",
+							);
+					}
 				}
 			}
 

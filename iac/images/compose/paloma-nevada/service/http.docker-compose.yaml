@@ -4,6 +4,7 @@ services:
     image: $ROOT_IMAGE
     entrypoint: project
     environment:      
+      NODE_OPTIONS: $NODE_OPTIONS
       LOG_LEVEL: $LOG_LEVEL
       STRUCTURED_LOGGING: $STRUCTURED_LOGGING
       PROJECT_PATH: ./packages/nevada-io
@@ -22,6 +23,7 @@ services:
     image: $ROOT_IMAGE
     entrypoint: project
     environment:
+      NODE_OPTIONS: $NODE_OPTIONS
       LOG_LEVEL: $LOG_LEVEL
       STRUCTURED_LOGGING: $STRUCTURED_LOGGING
       PROJECT_PATH: ./packages/nevada-io

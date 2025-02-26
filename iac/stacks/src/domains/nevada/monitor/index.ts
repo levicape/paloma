@@ -62,9 +62,10 @@ const ENVIRONMENT = (
 
 const ROUTE_MAP = ({
 	"nevada-http": { routemap: nevada_http },
-	// "nevada-web": { routemap: nevada_web },
+	"nevada-web": { routemap: nevada_web },
 }: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT]) => {
 	return {
+		...nevada_web,
 		...nevada_http,
 	};
 };
@@ -121,7 +122,8 @@ const STACKREF_CONFIG = {
 		},
 		["nevada-web"]: {
 			refs: {
-				s3: PalomaNevadaWebStackExportsZod.shape.paloma_nevada_web_s3,
+				routemap:
+					PalomaNevadaWebStackExportsZod.shape.paloma_nevada_web_routemap,
 			},
 		},
 		["nevada-http"]: {
