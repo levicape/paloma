@@ -42,6 +42,7 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
     "@levicape/fourtwo": "catalog:",
+    "@types/aws-lambda": "catalog:types",
     "@types/better-sqlite3": "catalog:types",
     "@types/fs-extra": "catalog:types",
     "@types/node": "catalog:types",

@@ -34,15 +34,7 @@ export const RuntimeContext = Context.empty().pipe(
 	Context.merge(
 		Context.mergeAll(
 			...signals.map(({ tag, latch }) =>
-				Context.empty().pipe(
-					Context.add(
-						tag,
-						gen(function* () {
-							yield* Effect.void;
-							return latch;
-						}),
-					),
-				),
+				Context.empty().pipe(Context.add(tag, Effect.succeed(latch))),
 			),
 		),
 	),
