@@ -1,5 +1,6 @@
 {
   "name": "iac-workflows",
+  "version": "0.0.0-local.0",
   "config": {
     "packagemanager": "pnpm",
     "packageexecutor": "pnpm --workspace-root exec",
@@ -26,7 +27,8 @@
       "nx:sync:gha": {
         "dependsOn": [
           "ft:gha:push:main",
-          "ft:gha:release:released"
+          "ft:gha:release:released",
+          "ft:gha:dispatch:cd"
         ]
       }
     }
@@ -34,8 +36,9 @@
   "private": "true",
   "scripts": {
     "ft:cc:push:main": "$npm_package_config_packageexecutor $npm_package_config_binpath aws codecatalyst workflows generate \"$npm_package_config_ccpath/push/CI.js\" --output --write",
+    "ft:gha:dispatch:cd": "$npm_package_config_packageexecutor $npm_package_config_binpath github workflows gen \"$npm_package_config_ghapath/workflow_dispatch/CD.js\" --output --write",
     "ft:gha:push:main": "$npm_package_config_packageexecutor $npm_package_config_binpath github workflows gen \"$npm_package_config_ghapath/push/CI.js\" --output --write",
-    "ft:gha:release:released": "$npm_package_config_packageexecutor $npm_package_config_binpath github workflows gen \"$npm_package_config_ghapath/release/Publish tagged module to npm.js\" --output --write"
+    "ft:gha:release:released": "$npm_package_config_packageexecutor $npm_package_config_binpath github workflows gen \"$npm_package_config_ghapath/release/Publish.js\" --output --write"
   },
   "type": "module"
 }

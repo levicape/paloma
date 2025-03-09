@@ -30,20 +30,20 @@ catalogs:
       version: 11.8.1
   default:
     '@levicape/fourtwo':
-      specifier: 0.10.0-main.23
-      version: 0.10.0-main.23
+      specifier: 0.10.1-main.1
+      version: 0.10.1-main.1
     '@levicape/fourtwo-builders':
-      specifier: 0.10.0-main.23
-      version: 0.10.0-main.23
+      specifier: 0.10.1-main.1
+      version: 0.10.1-main.1
     '@levicape/fourtwo-pulumi':
-      specifier: 0.10.0-main.23
-      version: 0.10.0-main.23
+      specifier: 0.10.1-main.1
+      version: 0.10.1-main.1
     '@levicape/spork':
-      specifier: 0.6.4-main.16
-      version: 0.6.4-main.16
+      specifier: 0.7.0-main.18
+      version: 0.7.0-main.18
     '@levicape/spork-atlas':
-      specifier: 0.6.4-main.16
-      version: 0.6.4-main.16
+      specifier: 0.7.0-main.18
+      version: 0.7.0-main.18
   dev:
     ts-node:
       specifier: ^10.9.2
@@ -80,8 +80,8 @@ catalogs:
       version: 11.3.0
   hono:
     hono:
-      specifier: ^4.7.2
-      version: 4.7.2
+      specifier: ^4.7.4
+      version: 4.7.4
   http-express:
     express:
       specifier: ^4.21.2
@@ -180,6 +180,9 @@ catalogs:
     '@pulumi/pulumi':
       specifier: ^3.152.0
       version: 3.152.0
+    '@pulumi/random':
+      specifier: ^4.18.0
+      version: 4.18.0
   runtime-env:
     std-env:
       specifier: ^3.8.0
@@ -218,11 +221,11 @@ catalogs:
       version: 1.10.10
   web-react:
     react:
-      specifier: ^19.0.0
-      version: 19.0.0
+      specifier: ^18
+      version: 18.3.1
     react-dom:
-      specifier: ^19.0.0
-      version: 19.0.0
+      specifier: ^18
+      version: 18.3.1
   web-style:
     '@tailwindcss/vite':
       specifier: ^4.0.0
@@ -286,7 +289,7 @@ importers:
         version: 11.3.0
       knex:
         specifier: catalog:database-sql
-        version: 3.1.0(better-sqlite3@11.8.1)(pg@8.13.3)
+        version: 3.1.0(better-sqlite3@11.8.1)
       ksuid:
         specifier: catalog:id
         version: 3.0.0
@@ -314,7 +317,7 @@ importers:
         version: 1.9.4
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.10.0-main.23(projen@0.71.163)
+        version: 0.10.1-main.1(projen@0.71.163)
       '@types/aws-lambda':
         specifier: catalog:types
         version: 8.10.147
@@ -396,7 +399,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.10.0-main.23(projen@0.71.163)
+        version: 0.10.1-main.1(projen@0.71.163)
       yaml:
         specifier: catalog:parse-yaml
         version: 2.7.0
@@ -405,13 +408,13 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.10.0-main.23(projen@0.71.163)
+        version: 0.10.1-main.1(projen@0.71.163)
       '@levicape/fourtwo-builders':
         specifier: 'catalog:'
-        version: 0.10.0-main.23(projen@0.71.163)
+        version: 0.10.1-main.1(projen@0.71.163)
       '@levicape/fourtwo-pulumi':
         specifier: 'catalog:'
-        version: 0.10.0-main.23(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+        version: 0.10.1-main.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/aws':
         specifier: catalog:pulumi
         version: 6.69.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
@@ -430,6 +433,9 @@ importers:
       '@pulumi/pulumi':
         specifier: catalog:pulumi
         version: 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+      '@pulumi/random':
+        specifier: catalog:pulumi
+        version: 4.18.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       destr:
         specifier: catalog:parse-json
         version: 2.0.3
@@ -463,7 +469,7 @@ importers:
     dependencies:
       '@levicape/fourtwo':
         specifier: 'catalog:'
-        version: 0.10.0-main.23(projen@0.71.163)
+        version: 0.10.1-main.1(projen@0.71.163)
 
   packages/nevada-io:
     dependencies:
@@ -475,16 +481,16 @@ importers:
         version: link:../..
       '@levicape/spork':
         specifier: 'catalog:'
-        version: 0.6.4-main.16
+        version: 0.7.0-main.18
       '@levicape/spork-atlas':
         specifier: 'catalog:'
-        version: 0.6.4-main.16(pg@8.13.3)
+        version: 0.7.0-main.18
       effect:
         specifier: catalog:effect
         version: 3.13.2
       hono:
         specifier: catalog:hono
-        version: 4.7.2
+        version: 4.7.4
       jsonwebtoken:
         specifier: catalog:crypto
         version: 9.0.2
@@ -521,7 +527,7 @@ importers:
         version: link:../..
       '@levicape/spork-atlas':
         specifier: 'catalog:'
-        version: 0.6.4-main.16(pg@8.13.3)
+        version: 0.7.0-main.18
       '@loglayer/transport-aws-lambda-powertools':
         specifier: catalog:log-loglayer
         version: 3.0.2(@aws-lambda-powertools/logger@2.14.0)
@@ -542,10 +548,10 @@ importers:
         version: 6.1.3
       react:
         specifier: catalog:web-react
-        version: 19.0.0
+        version: 18.3.1
       react-dom:
         specifier: catalog:web-react
-        version: 19.0.0(react@19.0.0)
+        version: 18.3.1(react@18.3.1)
       serialize-error:
         specifier: catalog:error
         version: 12.0.0
@@ -1232,30 +1238,25 @@ packages:
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
 
-  '@levicape/fourtwo-builders@0.10.0-main.23':
-    resolution: {integrity: sha512-Ltn3KTN5tulSVrRxl9w4f+T9z9YZ+dqs5ndwIo2r4m4g/lk2HS+cMpQNMaB/tPXse5CMbuGFqneqzs+fONlBEA==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.10.0-main.23/5b9caf0d6608525846ea4cf452dd7829fbcd4afd}
+  '@levicape/fourtwo-builders@0.10.1-main.1':
+    resolution: {integrity: sha512-mekOYi08mGTB36fmjyx1tRMtpYZkTqMkiy8cfKgU7WA+4M+GTGB486YJr5aaLIDXyq/OX7XL5YU/GB3B/hsSdQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-builders/0.10.1-main.1/fcf24093a0b916b4646b257dc4bf50c96ba64def}
     engines: {node: ^22}
 
-  '@levicape/fourtwo-pulumi@0.10.0-main.23':
-    resolution: {integrity: sha512-z1U9Xd58Vf+c/BWpLzDfj0PWPjiYkUL9jZw3PKvF480tBC10CbEhgZ+kpbDYmVsTHXv8lyLic3aa5lP9fB/1mg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.10.0-main.23/d326cf8dd5fa88aceb7c20c59e68f92a0ac05173}
+  '@levicape/fourtwo-pulumi@0.10.1-main.1':
+    resolution: {integrity: sha512-3ZlS4AFDUqG3eMRfa3KsJptUMNuOlNS5gCnJz5QPPxoSqhZJk46pGpft555DoYgMr4TBcVh31DF3FsFgbqlaGQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.10.1-main.1/7cde890592aad3b2a3a4ed52411a0de7d4da31df}
     engines: {node: ^22}
 
-  '@levicape/fourtwo@0.10.0-main.23':
-    resolution: {integrity: sha512-3np/x9YQ5lJEFF2WyBuCw1am15IJFeOnYN6IyBk+oIko3G/y0kDQ98sEG7xMgFA+G8gAzI+qZKD9XDmUOaLYBg==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.10.0-main.23/e97ddde1868a7836ebde783721c0a8d5eea5e364}
-    engines: {node: 22.12.0}
+  '@levicape/fourtwo@0.10.1-main.1':
+    resolution: {integrity: sha512-EsPra4i7EE9u4dQY3kpBAoKZFaUv/lemkuF1nt+GsjwUoapc3/+NVoW+4m5EDAN6WON4Dhd+hiBTBCU80AmcUQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.10.1-main.1/31da5070f9ae7a02e3ec9bba732f8d513bf1f0a9}
+    engines: {node: 22.13.0}
     hasBin: true
 
-  '@levicape/paloma@0.3.4-main.11':
-    resolution: {integrity: sha512-QL1MqibU1RDWqQgbXVITab954sa+2eU/LxmWB/hCeqOpWMse5Fp4jr1X/xSQb58kdybHMO3Fw+EgcKqjcXP3Jg==, tarball: https://npm.pkg.github.com/download/@levicape/paloma/0.3.4-main.11/09306f3cb392e20bc2d0763566e29ea1bdd803b4}
-    engines: {node: 22.12.0}
-    hasBin: true
-
-  '@levicape/spork-atlas@0.6.4-main.16':
-    resolution: {integrity: sha512-1Y230Xvdbx9rG9+H5saS3qQRe2RqLAIRSS3cgQDlTw1Gouo2DZiH7OLwbap7fzTzi7DiIziDcSnb4PqPl5hGPg==, tarball: https://npm.pkg.github.com/download/@levicape/spork-atlas/0.6.4-main.16/eec72da364043ced35206e034d96f3e6c338e54f}
+  '@levicape/spork-atlas@0.7.0-main.18':
+    resolution: {integrity: sha512-gFYdl2hU46K3wFVL9Uuvre0sF5C9gxai7oTsyTvpIzQG+sqEWxGf3gjU5ix1oczdlXCTkskbDFe3erKFJ4BReg==, tarball: https://npm.pkg.github.com/download/@levicape/spork-atlas/0.7.0-main.18/d9e9afc965e45d69e89a912a35f74048013213db}
     engines: {node: '22'}
 
-  '@levicape/spork@0.6.4-main.16':
-    resolution: {integrity: sha512-NoB8ctmKDzwpSJXy+WSx1hzFxm75xzNcjzbboZeRMYg10yZOWn3F1nCultXai8yqbZ2imoJCN31XBfUKMlWPjA==, tarball: https://npm.pkg.github.com/download/@levicape/spork/0.6.4-main.16/2bf4c359ce15fc443e3852050b9f3aaf88a893b1}
+  '@levicape/spork@0.7.0-main.18':
+    resolution: {integrity: sha512-+2SkKYuTZl6sIBrn3eFsLMDUxqfP5QM6AG9+hKgovBV42Mi78GD79RJeLQbu1jPdnvC1TLj/oWPYjaS1VW0VVQ==, tarball: https://npm.pkg.github.com/download/@levicape/spork/0.7.0-main.18/485a280580883b30fdbcf69b3ae8d6d158c0a2b8}
     engines: {node: 22.12.0}
     hasBin: true
 
@@ -1671,6 +1672,9 @@ packages:
 
   '@pulumi/query@0.3.0':
     resolution: {integrity: sha512-xfo+yLRM2zVjVEA4p23IjQWzyWl1ZhWOGobsBqRpIarzLvwNH/RAGaoehdxlhx4X92302DrpdIFgTICMN4P38w==}
+
+  '@pulumi/random@4.18.0':
+    resolution: {integrity: sha512-6joE5/jhadtWmwuMh3YtDB1kA3G4pDLVhk+l5mSxe/kuf+ejQ1w+LnfbpRi9iinwPl2AqzfDp9IheksTxIwzFA==}
 
   '@rollup/rollup-android-arm-eabi@4.34.8':
     resolution: {integrity: sha512-q217OSE8DTp8AFHuNHXo0Y86e1wtlfVrXiAlwkIvGRQv9zbc6mE3sjIVfwI8sYUyNxwOg0j/Vm1RKM04JcWLJw==}
@@ -3182,8 +3186,8 @@ packages:
     peerDependencies:
       hono: ^4.1.1
 
-  hono@4.7.2:
-    resolution: {integrity: sha512-8V5XxoOF6SI12jkHkzX/6aLBMU5GEF5g387EjVSQipS0DlxWgWGSMeEayY3CRBjtTUQYwLHx9JYouWqKzy2Vng==}
+  hono@4.7.4:
+    resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@7.0.2:
@@ -3606,6 +3610,10 @@ packages:
 
   long@5.3.1:
     resolution: {integrity: sha512-ka87Jz3gcx/I7Hal94xaN2tZEOPoUOEVftkQqZx2EeQRN7LGdfLlI3FvZ+7WDplm+vK2Urx9ULrvSowtdCieng==}
+
+  loose-envify@1.4.0:
+    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
+    hasBin: true
 
   lowercase-keys@2.0.0:
     resolution: {integrity: sha512-tqNXrS78oMOE73NMxK4EMLQsQowWf8jKooH9g7xPavRT706R6bkQJ6DY2Te7QukaZsulxa30wQ7bk0pm4XiHmA==}
@@ -4249,16 +4257,16 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
-  react-dom@19.0.0:
-    resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
+  react-dom@18.3.1:
+    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
-      react: ^19.0.0
+      react: ^18.3.1
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react@19.0.0:
-    resolution: {integrity: sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==}
+  react@18.3.1:
+    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
 
   read-cmd-shim@4.0.0:
@@ -4380,8 +4388,8 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  scheduler@0.25.0:
-    resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
+  scheduler@0.23.2:
+    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
   secure-json-parse@2.7.0:
     resolution: {integrity: sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==}
@@ -5765,13 +5773,13 @@ snapshots:
       protobufjs: 7.4.0
       yargs: 17.7.2
 
-  '@hono/node-server@1.13.8(hono@4.7.2)':
+  '@hono/node-server@1.13.8(hono@4.7.4)':
     dependencies:
-      hono: 4.7.2
+      hono: 4.7.4
 
-  '@hono/zod-validator@0.4.3(hono@4.7.2)(zod@3.24.2)':
+  '@hono/zod-validator@0.4.3(hono@4.7.4)(zod@3.24.2)':
     dependencies:
-      hono: 4.7.2
+      hono: 4.7.4
       zod: 3.24.2
 
   '@isaacs/cliui@8.0.2':
@@ -5813,9 +5821,9 @@ snapshots:
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
-  '@levicape/fourtwo-builders@0.10.0-main.23(projen@0.71.163)':
+  '@levicape/fourtwo-builders@0.10.1-main.1(projen@0.71.163)':
     dependencies:
-      '@levicape/fourtwo': 0.10.0-main.23(projen@0.71.163)
+      '@levicape/fourtwo': 0.10.1-main.1(projen@0.71.163)
     transitivePeerDependencies:
       - '@middy/core'
       - bufferutil
@@ -5829,7 +5837,7 @@ snapshots:
       - tedious
       - utf-8-validate
 
-  '@levicape/fourtwo-pulumi@0.10.0-main.23(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
+  '@levicape/fourtwo-pulumi@0.10.1-main.1(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
       '@pulumi/aws': 6.69.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
@@ -5839,7 +5847,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@levicape/fourtwo@0.10.0-main.23(projen@0.71.163)':
+  '@levicape/fourtwo@0.10.1-main.1(projen@0.71.163)':
     dependencies:
       '@aws-lambda-powertools/logger': 2.14.0
       '@aws/codecatalyst-workflows-sdk': 0.1.5-preview.6(projen@0.71.163)
@@ -5857,7 +5865,7 @@ snapshots:
       fast-xml-parser: 4.5.3
       ini: 5.0.0
       js-yaml: 4.1.0
-      knex: 3.1.0(better-sqlite3@11.8.1)(pg@8.13.3)
+      knex: 3.1.0(better-sqlite3@11.8.1)
       loglayer: 6.1.3
       pino: 9.6.0
       pino-pretty: 13.0.0
@@ -5880,74 +5888,16 @@ snapshots:
       - tedious
       - utf-8-validate
 
-  '@levicape/paloma@0.3.4-main.11(pg@8.13.3)':
+  '@levicape/spork-atlas@0.7.0-main.18':
     dependencies:
-      '@aws-lambda-powertools/logger': 2.14.0
-      '@effect/platform': 0.77.2(effect@3.13.2)
-      '@effect/platform-node': 0.73.2(@effect/platform@0.77.2(effect@3.13.2))(effect@3.13.2)
-      '@loglayer/transport-aws-lambda-powertools': 3.0.2(@aws-lambda-powertools/logger@2.14.0)
-      '@loglayer/transport-consola': 2.0.2(consola@3.4.0)
-      '@loglayer/transport-pino': 2.0.2(pino@9.6.0)
-      '@stricli/core': 1.1.1
-      better-sqlite3: 11.8.1
-      consola: 3.4.0
-      csv: 6.3.11
-      db0: 0.2.4(better-sqlite3@11.8.1)
-      destr: 2.0.3
-      effect: 3.13.2
-      fs-extra: 11.3.0
-      knex: 3.1.0(better-sqlite3@11.8.1)(pg@8.13.3)
-      ksuid: 3.0.0
-      loglayer: 6.1.3
-      pino: 9.6.0
-      pino-pretty: 13.0.0
-      serialize-error: 12.0.0
-      std-env: 3.8.0
-      verror: 1.10.1
-    transitivePeerDependencies:
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@middy/core'
-      - bufferutil
-      - drizzle-orm
-      - mysql
-      - mysql2
-      - pg
-      - pg-native
-      - sqlite3
-      - supports-color
-      - tedious
-      - utf-8-validate
-
-  '@levicape/spork-atlas@0.6.4-main.16(pg@8.13.3)':
-    dependencies:
-      '@bufbuild/protobuf': 2.2.3
-      '@levicape/paloma': 0.3.4-main.11(pg@8.13.3)
-      '@levicape/spork': 0.6.4-main.16
       destr: 2.0.3
       fs-extra: 11.3.0
       serialize-error: 12.0.0
       std-env: 3.8.0
-      ts-proto: 2.6.1
       verror: 1.10.1
       zod: 3.24.2
-    transitivePeerDependencies:
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@middy/core'
-      - aws-crt
-      - bufferutil
-      - drizzle-orm
-      - mysql
-      - mysql2
-      - pg
-      - pg-native
-      - sqlite3
-      - supports-color
-      - tedious
-      - utf-8-validate
 
-  '@levicape/spork@0.6.4-main.16':
+  '@levicape/spork@0.7.0-main.18':
     dependencies:
       '@aws-lambda-powertools/logger': 2.14.0
       '@aws-sdk/client-dynamodb': 3.751.0
@@ -5958,8 +5908,8 @@ snapshots:
       '@bufbuild/protobuf': 2.2.3
       '@effect/platform': 0.77.2(effect@3.13.2)
       '@effect/platform-node': 0.73.2(@effect/platform@0.77.2(effect@3.13.2))(effect@3.13.2)
-      '@hono/node-server': 1.13.8(hono@4.7.2)
-      '@hono/zod-validator': 0.4.3(hono@4.7.2)(zod@3.24.2)
+      '@hono/node-server': 1.13.8(hono@4.7.4)
+      '@hono/zod-validator': 0.4.3(hono@4.7.4)(zod@3.24.2)
       '@loglayer/transport-aws-lambda-powertools': 3.0.2(@aws-lambda-powertools/logger@2.14.0)
       '@loglayer/transport-consola': 2.0.2(consola@3.4.0)
       '@loglayer/transport-pino': 2.0.2(pino@9.6.0)
@@ -5967,8 +5917,8 @@ snapshots:
       chokidar: 4.0.3
       consola: 3.4.0
       effect: 3.13.2
-      hono: 4.7.2
-      hono-rate-limiter: 0.4.2(hono@4.7.2)
+      hono: 4.7.4
+      hono-rate-limiter: 0.4.2(hono@4.7.4)
       jsonwebtoken: 9.0.2
       loglayer: 6.1.3
       pino: 9.6.0
@@ -6491,6 +6441,15 @@ snapshots:
       - supports-color
 
   '@pulumi/query@0.3.0': {}
+
+  '@pulumi/random@4.18.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
+    dependencies:
+      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@swc/core@1.10.18(@swc/helpers@0.5.15))(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
+      - ts-node
+      - typescript
 
   '@rollup/rollup-android-arm-eabi@4.34.8':
     optional: true
@@ -8091,11 +8050,11 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  hono-rate-limiter@0.4.2(hono@4.7.2):
+  hono-rate-limiter@0.4.2(hono@4.7.4):
     dependencies:
-      hono: 4.7.2
+      hono: 4.7.4
 
-  hono@4.7.2: {}
+  hono@4.7.4: {}
 
   hosted-git-info@7.0.2:
     dependencies:
@@ -8329,7 +8288,7 @@ snapshots:
 
   kleur@3.0.3: {}
 
-  knex@3.1.0(better-sqlite3@11.8.1)(pg@8.13.3):
+  knex@3.1.0(better-sqlite3@11.8.1):
     dependencies:
       colorette: 2.0.19
       commander: 10.0.1
@@ -8347,7 +8306,6 @@ snapshots:
       tildify: 2.0.0
     optionalDependencies:
       better-sqlite3: 11.8.1
-      pg: 8.13.3
     transitivePeerDependencies:
       - supports-color
 
@@ -8448,6 +8406,10 @@ snapshots:
       '@loglayer/transport': 2.0.2
 
   long@5.3.1: {}
+
+  loose-envify@1.4.0:
+    dependencies:
+      js-tokens: 4.0.0
 
   lowercase-keys@2.0.0: {}
 
@@ -9140,14 +9102,17 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-dom@19.0.0(react@19.0.0):
+  react-dom@18.3.1(react@18.3.1):
     dependencies:
-      react: 19.0.0
-      scheduler: 0.25.0
+      loose-envify: 1.4.0
+      react: 18.3.1
+      scheduler: 0.23.2
 
   react-is@18.3.1: {}
 
-  react@19.0.0: {}
+  react@18.3.1:
+    dependencies:
+      loose-envify: 1.4.0
 
   read-cmd-shim@4.0.0: {}
 
@@ -9277,7 +9242,9 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  scheduler@0.25.0: {}
+  scheduler@0.23.2:
+    dependencies:
+      loose-envify: 1.4.0
 
   secure-json-parse@2.7.0: {}
 

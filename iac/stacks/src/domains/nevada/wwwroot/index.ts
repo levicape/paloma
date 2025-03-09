@@ -3,8 +3,8 @@ import {
 	CodeBuildBuildspecBuilder,
 	CodeBuildBuildspecEnvBuilder,
 	CodeBuildBuildspecResourceLambdaPhaseBuilder,
-} from "@levicape/fourtwo-builders";
-import { Context } from "@levicape/fourtwo-pulumi";
+} from "@levicape/fourtwo-builders/commonjs/index.cjs";
+import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
 import { Function as CloudfrontFunction } from "@pulumi/aws/cloudfront";
 import { Distribution } from "@pulumi/aws/cloudfront/distribution";
 import { OriginAccessIdentity } from "@pulumi/aws/cloudfront/originAccessIdentity";
@@ -740,7 +740,7 @@ function handler(event) {
 			Object.entries(s3).map(([key, bucket]) => {
 				return [
 					key,
-					all([bucket.bucket, bucket.region]).apply(
+					all([bucket.bucket.bucket, bucket.region]).apply(
 						([bucketName, bucketRegion]) => ({
 							bucket: bucketName,
 							region: bucketRegion,

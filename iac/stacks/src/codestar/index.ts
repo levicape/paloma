@@ -1,9 +1,12 @@
-import { Context } from "@levicape/fourtwo-pulumi";
+import { inspect } from "node:util";
+import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
+import { Application as AppconfigApplication } from "@pulumi/aws/appconfig";
 import { Application } from "@pulumi/aws/codedeploy";
 import { DeploymentConfig } from "@pulumi/aws/codedeploy/deploymentConfig";
 import { Repository as ECRRepository, LifecyclePolicy } from "@pulumi/aws/ecr";
 import { getLifecyclePolicyDocument } from "@pulumi/aws/ecr/getLifecyclePolicyDocument";
 import { RepositoryPolicy } from "@pulumi/aws/ecr/repositoryPolicy";
+import { error, warn } from "@pulumi/pulumi/log";
 import { all } from "@pulumi/pulumi/output";
 import type { z } from "zod";
 import { $deref } from "../Stack";
@@ -36,6 +39,7 @@ export = async () => {
 	const _ = (name: string) => `${context.prefix}-${name}`;
 	context.resourcegroups({ _ });
 
+	// Resources
 	const ecr = await (async () => {
 		const repository = new ECRRepository(_("binaries"), {
 			tags: {
@@ -75,7 +79,7 @@ export = async () => {
 										tagStatus: "untagged",
 										countType: "sinceImagePushed",
 										countUnit: "days",
-										countNumber: taggedTtl,
+										countNumber: untaggedTtl,
 									},
 									action: {
 										type: "expire",
@@ -119,10 +123,10 @@ export = async () => {
 	})();
 
 	const codedeploy = await (async () => {
-		const application = new Application(_("application"), {
+		const application = new Application(_("codedeploy"), {
 			computePlatform: "Lambda",
 			tags: {
-				Name: _("application"),
+				Name: _("codedeploy"),
 				PackageName: PACKAGE_NAME,
 			},
 		});
@@ -133,8 +137,8 @@ export = async () => {
 				? {
 						type: "TimeBasedLinear",
 						timeBasedLinear: {
-							interval: 2,
-							percentage: 12,
+							interval: 3,
+							percentage: 24,
 						},
 					}
 				: {
@@ -148,6 +152,20 @@ export = async () => {
 		};
 	})();
 
+	const appconfig = (() => {
+		const application = new AppconfigApplication(_("appconfig"), {
+			description: `(${PACKAGE_NAME}) Appconfig registry for ${context.prefix}`,
+			tags: {
+				Name: _("appconfig"),
+				PackageName: PACKAGE_NAME,
+			},
+		});
+
+		return {
+			application,
+		};
+	})();
+
 	return all([
 		ecr.repository.arn,
 		ecr.repository.repositoryUrl,
@@ -156,6 +174,9 @@ export = async () => {
 		codedeploy.application.name,
 		codedeploy.deploymentConfig.arn,
 		codedeploy.deploymentConfig.deploymentConfigName,
+		appconfig.application.arn,
+		appconfig.application.id,
+		appconfig.application.name,
 	]).apply(
 		([
 			ecrRepositoryArn,
@@ -165,6 +186,9 @@ export = async () => {
 			codedeployApplicationName,
 			codedeployDeploymentConfigArn,
 			codedeployDeploymentConfigName,
+			appconfigApplicationArn,
+			appconfigApplicationId,
+			appconfigApplicationName,
 		]) => {
 			const exported = {
 				paloma_codestar_ecr: {
@@ -184,13 +208,19 @@ export = async () => {
 						name: codedeployDeploymentConfigName,
 					},
 				},
+				paloma_codestar_appconfig: {
+					application: {
+						arn: appconfigApplicationArn,
+						id: appconfigApplicationId,
+						name: appconfigApplicationName,
+					},
+				},
 			} satisfies z.infer<typeof PalomaCodestarStackExportsZod>;
 
 			const validate = PalomaCodestarStackExportsZod.safeParse(exported);
 			if (!validate.success) {
-				process.stderr.write(
-					`Validation failed: ${JSON.stringify(validate.error, null, 2)}`,
-				);
+				error(`Validation failed: ${JSON.stringify(validate.error, null, 2)}`);
+				warn(inspect(exported, { depth: null }));
 			}
 
 			return exported;

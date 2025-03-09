@@ -6,9 +6,13 @@ import {
 	CodeBuildBuildspecResourceLambdaPhaseBuilder,
 	CodeDeployAppspecBuilder,
 	CodeDeployAppspecResourceBuilder,
-} from "@levicape/fourtwo-builders";
-import { Context } from "@levicape/fourtwo-pulumi";
+} from "@levicape/fourtwo-builders/commonjs/index.cjs";
+import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
 import { Version } from "@pulumi/aws-native/lambda";
+import { Deployment, Environment } from "@pulumi/aws/appconfig";
+import { ConfigurationProfile } from "@pulumi/aws/appconfig/configurationProfile";
+import { DeploymentStrategy } from "@pulumi/aws/appconfig/deploymentStrategy";
+import { HostedConfigurationVersion } from "@pulumi/aws/appconfig/hostedConfigurationVersion";
 import { EventRule, EventTarget } from "@pulumi/aws/cloudwatch";
 import { LogGroup } from "@pulumi/aws/cloudwatch/logGroup";
 import { Project } from "@pulumi/aws/codebuild";
@@ -32,38 +36,94 @@ import {
 import { BucketObjectv2 } from "@pulumi/aws/s3/bucketObjectv2";
 import { BucketPublicAccessBlock } from "@pulumi/aws/s3/bucketPublicAccessBlock";
 import { BucketVersioningV2 } from "@pulumi/aws/s3/bucketVersioningV2";
-import { Output, all, log } from "@pulumi/pulumi";
+import { Output, all, interpolate, log } from "@pulumi/pulumi";
 import { AssetArchive } from "@pulumi/pulumi/asset/archive";
 import { StringAsset } from "@pulumi/pulumi/asset/asset";
+import { error, warn } from "@pulumi/pulumi/log";
+import { RandomId } from "@pulumi/random/RandomId";
 import { serializeError } from "serialize-error";
 import { stringify } from "yaml";
 import type { z } from "zod";
 import { AwsCodeBuildContainerRoundRobin } from "../RoundRobin";
 import { $deref, type DereferencedOutput } from "../Stack";
-import { PalomaApplicationStackExportsZod } from "../application/exports";
+import {
+	PalomaApplicationRoot,
+	PalomaApplicationStackExportsZod,
+} from "../application/exports";
 import { PalomaCodestarStackExportsZod } from "../codestar/exports";
 import { PalomaDatalayerStackExportsZod } from "../datalayer/exports";
-import { PalomaNevadaHttpStackExportsZod } from "../domains/nevada/http/exports";
 import { PalomaMonitorStackExportsZod } from "./exports";
 
 const WORKSPACE_PACKAGE_NAME = "@levicape/paloma";
+
+const CI = {
+	CI_ENVIRONMENT: process.env.CI_ENVIRONMENT ?? "unknown",
+	CI_ACCESS_ROLE: process.env.CI_ACCESS_ROLE ?? "FourtwoAccessRole",
+};
+
+const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? PalomaApplicationRoot;
+const STACKREF_CONFIG = {
+	[STACKREF_ROOT]: {
+		application: {
+			refs: {
+				servicecatalog:
+					PalomaApplicationStackExportsZod.shape
+						.paloma_application_servicecatalog,
+			},
+		},
+		codestar: {
+			refs: {
+				appconfig:
+					PalomaCodestarStackExportsZod.shape.paloma_codestar_appconfig,
+				codedeploy:
+					PalomaCodestarStackExportsZod.shape.paloma_codestar_codedeploy,
+				ecr: PalomaCodestarStackExportsZod.shape.paloma_codestar_ecr,
+			},
+		},
+		datalayer: {
+			refs: {
+				props: PalomaDatalayerStackExportsZod.shape.paloma_datalayer_props,
+				iam: PalomaDatalayerStackExportsZod.shape.paloma_datalayer_iam,
+				cloudmap:
+					PalomaDatalayerStackExportsZod.shape.paloma_datalayer_cloudmap,
+			},
+		},
+	},
+} as const;
+
+const HANDLER_TYPE = "monitorhandler" as const;
+
+const ROUTE_MAP = (
+	$refs: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT],
+) => {
+	$refs;
+	return {};
+};
+
+const ATLASFILE_PATHS = {
+	routes: {
+		content: ROUTE_MAP,
+		path: "atlas.routes.json",
+	},
+} as const;
+
+const ENVIRONMENT = (
+	_$refs: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT],
+) => {
+	return {
+		...Object.fromEntries([
+			...Object.entries(ATLASFILE_PATHS).map(([name, { path }]) => [
+				`ATLAS_${name.toUpperCase()}`,
+				`file://$LAMBDA_TASK_ROOT/${HANDLER_TYPE}/${path}`,
+			]),
+		]),
+	} as const;
+};
 
 const LLRT_ARCH: string | undefined = process.env["LLRT_ARCH"];
 const LLRT_PLATFORM: "node" | "browser" | undefined = LLRT_ARCH
 	? "node"
 	: undefined;
-
-const ENVIRONMENT = (
-	_$refs: DereferencedOutput<typeof STACKREF_CONFIG>["paloma"],
-) => {
-	return {} as const;
-};
-
-const ROUTE_MAP = (
-	$stacks: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT],
-) => {
-	return {} as const;
-};
 
 const OUTPUT_DIRECTORY = `output/esbuild`;
 const CANARY_PATHS = [
@@ -84,47 +144,6 @@ const CANARY_PATHS = [
 		routemap: ROUTE_MAP,
 	},
 ] as const;
-
-const CI = {
-	CI_ENVIRONMENT: process.env.CI_ENVIRONMENT ?? "unknown",
-	CI_ACCESS_ROLE: process.env.CI_ACCESS_ROLE ?? "FourtwoAccessRole",
-};
-
-const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? "paloma";
-const STACKREF_CONFIG = {
-	[STACKREF_ROOT]: {
-		application: {
-			refs: {
-				servicecatalog:
-					PalomaApplicationStackExportsZod.shape
-						.paloma_application_servicecatalog,
-			},
-		},
-		codestar: {
-			refs: {
-				codedeploy:
-					PalomaCodestarStackExportsZod.shape.paloma_codestar_codedeploy,
-				ecr: PalomaCodestarStackExportsZod.shape.paloma_codestar_ecr,
-			},
-		},
-		datalayer: {
-			refs: {
-				props: PalomaDatalayerStackExportsZod.shape.paloma_datalayer_props,
-				iam: PalomaDatalayerStackExportsZod.shape.paloma_datalayer_iam,
-				cloudmap:
-					PalomaDatalayerStackExportsZod.shape.paloma_datalayer_cloudmap,
-			},
-		},
-		["nevada-http"]: {
-			refs: {
-				routemap:
-					PalomaNevadaHttpStackExportsZod.shape.paloma_nevada_http_routemap,
-			},
-		},
-	},
-} as const;
-
-const ATLASFILE_PATH = `atlasfile.json`;
 
 export = async () => {
 	// Stack references
@@ -149,9 +168,15 @@ export = async () => {
 	// Object Store
 	const s3 = (() => {
 		const bucket = (name: string) => {
+			const randomid = new RandomId(_(`${name}-id`), {
+				byteLength: 4,
+			});
+
+			const urlsafe = _(name).replace(/[^a-zA-Z0-9]/g, "-");
 			const bucket = new Bucket(
 				_(name),
 				{
+					bucket: interpolate`${urlsafe}-${randomid.hex}`,
 					acl: "private",
 					forceDestroy: !context.environment.isProd,
 					tags: {
@@ -351,8 +376,45 @@ export = async () => {
 		},
 	});
 
+	// Configuration
+	const appconfig = (() => {
+		const environment = new Environment(
+			_("environment"),
+			{
+				applicationId: $codestar.appconfig.application.id,
+				description: `(${WORKSPACE_PACKAGE_NAME}) "Monitor" in #${stage}`,
+				tags: {
+					Name: _("environment"),
+					StackRef: STACKREF_ROOT,
+					PackageName: WORKSPACE_PACKAGE_NAME,
+					Kind: "Monitor",
+				},
+			},
+			{
+				dependsOn: [s3.artifacts],
+			},
+		);
+
+		const strategy = new DeploymentStrategy(_("strategy"), {
+			description: `(${WORKSPACE_PACKAGE_NAME}) "Monitor" in #${stage}`,
+			deploymentDurationInMinutes: context.environment.isProd ? 16 : 3,
+			growthFactor: 34,
+			replicateTo: "NONE",
+			tags: {
+				Name: _("strategy"),
+				StackRef: STACKREF_ROOT,
+				PackageName: WORKSPACE_PACKAGE_NAME,
+				Kind: "Monitor",
+			},
+		});
+
+		return {
+			environment,
+			strategy,
+		};
+	})();
+
 	// Compute
-	const HANDLER_TYPE = "monitorhandler" as const;
 	const handler = async (
 		{
 			name,
@@ -360,7 +422,6 @@ export = async () => {
 			packageName,
 			handler,
 			environment,
-			routemap,
 		}: (typeof CANARY_PATHS)[number],
 		{
 			datalayer,
@@ -434,6 +495,127 @@ export = async () => {
 			AWS_CLOUDMAP_NAMESPACE_NAME: datalayer.cloudmap.namespace.name,
 		};
 
+		const atlasfile = (
+			kind: string,
+			{ path, content }: (typeof ATLASFILE_PATHS)["routes"],
+		) => {
+			const stringcontent = JSON.stringify(content(dereferenced$));
+			const object = new BucketObjectv2(_(`${name}-${kind}-atlas`), {
+				bucket: s3.artifacts.bucket,
+				source: new StringAsset(stringcontent),
+				contentType: "application/json",
+				key: `${name}/${path}`,
+				tags: {
+					Name: _(`${name}-${kind}-atlas`),
+					StackRef: STACKREF_ROOT,
+					PackageName: WORKSPACE_PACKAGE_NAME,
+					Kind: "Monitor",
+					Monitor: name,
+					MonitorPackageName: packageName,
+				},
+			});
+
+			const configuration = new ConfigurationProfile(
+				_(`${name}-${kind}-config`),
+				{
+					applicationId: codestar.appconfig.application.id,
+					description: `(${packageName}) ${name} "${kind}" atlasfile in #${stage}`,
+					locationUri: "hosted",
+					tags: {
+						Name: _(`${name}-${kind}-config`),
+						StackRef: STACKREF_ROOT,
+						PackageName: WORKSPACE_PACKAGE_NAME,
+						Kind: "Monitor",
+						Monitor: name,
+						MonitorPackageName: packageName,
+					},
+				},
+				{
+					dependsOn: object,
+				},
+			);
+
+			const version = new HostedConfigurationVersion(
+				_(`${name}-${kind}-config-version`),
+				{
+					applicationId: codestar.appconfig.application.id,
+					configurationProfileId: configuration.configurationProfileId,
+					description: `(${packageName}) ${name} "${kind}" atlasfile in #${stage}`,
+					content: stringcontent,
+					contentType: "application/json",
+				},
+				{
+					dependsOn: configuration,
+				},
+			);
+
+			const deployment = new Deployment(
+				_(`${name}-${kind}-config-deployment`),
+				{
+					applicationId: codestar.appconfig.application.id,
+					environmentId: appconfig.environment.environmentId,
+					configurationProfileId: configuration.configurationProfileId,
+					deploymentStrategyId: appconfig.strategy.id,
+					configurationVersion: version.versionNumber.apply((v) => String(v)),
+					description: `(${packageName}) ${name} "${kind}" atlasfile in #${stage}`,
+					tags: {
+						Name: _(`${name}-${kind}-config-deployment`),
+						StackRef: STACKREF_ROOT,
+						PackageName: WORKSPACE_PACKAGE_NAME,
+						Kind: "Monitor",
+						Monitor: name,
+						MonitorPackageName: packageName,
+					},
+				},
+				{
+					dependsOn: version,
+				},
+			);
+
+			return {
+				object,
+				content,
+				configuration,
+				version,
+				deployment,
+			};
+		};
+
+		const atlas = Object.fromEntries(
+			Object.entries(ATLASFILE_PATHS).map(([named, { path, content }]) => [
+				named,
+				atlasfile(named, { path, content }),
+			]),
+		);
+		const appconfigEnvironment = all([
+			codestar.appconfig.application.name,
+			appconfig.environment.name,
+		]).apply(([applicationName, environmentName]) => {
+			return {
+				AWS_APPCONFIG_HOST: "http://localhost:2772",
+				AWS_APPCONFIG_APPLICATION: applicationName,
+				AWS_APPCONFIG_ENVIRONMENT: environmentName,
+			};
+		});
+		const configpath = (file: keyof typeof ATLASFILE_PATHS) => {
+			return all([appconfigEnvironment]).apply(([appconfigenvironment]) => {
+				const applicationName = appconfigenvironment.AWS_APPCONFIG_APPLICATION;
+				const environmentName = appconfigenvironment.AWS_APPCONFIG_ENVIRONMENT;
+				return interpolate`/applications/${applicationName}/environments/${environmentName}/${atlas[file].configuration.name}`;
+			});
+		};
+		const AWS_APPCONFIG_EXTENSION_PREFETCH_LIST = (() => {
+			let prefetch = [];
+			for (const af of Object.keys(atlas)) {
+				if (af) {
+					prefetch.push(af);
+				}
+			}
+			return Output.create(
+				prefetch.map((af) => configpath(af as keyof typeof ATLASFILE_PATHS)),
+			);
+		})().apply((list) => list.join(","));
+
 		const memorySize = context.environment.isProd ? 512 : 256;
 		const timeout = context.environment.isProd ? 93 : 55;
 		const lambda = new LambdaFn(
@@ -464,6 +646,10 @@ export = async () => {
 					logGroup: loggroup.name,
 					applicationLogLevel: context.environment.isProd ? "INFO" : "DEBUG",
 				},
+				layers: [
+					// TODO: RIP mapping
+					`arn:aws:lambda:us-west-2:359756378197:layer:AWS-AppConfig-Extension-Arm64:132`,
+				],
 				environment: all([cloudmapEnvironment]).apply(([cloudmapEnv]) => {
 					return {
 						variables: {
@@ -479,8 +665,8 @@ export = async () => {
 										LLRT_GC_THRESHOLD_MB: String(memorySize / 2),
 									}
 								: {}),
-							ATLAS_ROUTES: `file://$LAMBDA_TASK_ROOT/${HANDLER_TYPE}/${ATLASFILE_PATH}`,
 							...cloudmapEnv,
+							AWS_APPCONFIG_EXTENSION_PREFETCH_LIST,
 							...(environment !== undefined && typeof environment === "function"
 								? Object.fromEntries(
 										Object.entries(environment(dereferenced$))
@@ -636,6 +822,16 @@ export = async () => {
 				const EXTRACT_ACTION = "extractimage" as const;
 				const UPDATE_ACTION = "updatelambda" as const;
 
+				const ATLAS_PIPELINE_VARIABLES = Object.fromEntries(
+					Object.keys(ATLASFILE_PATHS).map(
+						(name) =>
+							[
+								`ATLASFILE_${name.toUpperCase()}_KEY`,
+								`<ATLASFILE_${name.toUpperCase()}_KEY>`,
+							] as const,
+					),
+				);
+
 				const stages = [
 					{
 						stage: PIPELINE_STAGE,
@@ -658,7 +854,7 @@ export = async () => {
 							S3_DEPLOY_KEY: "<S3_DEPLOY_KEY>",
 							CANARY_NAME: "<CANARY_NAME>",
 							PACKAGE_NAME: "<PACKAGE_NAME>",
-							ATLASFILE_OBJECT_KEY: "<ATLASFILE_OBJECT_KEY>",
+							...ATLAS_PIPELINE_VARIABLES,
 						},
 						exportedVariables: [
 							"STACKREF_CODESTAR_ECR_REPOSITORY_ARN",
@@ -718,11 +914,11 @@ export = async () => {
 									value: "<PACKAGE_NAME>",
 									type: "PLAINTEXT",
 								},
-								{
-									name: "ATLASFILE_OBJECT_KEY",
-									value: "<ATLASFILE_OBJECT_KEY>",
+								...Object.keys(ATLAS_PIPELINE_VARIABLES).map((name) => ({
+									name,
+									value: `<${name}>`,
 									type: "PLAINTEXT",
-								},
+								})),
 							] as { name: string; value: string; type: "PLAINTEXT" }[],
 						},
 						phases: {
@@ -788,11 +984,18 @@ export = async () => {
 											`rm -rf $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${OUTPUT_DIRECTORY} || true`,
 											`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
 										]),
-								// atlasfile
-								`echo "Rendering Atlasfile"`,
-								`echo "s3://$ATLASFILE_OBJECT_KEY"`,
-								`aws s3 cp s3://$ATLASFILE_OBJECT_KEY $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${ATLASFILE_PATH}`,
-								`cat $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${ATLASFILE_PATH}`,
+								// atlasfiles
+								...Object.entries(ATLASFILE_PATHS).flatMap(
+									([name, { path }]) => {
+										const objectKey = `$ATLASFILE_${name.toUpperCase()}_KEY`;
+										return [
+											`echo "Rendering Atlasfile: ${name}"`,
+											`echo "s3://${objectKey}"`,
+											`aws s3 cp s3://${objectKey} $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${path}`,
+											`cat $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE}/${path}`,
+										];
+									},
+								),
 								// deploy key
 								`echo "Rendering deploy key to .deploykey"`,
 								`NODE_NO_WARNINGS=1 node -e '(${(
@@ -1070,29 +1273,9 @@ export = async () => {
 			} as const;
 		})();
 
-		const atlasfile = (() => {
-			const content = JSON.stringify(routemap(dereferenced$));
-			const object = new BucketObjectv2(_(`${name}-atlasfile`), {
-				bucket: s3.artifacts.bucket,
-				source: new StringAsset(content),
-				contentType: "application/json",
-				key: `${name}/${ATLASFILE_PATH}`,
-				tags: {
-					Name: _(`${name}-atlasfile`),
-					StackRef: STACKREF_ROOT,
-					PackageName: WORKSPACE_PACKAGE_NAME,
-				},
-			});
-
-			return {
-				object,
-				content,
-			};
-		})();
-
 		return {
 			role: datalayer.props.lambda.role,
-			atlasfile,
+			atlas,
 			cloudwatch: {
 				loggroup,
 			},
@@ -1134,9 +1317,17 @@ export = async () => {
 	})();
 
 	const codepipeline = (() => {
+		const randomid = new RandomId(_("deploy-id"), {
+			byteLength: 4,
+			keepers: {
+				fr: "bruh",
+			},
+		});
+		const pipelineName = _("deploy").replace(/[^a-zA-Z0-9_]/g, "-");
 		const pipeline = new Pipeline(
 			_("deploy"),
 			{
+				name: interpolate`${pipelineName}-${randomid.hex}`,
 				pipelineType: "V2",
 				roleArn: farRole.arn,
 				executionMode: "QUEUED",
@@ -1174,7 +1365,7 @@ export = async () => {
 						actions: Object.entries(canary).flatMap(
 							([
 								name,
-								{ codebuild, lambda, codedeploy, environment, atlasfile },
+								{ codebuild, lambda, codedeploy, environment, atlas },
 							]) => {
 								return [
 									{
@@ -1195,8 +1386,12 @@ export = async () => {
 											$codestar.ecr.repository.url,
 											codebuild.extractimage.project.name,
 											s3.artifacts.bucket,
-											atlasfile.object.bucket,
-											atlasfile.object.key,
+											Output.create([
+												...Object.entries(atlas).map(([name, file]) => ({
+													name: name.toUpperCase(),
+													value: interpolate`${file.object.bucket}/${file.object.key}`,
+												})),
+											]),
 										]).apply(
 											([
 												repositoryArn,
@@ -1204,8 +1399,7 @@ export = async () => {
 												repositoryUrl,
 												projectExtractImageName,
 												artifactBucketName,
-												atlasfileBucketName,
-												atlasfileObjectKey,
+												atlasfiles,
 											]) => {
 												return {
 													ProjectName: projectExtractImageName,
@@ -1255,11 +1449,11 @@ export = async () => {
 															value: environment.PACKAGE_NAME,
 															type: "PLAINTEXT",
 														},
-														{
-															name: "ATLASFILE_OBJECT_KEY",
-															value: `${atlasfileBucketName}/${atlasfileObjectKey}`,
+														...atlasfiles.map(({ name, value }) => ({
+															name: `ATLASFILE_${name.toUpperCase()}_KEY`,
+															value,
 															type: "PLAINTEXT",
-														},
+														})),
 													]),
 												};
 											},
@@ -1384,8 +1578,9 @@ export = async () => {
 			},
 			{
 				dependsOn: Object.values(canary).flatMap((canary) => [
-					canary.codebuild.extractimage.buildspec.upload,
-					canary.codebuild.updatelambda.buildspec.upload,
+					canary.codebuild.updatelambda.project,
+					canary.codebuild.extractimage.project,
+					canary.codedeploy.deploymentGroup,
 				]),
 			},
 		);
@@ -1405,29 +1600,42 @@ export = async () => {
 		const { name } = $codestar.ecr.repository;
 
 		const EcrImageAction = (() => {
-			const rule = new EventRule(_("on-ecr-push"), {
-				description: `(${WORKSPACE_PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
-				state: "ENABLED",
-				eventPattern: JSON.stringify({
-					source: ["aws.ecr"],
-					"detail-type": ["ECR Image Action"],
-					detail: {
-						"repository-name": [name],
-						"action-type": ["PUSH"],
-						result: ["SUCCESS"],
-						"image-tag": [stage],
+			const rule = new EventRule(
+				_("on-ecr-push"),
+				{
+					description: `(${WORKSPACE_PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
+					state: "ENABLED",
+					eventPattern: JSON.stringify({
+						source: ["aws.ecr"],
+						"detail-type": ["ECR Image Action"],
+						detail: {
+							"repository-name": [name],
+							"action-type": ["PUSH"],
+							result: ["SUCCESS"],
+							"image-tag": [stage],
+						},
+					}),
+					tags: {
+						Name: _(`on-ecr-push`),
+						StackRef: STACKREF_ROOT,
 					},
-				}),
-				tags: {
-					Name: _(`on-ecr-push`),
-					StackRef: STACKREF_ROOT,
 				},
-			});
-			const target = new EventTarget(_("on-ecr-push-deploy"), {
-				rule: rule.name,
-				arn: codepipeline.pipeline.arn,
-				roleArn: farRole.arn,
-			});
+				{
+					deleteBeforeReplace: true,
+				},
+			);
+
+			const target = new EventTarget(
+				_("on-ecr-push-deploy"),
+				{
+					rule: rule.name,
+					arn: codepipeline.pipeline.arn,
+					roleArn: farRole.arn,
+				},
+				{
+					deleteBeforeReplace: true,
+				},
+			);
 
 			return {
 				targets: {
@@ -1474,7 +1682,6 @@ export = async () => {
 							},
 						},
 						{
-							dependsOn: group.map(([, handler]) => handler.alias),
 							deleteBeforeReplace: true,
 						},
 					);
@@ -1800,9 +2007,8 @@ export = async () => {
 			};
 			const validate = PalomaMonitorStackExportsZod.safeParse(exported);
 			if (!validate.success) {
-				process.stderr.write(
-					`Validation failed: ${JSON.stringify(validate.error, null, 2)}`,
-				);
+				error(`Validation failed: ${JSON.stringify(validate.error, null, 2)}`);
+				warn(inspect(exported, { depth: null }));
 			}
 
 			return exported;
