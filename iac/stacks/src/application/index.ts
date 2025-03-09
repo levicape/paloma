@@ -1,4 +1,4 @@
-import { Context } from "@levicape/fourtwo-pulumi";
+import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
 import { Budget } from "@pulumi/aws/budgets/budget";
 import { getOrganization } from "@pulumi/aws/organizations/getOrganization";
 import { PrincipalAssociation } from "@pulumi/aws/ram/principalAssociation";
@@ -12,27 +12,22 @@ import type { z } from "zod";
 import { PalomaApplicationStackExportsZod } from "./exports";
 
 const PACKAGE_NAME = "@levicape/paloma";
+const DESCRIPTION = "Paloma: durable canary tests. Services: {nevada]";
 
 export = async () => {
 	const context = await Context.fromConfig({});
 	const _ = (name: string) => `${context.prefix}-${name}`;
 
 	const servicecatalog = (() => {
-		const application = new AppregistryApplication(_("servicecatalog"), {
-			tags: {
-				Name: _("servicecatalog"),
-				PackageName: "@levicape/paloma",
-			},
-		});
-
-		return { application };
+		return {
+			application: new AppregistryApplication(_("servicecatalog"), {
+				description: DESCRIPTION,
+				tags: {
+					PACKAGE_NAME,
+				},
+			}),
+		};
 	})();
-
-	const awsApplication = servicecatalog.application.applicationTag.apply(
-		(tagMap) => {
-			return tagMap["awsApplication"] ?? "";
-		},
-	);
 
 	const organization = await getOrganization({});
 	(() => {
@@ -47,7 +42,7 @@ export = async () => {
 		const principalAssociation = new PrincipalAssociation(
 			_("ram-principal-owner"),
 			{
-				principal: organization.masterAccountArn,
+				principal: organization.masterAccountId,
 				resourceShareArn: resourceShare.arn,
 			},
 		);
@@ -62,6 +57,12 @@ export = async () => {
 
 		return { resourceShare, principalAssociation, resourceAssociation };
 	})();
+
+	const awsApplication = servicecatalog.application.applicationTag.apply(
+		(tagMap) => {
+			return tagMap["awsApplication"] ?? "";
+		},
+	);
 
 	const resourcegroups = (() => {
 		const group = (
@@ -102,11 +103,14 @@ export = async () => {
 			return new Topic(_(`topic-${name}`), {
 				tags: {
 					awsApplication,
+					PACKAGE_NAME,
 				},
 			});
 		};
 		return {
 			billing: topic("billing"),
+			catalog: topic("catalog"),
+			changes: topic("changes"),
 			operations: topic("operations"),
 		};
 	})();
@@ -170,10 +174,10 @@ export = async () => {
 				notificationType: "ACTUAL",
 				subscriberSnsTopicArns: [sns.billing.arn],
 			}),
-			daily_forecasted: budget("daily-forecasted", {
-				limitAmount: "9",
-				timeUnit: "DAILY",
-				threshold: 2,
+			monthly_forecasted: budget("monthly-forecasted", {
+				limitAmount: "29",
+				timeUnit: "MONTHLY",
+				threshold: 13,
 				notificationType: "FORECASTED",
 				subscriberSnsTopicArns: [sns.billing.arn],
 			}),
@@ -208,22 +212,24 @@ export = async () => {
 	const resourcegroupsOutput = all(
 		Object.entries(resourcegroups).map(([name, group]) => {
 			return all([
-				name,
 				group.group.arn,
 				group.group.name,
 				group.group.id,
 				group.group.resourceQuery,
-			]).apply(([_name, groupArn, groupName, groupId]) => {
-				return {
-					arn: groupArn,
-					name: groupName,
-					id: groupId,
-				};
+			]).apply(([groupArn, groupName, groupId]) => {
+				return [
+					name,
+					{
+						arn: groupArn,
+						name: groupName,
+						id: groupId,
+					},
+				] as const;
 			});
 		}),
 	).apply((groups) => {
 		return Object.fromEntries(
-			Object.entries(groups).map(([name, group]) => {
+			groups.map(([name, group]) => {
 				return [
 					name,
 					{
@@ -240,19 +246,22 @@ export = async () => {
 
 	const snsOutput = all(
 		Object.entries(sns).map(([name, topic]) => {
-			return all([name, topic.arn, topic.name, topic.id]).apply(
-				([_name, topicArn, topicName, topicId]) => {
-					return {
-						arn: topicArn,
-						name: topicName,
-						id: topicId,
-					};
+			return all([topic.arn, topic.name, topic.id]).apply(
+				([topicArn, topicName, topicId]) => {
+					return [
+						name,
+						{
+							arn: topicArn,
+							name: topicName,
+							id: topicId,
+						},
+					] as const;
 				},
 			);
 		}),
 	).apply((topics) => {
 		return Object.fromEntries(
-			Object.entries(topics).map(([name, topic]) => {
+			topics.map(([name, topic]) => {
 				return [
 					name,
 					{

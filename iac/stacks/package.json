@@ -16,6 +16,7 @@
     "@pulumi/command": "catalog:pulumi",
     "@pulumi/docker-build": "catalog:pulumi",
     "@pulumi/pulumi": "catalog:pulumi",
+    "@pulumi/random": "catalog:pulumi",
     "destr": "catalog:parse-json",
     "serialize-error": "catalog:error",
     "ts-node": "catalog:dev",
@@ -26,18 +27,7 @@
     "zod": "catalog:schema-zod"
   },
   "devDependencies": {
-    "@types/node": "catalog:types"
-  },
-  "nx": {
-    "targets": {
-      "nx:compile": {
-        "dependsOn": []
-      },
-      "dx:precommit": {
-        "dependsOn": [
-          "nx:compile"
-        ]
-      }
-    }
+    "@types/node": "catalog:types",
+    "typescript": "catalog:dev"
   }
 }
