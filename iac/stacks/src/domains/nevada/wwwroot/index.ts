@@ -23,6 +23,7 @@ import { CannedAcl } from "@pulumi/aws/types/enums/s3";
 import { Command } from "@pulumi/command/local";
 import { Output, all, interpolate } from "@pulumi/pulumi";
 import { warn } from "@pulumi/pulumi/log";
+import { RandomId } from "@pulumi/random/randomId";
 import { VError } from "verror";
 import { stringify } from "yaml";
 import type { z } from "zod";
@@ -251,9 +252,15 @@ function handler(event) {
 			},
 		) => {
 			const { daysToRetain, ownership } = props;
+			const randomid = new RandomId(_(`${name}-id`), {
+				byteLength: 4,
+			});
+
+			const urlsafe = _(name).replace(/[^a-zA-Z0-9]/g, "-");
 			const bucket = new Bucket(
 				_(name),
 				{
+					bucket: interpolate`${urlsafe}-${randomid.hex}`,
 					acl: "private",
 					forceDestroy: !context.environment.isProd,
 					tags: {
@@ -584,6 +591,11 @@ function handler(event) {
 				geoRestriction: {
 					restrictionType: "none",
 				},
+			},
+			tags: {
+				Name: _("cdn"),
+				StackRef: STACKREF_ROOT,
+				WORKSPACE_PACKAGE_NAME,
 			},
 		},
 		{ dependsOn: [...(s3.logs.acl ? [s3.logs.acl] : [])] },

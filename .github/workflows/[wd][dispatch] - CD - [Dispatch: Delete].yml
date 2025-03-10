@@ -230,13 +230,12 @@ jobs:
           rm -f .pulumi-ci .export-cd .pulumi-helper.sh .ci-env;
           rm -rf _pulumi;
           pnpm store prune || true;
-          corepack cache clean || true;
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[wd][dispatch] - CD - [Dispatch: Delete].yml","source":"iac/workflows/github/workflow_dispatch/CD.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"5d49e6888bfabec9f21936c6dde8738b18af077ed71876cadc6fc9805ecda221"}
-#**:_$~- {"$$":"footer","started":"2025-03-09T08:16:11.728Z","now":"2025-03-09T08:16:11.731Z","elapsed":"3ms"}
+#**:_$~- {"$$":"body","hashed":"562643acf85c1d4c0091727834b7bfdb6c0a366f0d4637fb62ce3f035d1664d4"}
+#**:_$~- {"$$":"footer","started":"2025-03-10T21:09:54.412Z","now":"2025-03-10T21:09:54.414Z","elapsed":"2ms"}
 # END OF GENERATED FILE
 
