@@ -326,8 +326,9 @@ export = async () => {
 
 		const strategy = new DeploymentStrategy(_("strategy"), {
 			description: `(${PACKAGE_NAME}) "${DESCRIPTION}" in #${stage}`,
-			deploymentDurationInMinutes: context.environment.isProd ? 16 : 3,
-			growthFactor: 34,
+			deploymentDurationInMinutes: context.environment.isProd ? 12 : 2,
+			finalBakeTimeInMinutes: context.environment.isProd ? 16 : 3,
+			growthFactor: 10,
 			replicateTo: "NONE",
 			tags: {
 				Name: _("strategy"),
