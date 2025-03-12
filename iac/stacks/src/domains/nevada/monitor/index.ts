@@ -169,7 +169,6 @@ const CANARY_PATHS = [
 		routemap: ROUTE_MAP,
 	},
 ] as const;
-
 export = async () => {
 	// Stack references
 	const dereferenced$ = await $deref(STACKREF_CONFIG);
@@ -422,8 +421,9 @@ export = async () => {
 
 		const strategy = new DeploymentStrategy(_("strategy"), {
 			description: `(${WORKSPACE_PACKAGE_NAME}) "Monitor" in #${stage}`,
-			deploymentDurationInMinutes: context.environment.isProd ? 16 : 3,
-			growthFactor: 34,
+			deploymentDurationInMinutes: context.environment.isProd ? 12 : 2,
+			finalBakeTimeInMinutes: context.environment.isProd ? 16 : 3,
+			growthFactor: 10,
 			replicateTo: "NONE",
 			tags: {
 				Name: _("strategy"),
@@ -629,7 +629,6 @@ export = async () => {
 				return interpolate`/applications/${applicationName}/environments/${environmentName}/${atlas[file].configuration.name}`;
 			});
 		};
-
 		const AWS_APPCONFIG_EXTENSION_PREFETCH_LIST = (() => {
 			let prefetch = [];
 			for (const af of Object.keys(atlas)) {
@@ -676,7 +675,7 @@ export = async () => {
 					// TODO: RIP mapping
 					`arn:aws:lambda:us-west-2:359756378197:layer:AWS-AppConfig-Extension-Arm64:132`,
 				],
-				environment: all([cloudmapEnvironment]).apply(([cloudmapEnv]) => {
+				environment: all([appconfigEnvironment]).apply(([appconfigEnv]) => {
 					return {
 						variables: {
 							NODE_OPTIONS: [
@@ -691,8 +690,8 @@ export = async () => {
 										LLRT_GC_THRESHOLD_MB: String(memorySize / 2),
 									}
 								: {}),
-							...cloudmapEnv,
-							...appconfigEnvironment,
+							...cloudmapEnvironment,
+							...appconfigEnv,
 							AWS_APPCONFIG_EXTENSION_PREFETCH_LIST,
 							...(environment !== undefined && typeof environment === "function"
 								? Object.fromEntries(
@@ -1255,7 +1254,7 @@ export = async () => {
 									},
 								},
 								{
-									dependsOn: [upload],
+									dependsOn: [upload, deploymentGroup],
 								},
 							);
 
@@ -1602,10 +1601,9 @@ export = async () => {
 			},
 			{
 				dependsOn: Object.values(canary).flatMap((canary) => [
-					canary.codebuild.extractimage.buildspec.upload,
-					canary.codebuild.updatelambda.buildspec.upload,
+					canary.codebuild.updatelambda.project,
+					canary.codebuild.extractimage.project,
 					canary.codedeploy.deploymentGroup,
-					canary.lambda.alias,
 				]),
 			},
 		);
@@ -1625,29 +1623,42 @@ export = async () => {
 		const { name } = $codestar.ecr.repository;
 
 		const EcrImageAction = (() => {
-			const rule = new EventRule(_("on-ecr-push"), {
-				description: `(${WORKSPACE_PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
-				state: "ENABLED",
-				eventPattern: JSON.stringify({
-					source: ["aws.ecr"],
-					"detail-type": ["ECR Image Action"],
-					detail: {
-						"repository-name": [name],
-						"action-type": ["PUSH"],
-						result: ["SUCCESS"],
-						"image-tag": [stage],
+			const rule = new EventRule(
+				_("on-ecr-push"),
+				{
+					description: `(${WORKSPACE_PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
+					state: "ENABLED",
+					eventPattern: JSON.stringify({
+						source: ["aws.ecr"],
+						"detail-type": ["ECR Image Action"],
+						detail: {
+							"repository-name": [name],
+							"action-type": ["PUSH"],
+							result: ["SUCCESS"],
+							"image-tag": [stage],
+						},
+					}),
+					tags: {
+						Name: _(`on-ecr-push`),
+						StackRef: STACKREF_ROOT,
 					},
-				}),
-				tags: {
-					Name: _(`on-ecr-push`),
-					StackRef: STACKREF_ROOT,
 				},
-			});
-			const target = new EventTarget(_("on-ecr-push-deploy"), {
-				rule: rule.name,
-				arn: codepipeline.pipeline.arn,
-				roleArn: farRole.arn,
-			});
+				{
+					deleteBeforeReplace: true,
+				},
+			);
+
+			const target = new EventTarget(
+				_("on-ecr-push-deploy"),
+				{
+					rule: rule.name,
+					arn: codepipeline.pipeline.arn,
+					roleArn: farRole.arn,
+				},
+				{
+					deleteBeforeReplace: true,
+				},
+			);
 
 			return {
 				targets: {
@@ -1694,7 +1705,6 @@ export = async () => {
 							},
 						},
 						{
-							dependsOn: group.map(([, handler]) => handler.alias),
 							deleteBeforeReplace: true,
 						},
 					);

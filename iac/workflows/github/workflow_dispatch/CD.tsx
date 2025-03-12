@@ -340,8 +340,6 @@ source .pulumi-helper.sh`,
 													".ci-env",
 												].join(" ")}`,
 												`rm -rf ${OUTPUT_PULUMI_PATH}`,
-												"pnpm store prune || true",
-												"corepack cache clean || true",
 											]}
 										/>
 									</>

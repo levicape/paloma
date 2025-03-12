@@ -193,6 +193,14 @@ jobs:
           refresh_and_preview "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json;
           deploy_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json;
           capture_outputs "$(pwd)/iac/stacks/src/codestar" "_pulumi/codestar";
+          configure_stack "Deploy" "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito" "paloma-cognito" "_pulumi/cognito";
+          setup_stack "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito";
+          configure_stack_settings "$(pwd)/iac/stacks/src/cognito" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          refresh_and_preview "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json;
+          deploy_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json;
+          capture_outputs "$(pwd)/iac/stacks/src/cognito" "_pulumi/cognito";
           configure_stack "Deploy" "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer";
           setup_stack "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer";
           configure_stack_settings "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
@@ -248,6 +256,8 @@ jobs:
           source _pulumi/application.sh;
           cat _pulumi/codestar.sh;
           source _pulumi/codestar.sh;
+          cat _pulumi/cognito.sh;
+          source _pulumi/cognito.sh;
           cat _pulumi/datalayer.sh;
           source _pulumi/datalayer.sh;
           cat _pulumi/monitor.sh;
@@ -277,6 +287,8 @@ jobs:
           source _pulumi/application.sh;
           cat _pulumi/codestar.sh;
           source _pulumi/codestar.sh;
+          cat _pulumi/cognito.sh;
+          source _pulumi/cognito.sh;
           cat _pulumi/datalayer.sh;
           source _pulumi/datalayer.sh;
           cat _pulumi/monitor.sh;
@@ -303,14 +315,12 @@ jobs:
         run: |-
           rm -f .pulumi-ci .export-cd .pulumi-helper.sh .ci-env;
           rm -rf _pulumi;
-          pnpm store prune || true;
-          corepack cache clean || true;
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[wd][dispatch] - CD - [Dispatch: Preview, Deploy, Push].yml","source":"iac/workflows/github/workflow_dispatch/CD.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"69ef05f63efdb6acdb49253ba042369d177dd7f22eb203b4a9a786590ddc51eb"}
-#**:_$~- {"$$":"footer","started":"2025-03-09T08:16:11.710Z","now":"2025-03-09T08:16:11.717Z","elapsed":"7ms"}
+#**:_$~- {"$$":"body","hashed":"6fbd9af6f18d720e744a079e25c38a8533e57ab11d57c7c3bb111b766d01dc86"}
+#**:_$~- {"$$":"footer","started":"2025-03-12T03:47:25.756Z","now":"2025-03-12T03:47:25.764Z","elapsed":"8ms"}
 # END OF GENERATED FILE
 

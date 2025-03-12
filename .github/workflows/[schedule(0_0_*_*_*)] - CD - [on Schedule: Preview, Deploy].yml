@@ -193,6 +193,14 @@ jobs:
           refresh_and_preview "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json;
           deploy_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json;
           capture_outputs "$(pwd)/iac/stacks/src/codestar" "_pulumi/codestar";
+          configure_stack "Deploy" "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito" "paloma-cognito" "_pulumi/cognito";
+          setup_stack "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito";
+          configure_stack_settings "$(pwd)/iac/stacks/src/cognito" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          refresh_and_preview "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json;
+          deploy_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json;
+          capture_outputs "$(pwd)/iac/stacks/src/cognito" "_pulumi/cognito";
           configure_stack "Deploy" "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer";
           setup_stack "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer";
           configure_stack_settings "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
@@ -245,14 +253,12 @@ jobs:
         run: |-
           rm -f .pulumi-ci .export-cd .pulumi-helper.sh .ci-env;
           rm -rf _pulumi;
-          pnpm store prune || true;
-          corepack cache clean || true;
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[schedule(0_0_*_*_*)] - CD - [on Schedule: Preview, Deploy].yml","source":"iac/workflows/github/workflow_dispatch/CD.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"eb69dc3ef1bb4d518ab1c1917f62e3ab9d1565dcf6e54ac3ff4956dd613e2351"}
-#**:_$~- {"$$":"footer","started":"2025-03-09T08:16:11.719Z","now":"2025-03-09T08:16:11.723Z","elapsed":"4ms"}
+#**:_$~- {"$$":"body","hashed":"d16e22ddad25dfb3411f4aa9529a45cd4cfb333b21eede71326fe8f11e53c5c1"}
+#**:_$~- {"$$":"footer","started":"2025-03-12T03:47:25.766Z","now":"2025-03-12T03:47:25.769Z","elapsed":"3ms"}
 # END OF GENERATED FILE
 

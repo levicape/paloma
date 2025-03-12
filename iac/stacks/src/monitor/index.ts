@@ -397,8 +397,9 @@ export = async () => {
 
 		const strategy = new DeploymentStrategy(_("strategy"), {
 			description: `(${WORKSPACE_PACKAGE_NAME}) "Monitor" in #${stage}`,
-			deploymentDurationInMinutes: context.environment.isProd ? 16 : 3,
-			growthFactor: 34,
+			deploymentDurationInMinutes: context.environment.isProd ? 12 : 2,
+			finalBakeTimeInMinutes: context.environment.isProd ? 16 : 3,
+			growthFactor: 10,
 			replicateTo: "NONE",
 			tags: {
 				Name: _("strategy"),
@@ -650,7 +651,7 @@ export = async () => {
 					// TODO: RIP mapping
 					`arn:aws:lambda:us-west-2:359756378197:layer:AWS-AppConfig-Extension-Arm64:132`,
 				],
-				environment: all([cloudmapEnvironment]).apply(([cloudmapEnv]) => {
+				environment: all([appconfigEnvironment]).apply(([appconfigEnv]) => {
 					return {
 						variables: {
 							NODE_OPTIONS: [
@@ -665,7 +666,8 @@ export = async () => {
 										LLRT_GC_THRESHOLD_MB: String(memorySize / 2),
 									}
 								: {}),
-							...cloudmapEnv,
+							...cloudmapEnvironment,
+							...appconfigEnv,
 							AWS_APPCONFIG_EXTENSION_PREFETCH_LIST,
 							...(environment !== undefined && typeof environment === "function"
 								? Object.fromEntries(
@@ -1319,9 +1321,6 @@ export = async () => {
 	const codepipeline = (() => {
 		const randomid = new RandomId(_("deploy-id"), {
 			byteLength: 4,
-			keepers: {
-				fr: "bruh",
-			},
 		});
 		const pipelineName = _("deploy").replace(/[^a-zA-Z0-9_]/g, "-");
 		const pipeline = new Pipeline(

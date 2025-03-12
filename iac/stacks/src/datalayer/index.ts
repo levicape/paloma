@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
 import { SecurityGroup } from "@pulumi/aws/ec2/securityGroup";
 import { AccessPoint } from "@pulumi/aws/efs/accessPoint";
@@ -7,6 +8,7 @@ import { Role } from "@pulumi/aws/iam/role";
 import { PrivateDnsNamespace } from "@pulumi/aws/servicediscovery/privateDnsNamespace";
 import { Vpc } from "@pulumi/awsx/ec2/vpc";
 import { all } from "@pulumi/pulumi";
+import { error, warn } from "@pulumi/pulumi/log";
 import type { z } from "zod";
 import { $deref } from "../Stack";
 import { PalomaApplicationStackExportsZod } from "../application/exports";
@@ -323,9 +325,8 @@ export = async () => {
 
 			const validate = PalomaDatalayerStackExportsZod.safeParse(exported);
 			if (!validate.success) {
-				process.stderr.write(
-					`Validation failed: ${JSON.stringify(validate.error, null, 2)}`,
-				);
+				error(`Validation failed: ${JSON.stringify(validate.error, null, 2)}`);
+				warn(inspect(exported, { depth: null }));
 			}
 			return exported;
 		},
