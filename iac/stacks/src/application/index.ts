@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
 import { Budget } from "@pulumi/aws/budgets/budget";
 import { getOrganization } from "@pulumi/aws/organizations/getOrganization";
@@ -8,6 +9,7 @@ import { Group } from "@pulumi/aws/resourcegroups";
 import { AppregistryApplication } from "@pulumi/aws/servicecatalog";
 import { Topic } from "@pulumi/aws/sns/topic";
 import { type Input, all } from "@pulumi/pulumi";
+import { error, warn } from "@pulumi/pulumi/log";
 import type { z } from "zod";
 import { PalomaApplicationStackExportsZod } from "./exports";
 
@@ -286,9 +288,8 @@ export = async () => {
 
 			const validate = PalomaApplicationStackExportsZod.safeParse(exported);
 			if (!validate.success) {
-				process.stderr.write(
-					`Validation failed: ${JSON.stringify(validate.error, null, 2)}`,
-				);
+				error(`Validation failed: ${JSON.stringify(validate.error, null, 2)}`);
+				warn(inspect(exported, { depth: null }));
 			}
 			return exported;
 		},

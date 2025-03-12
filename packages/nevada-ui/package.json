@@ -35,13 +35,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
-    "@tailwindcss/vite": "catalog:web-style",
+    "@tailwindcss/vite": "catalog:web-tailwind",
     "@types/express": "catalog:types",
     "@types/node": "catalog:types",
     "@types/react": "catalog:types",
     "@types/react-dom": "catalog:types",
     "@vitejs/plugin-react-swc": "catalog:web-vite",
-    "tailwindcss": "catalog:web-style",
+    "tailwindcss": "catalog:web-tailwind",
     "typescript": "catalog:dev",
     "vite": "catalog:web-vite"
   },

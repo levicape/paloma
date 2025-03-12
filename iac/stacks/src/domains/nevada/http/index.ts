@@ -1859,12 +1859,12 @@ export = async () => {
 					};
 				};
 			};
+
 			const validate = PalomaNevadaHttpStackExportsZod.safeParse(exported);
 			if (!validate.success) {
 				error(`Validation failed: ${JSON.stringify(validate.error, null, 2)}`);
 				warn(inspect(exported, { depth: null }));
 			}
-
 			return exported;
 		},
 	);

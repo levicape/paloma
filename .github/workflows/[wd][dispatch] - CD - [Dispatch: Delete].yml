@@ -189,6 +189,12 @@ jobs:
           context:stack.environment.isProd=false
           context:stack.environment.features=aws';
           remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito" "paloma-cognito" "_pulumi/cognito";
+          setup_stack "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito";
+          configure_stack_settings "$(pwd)/iac/stacks/src/cognito" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json;
           configure_stack "Delete" "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer";
           setup_stack "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer";
           configure_stack_settings "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
@@ -229,13 +235,21 @@ jobs:
         run: |-
           rm -f .pulumi-ci .export-cd .pulumi-helper.sh .ci-env;
           rm -rf _pulumi;
+<<<<<<< HEAD
           pnpm store prune || true;
+=======
+>>>>>>> 07c492a (iac/stacks: Deploy cognito stack)
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[wd][dispatch] - CD - [Dispatch: Delete].yml","source":"iac/workflows/github/workflow_dispatch/CD.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
+<<<<<<< HEAD
 #**:_$~- {"$$":"body","hashed":"562643acf85c1d4c0091727834b7bfdb6c0a366f0d4637fb62ce3f035d1664d4"}
 #**:_$~- {"$$":"footer","started":"2025-03-10T21:09:54.412Z","now":"2025-03-10T21:09:54.414Z","elapsed":"2ms"}
+=======
+#**:_$~- {"$$":"body","hashed":"ba775772819475bcdc1c4c623eeeccd4288570ad793e6ac03d51ae0550fc1772"}
+#**:_$~- {"$$":"footer","started":"2025-03-12T03:47:25.776Z","now":"2025-03-12T03:47:25.779Z","elapsed":"3ms"}
+>>>>>>> 07c492a (iac/stacks: Deploy cognito stack)
 # END OF GENERATED FILE
 

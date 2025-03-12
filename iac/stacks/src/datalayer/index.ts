@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
 import { SecurityGroup } from "@pulumi/aws/ec2/securityGroup";
 import { AccessPoint } from "@pulumi/aws/efs/accessPoint";
@@ -8,7 +9,6 @@ import { PrivateDnsNamespace } from "@pulumi/aws/servicediscovery/privateDnsName
 import { Vpc } from "@pulumi/awsx/ec2/vpc";
 import { all } from "@pulumi/pulumi";
 import { error, warn } from "@pulumi/pulumi/log";
-import { inspect } from "node:util";
 import type { z } from "zod";
 import { $deref } from "../Stack";
 import { PalomaApplicationStackExportsZod } from "../application/exports";
