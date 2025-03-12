@@ -463,6 +463,12 @@ Actions:
                 frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
                 frontend:stack.dns.hostnames[1]=paloma-codestar.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/codestar" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json
             - Run: |-
+                source .pulumi-ci-helper && configure_stack "Preview" "paloma-cognito.current" "$(pwd)/iac/stacks/src/cognito" "paloma-cognito" "_pulumi/cognito" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-cognito.current" "$(pwd)/iac/stacks/src/cognito" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/cognito" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-cognito.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/cognito" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json
+            - Run: |-
                 source .pulumi-ci-helper && configure_stack "Preview" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
@@ -504,7 +510,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"[pr(OPEN,REVISION)(b:main)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"3db0dc46d3ce2b57284bab2c9a26ee0ee1415373f54d880d0e9bfbb8b28c8eb6"}
-#**:_$~- {"$$":"footer","started":"2025-02-25T18:51:50.907Z","now":"2025-02-25T18:51:50.910Z","elapsed":"3ms"}
+#**:_$~- {"$$":"body","hashed":"bc8c1abdd2d7e60fd0a6b69e8d43cd8a65d803b6795fb622b302d38169171a50"}
+#**:_$~- {"$$":"footer","started":"2025-03-12T05:09:32.650Z","now":"2025-03-12T05:09:32.654Z","elapsed":"4ms"}
 # END OF GENERATED FILE
 

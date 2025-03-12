@@ -466,6 +466,16 @@ Actions:
                 deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json
                 capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/codestar" "_pulumi/codestar"
             - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-cognito.current" "$(pwd)/iac/stacks/src/cognito" "paloma-cognito" "_pulumi/cognito" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-cognito.current" "$(pwd)/iac/stacks/src/cognito" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/cognito" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-cognito.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/cognito" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/cognito" "_pulumi/cognito"
+            - Run: |-
                 source .pulumi-ci-helper && configure_stack "Deploy" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
@@ -590,6 +600,8 @@ Actions:
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/application.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/codestar.sh
+            - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/cognito.sh
+            - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/cognito.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
             - Run: source $CATALYST_SOURCE_DIR_pulumi/_pulumi/datalayer.sh
             - Run: cat $CATALYST_SOURCE_DIR_pulumi/_pulumi/monitor.sh
@@ -626,7 +638,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"8c543bf8f604ee437281a985885cff919bcce52e4afedd713e7e3e2151d6c8d2"}
-#**:_$~- {"$$":"footer","started":"2025-02-25T18:51:50.834Z","now":"2025-02-25T18:51:50.846Z","elapsed":"12ms"}
+#**:_$~- {"$$":"body","hashed":"b9f3fe9f840d2506600dce657b5d9fd419cbbd83569d523059dc0c64f059f089"}
+#**:_$~- {"$$":"footer","started":"2025-03-12T05:09:32.583Z","now":"2025-03-12T05:09:32.591Z","elapsed":"8ms"}
 # END OF GENERATED FILE
 

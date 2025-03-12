@@ -253,21 +253,12 @@ jobs:
         run: |-
           rm -f .pulumi-ci .export-cd .pulumi-helper.sh .ci-env;
           rm -rf _pulumi;
-<<<<<<< HEAD
-          pnpm store prune || true;
-=======
->>>>>>> 07c492a (iac/stacks: Deploy cognito stack)
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[schedule(0_0_*_*_*)] - CD - [on Schedule: Preview, Deploy].yml","source":"iac/workflows/github/workflow_dispatch/CD.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-<<<<<<< HEAD
-#**:_$~- {"$$":"body","hashed":"f9ae5ae20f7755c6c98c186f1e671d55408dcdf12cf92816584aba6dcdec3d56"}
-#**:_$~- {"$$":"footer","started":"2025-03-10T21:09:54.404Z","now":"2025-03-10T21:09:54.407Z","elapsed":"3ms"}
-=======
 #**:_$~- {"$$":"body","hashed":"d16e22ddad25dfb3411f4aa9529a45cd4cfb333b21eede71326fe8f11e53c5c1"}
-#**:_$~- {"$$":"footer","started":"2025-03-12T03:47:25.766Z","now":"2025-03-12T03:47:25.769Z","elapsed":"3ms"}
->>>>>>> 07c492a (iac/stacks: Deploy cognito stack)
+#**:_$~- {"$$":"footer","started":"2025-03-12T05:21:48.270Z","now":"2025-03-12T05:21:48.273Z","elapsed":"3ms"}
 # END OF GENERATED FILE
 

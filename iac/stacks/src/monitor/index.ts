@@ -395,23 +395,8 @@ export = async () => {
 			},
 		);
 
-		const strategy = new DeploymentStrategy(_("strategy"), {
-			description: `(${WORKSPACE_PACKAGE_NAME}) "Monitor" in #${stage}`,
-			deploymentDurationInMinutes: context.environment.isProd ? 12 : 2,
-			finalBakeTimeInMinutes: context.environment.isProd ? 16 : 3,
-			growthFactor: 10,
-			replicateTo: "NONE",
-			tags: {
-				Name: _("strategy"),
-				StackRef: STACKREF_ROOT,
-				PackageName: WORKSPACE_PACKAGE_NAME,
-				Kind: "Monitor",
-			},
-		});
-
 		return {
 			environment,
-			strategy,
 		};
 	})();
 
@@ -556,7 +541,9 @@ export = async () => {
 					applicationId: codestar.appconfig.application.id,
 					environmentId: appconfig.environment.environmentId,
 					configurationProfileId: configuration.configurationProfileId,
-					deploymentStrategyId: appconfig.strategy.id,
+					deploymentStrategyId: context.environment.isProd
+						? "AppConfig.Canary10Percent20Minutes"
+						: "AppConfig.AllAtOnce",
 					configurationVersion: version.versionNumber.apply((v) => String(v)),
 					description: `(${packageName}) ${name} "${kind}" atlasfile in #${stage}`,
 					tags: {
