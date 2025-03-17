@@ -6,7 +6,7 @@ import { env } from "std-env";
 const { NEVADA_UI, NEVADA_HTTP } = env;
 
 export const HTTP_BASE_PATH = "/~/Paloma/Nevada";
-export const NevadaIoRoutemap = Atlas({
+export const NevadaIoRoutemap = Atlas.routes({
 	"/": {
 		$kind: "StaticRouteResource",
 		hostname: `ui:${NEVADA_UI}`,

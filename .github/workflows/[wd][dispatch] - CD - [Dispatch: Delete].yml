@@ -6,8 +6,12 @@ on:
   workflow_dispatch:
     {}
 env:
-  NPM_REGISTRY_PROTOCOL: https
-  NPM_REGISTRY_HOST: npm.pkg.github.com
+  NPM_REGISTRY_PROTOCOL_LEVICAPE: https
+  NPM_REGISTRY_HOST_LEVICAPE: npm.pkg.github.com
+  NPM_TOKEN_LEVICAPE: ${{ secrets.LEVICAPE_NPM_TOKEN }}
+  LEVICAPE_REGISTRY_HOST: npm.pkg.github.com/
+  LEVICAPE_REGISTRY: https://npm.pkg.github.com
+  LEVICAPE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   NODE_NO_WARNINGS: "1"
   NPM_CONFIG_UPDATE_NOTIFIER: "false"
   FRONTEND_HOSTNAME: at.levicape.cloud
@@ -30,7 +34,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.13.0
-          registry-url: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}
+          registry-url: ${{ env.NPM_REGISTRY_PROTOCOL_LEVICAPE }}://${{ env.NPM_REGISTRY_HOST_LEVICAPE }}
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
           scope: "@levicape"
@@ -53,15 +57,13 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.json') }}
           restore-keys: ${{ runner.os }}-pnpm-store-
       - name: Set NPM Registry to Verdaccio:31313
-        run: pnpm set registry http://localhost:31313/;
+        run: pnpm set registry http://localhost:31313;
       - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         name: List Dependencies
         continue-on-error: true
         run: pnpm list;
       - name: Install Dependencies
         run: pnpm install;
-      - name: Reset Nx Cache
-        run: pnpm exec nx reset || true;
       - name: Build image
         run: pnpm exec nx pack:build iac-images-application --verbose;
       - name: Verify AWS credentials
@@ -177,60 +179,60 @@ jobs:
           ls -la node_modules/@levicape/fourtwo || true;
           cat node_modules/@levicape/fourtwo/package.json || true;
           source .pulumi-helper.sh;
-          configure_stack "Delete" "paloma-application.elm_pst_5" "$(pwd)/iac/stacks/src/application" "paloma-application" "_pulumi/application";
-          setup_stack "paloma-application.elm_pst_5" "$(pwd)/iac/stacks/src/application";
-          configure_stack_settings "$(pwd)/iac/stacks/src/application" 'aws:skipMetadataApiCheck=false
-          context:stack.environment.isProd=false
-          context:stack.environment.features=aws';
-          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/application" --non-interactive --suppress-progress --diff --json;
-          configure_stack "Delete" "paloma-codestar.elm_pst_5" "$(pwd)/iac/stacks/src/codestar" "paloma-codestar" "_pulumi/codestar";
-          setup_stack "paloma-codestar.elm_pst_5" "$(pwd)/iac/stacks/src/codestar";
-          configure_stack_settings "$(pwd)/iac/stacks/src/codestar" 'aws:skipMetadataApiCheck=false
-          context:stack.environment.isProd=false
-          context:stack.environment.features=aws';
-          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json;
-          configure_stack "Delete" "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito" "paloma-cognito" "_pulumi/cognito";
-          setup_stack "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito";
-          configure_stack_settings "$(pwd)/iac/stacks/src/cognito" 'aws:skipMetadataApiCheck=false
-          context:stack.environment.isProd=false
-          context:stack.environment.features=aws';
-          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json;
-          configure_stack "Delete" "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer";
-          setup_stack "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer";
-          configure_stack_settings "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
-          context:stack.environment.isProd=false
-          context:stack.environment.features=aws';
-          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/datalayer" --non-interactive --suppress-progress --diff --json;
-          configure_stack "Delete" "paloma-monitor.elm_pst_5" "$(pwd)/iac/stacks/src/monitor" "paloma-monitor" "_pulumi/monitor";
-          setup_stack "paloma-monitor.elm_pst_5" "$(pwd)/iac/stacks/src/monitor";
-          configure_stack_settings "$(pwd)/iac/stacks/src/monitor" 'aws:skipMetadataApiCheck=false
-          context:stack.environment.isProd=false
-          context:stack.environment.features=aws';
-          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/monitor" --non-interactive --suppress-progress --diff --json;
-          configure_stack "Delete" "paloma-nevada-http.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/http" "paloma-nevada-http" "_pulumi/domains_nevada_http";
-          setup_stack "paloma-nevada-http.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/http";
-          configure_stack_settings "$(pwd)/iac/stacks/src/domains/nevada/http" 'aws:skipMetadataApiCheck=false
-          context:stack.environment.isProd=false
-          context:stack.environment.features=aws';
-          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/domains/nevada/http" --non-interactive --suppress-progress --diff --json;
-          configure_stack "Delete" "paloma-nevada-web.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/web" "paloma-nevada-web" "_pulumi/domains_nevada_web";
-          setup_stack "paloma-nevada-web.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/web";
-          configure_stack_settings "$(pwd)/iac/stacks/src/domains/nevada/web" 'aws:skipMetadataApiCheck=false
-          context:stack.environment.isProd=false
-          context:stack.environment.features=aws';
-          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/domains/nevada/web" --non-interactive --suppress-progress --diff --json;
-          configure_stack "Delete" "paloma-nevada-monitor.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/monitor" "paloma-nevada-monitor" "_pulumi/domains_nevada_monitor";
-          setup_stack "paloma-nevada-monitor.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/monitor";
-          configure_stack_settings "$(pwd)/iac/stacks/src/domains/nevada/monitor" 'aws:skipMetadataApiCheck=false
-          context:stack.environment.isProd=false
-          context:stack.environment.features=aws';
-          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/domains/nevada/monitor" --non-interactive --suppress-progress --diff --json;
           configure_stack "Delete" "paloma-nevada-wwwroot.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" "paloma-nevada-wwwroot" "_pulumi/domains_nevada_wwwroot";
           setup_stack "paloma-nevada-wwwroot.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot";
           configure_stack_settings "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" 'aws:skipMetadataApiCheck=false
           context:stack.environment.isProd=false
           context:stack.environment.features=aws';
           remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-nevada-monitor.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/monitor" "paloma-nevada-monitor" "_pulumi/domains_nevada_monitor";
+          setup_stack "paloma-nevada-monitor.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/monitor";
+          configure_stack_settings "$(pwd)/iac/stacks/src/domains/nevada/monitor" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/domains/nevada/monitor" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-nevada-web.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/web" "paloma-nevada-web" "_pulumi/domains_nevada_web";
+          setup_stack "paloma-nevada-web.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/web";
+          configure_stack_settings "$(pwd)/iac/stacks/src/domains/nevada/web" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/domains/nevada/web" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-nevada-http.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/http" "paloma-nevada-http" "_pulumi/domains_nevada_http";
+          setup_stack "paloma-nevada-http.elm_pst_5" "$(pwd)/iac/stacks/src/domains/nevada/http";
+          configure_stack_settings "$(pwd)/iac/stacks/src/domains/nevada/http" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/domains/nevada/http" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-monitor.elm_pst_5" "$(pwd)/iac/stacks/src/monitor" "paloma-monitor" "_pulumi/monitor";
+          setup_stack "paloma-monitor.elm_pst_5" "$(pwd)/iac/stacks/src/monitor";
+          configure_stack_settings "$(pwd)/iac/stacks/src/monitor" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/monitor" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer";
+          setup_stack "paloma-datalayer.elm_pst_5" "$(pwd)/iac/stacks/src/datalayer";
+          configure_stack_settings "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/datalayer" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito" "paloma-cognito" "_pulumi/cognito";
+          setup_stack "paloma-cognito.elm_pst_5" "$(pwd)/iac/stacks/src/cognito";
+          configure_stack_settings "$(pwd)/iac/stacks/src/cognito" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-codestar.elm_pst_5" "$(pwd)/iac/stacks/src/codestar" "paloma-codestar" "_pulumi/codestar";
+          setup_stack "paloma-codestar.elm_pst_5" "$(pwd)/iac/stacks/src/codestar";
+          configure_stack_settings "$(pwd)/iac/stacks/src/codestar" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json;
+          configure_stack "Delete" "paloma-application.elm_pst_5" "$(pwd)/iac/stacks/src/application" "paloma-application" "_pulumi/application";
+          setup_stack "paloma-application.elm_pst_5" "$(pwd)/iac/stacks/src/application";
+          configure_stack_settings "$(pwd)/iac/stacks/src/application" 'aws:skipMetadataApiCheck=false
+          context:stack.environment.isProd=false
+          context:stack.environment.features=aws';
+          remove_stack "${{ github.ref_name }}-${{ github.sha }}" "$(pwd)/iac/stacks/src/application" --non-interactive --suppress-progress --diff --json;
       - name: Cleanup
         run: |-
           rm -f .pulumi-ci .export-cd .pulumi-helper.sh .ci-env;
@@ -240,7 +242,7 @@ jobs:
 ########################################
 #**:_$~- {"$$":"head","filename":"[wd][dispatch] - CD - [Dispatch: Delete].yml","source":"iac/workflows/github/workflow_dispatch/CD.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"ba775772819475bcdc1c4c623eeeccd4288570ad793e6ac03d51ae0550fc1772"}
-#**:_$~- {"$$":"footer","started":"2025-03-12T05:21:48.278Z","now":"2025-03-12T05:21:48.280Z","elapsed":"2ms"}
+#**:_$~- {"$$":"body","hashed":"b59d7dfd3ce7f346908c6c1f465bc79d1283da33aa719b381da8e84cc7860673"}
+#**:_$~- {"$$":"footer","started":"2025-03-17T04:27:56.816Z","now":"2025-03-17T04:27:56.819Z","elapsed":"3ms"}
 # END OF GENERATED FILE
 

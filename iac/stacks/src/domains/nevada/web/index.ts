@@ -9,9 +9,7 @@ import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
 import { EventRule, EventTarget } from "@pulumi/aws/cloudwatch";
 import { Project } from "@pulumi/aws/codebuild";
 import { Pipeline } from "@pulumi/aws/codepipeline";
-import { ManagedPolicy } from "@pulumi/aws/iam";
 import { getRole } from "@pulumi/aws/iam/getRole";
-import { RolePolicyAttachment } from "@pulumi/aws/iam/rolePolicyAttachment";
 import {
 	Bucket,
 	BucketLifecycleConfigurationV2,
@@ -61,6 +59,9 @@ const STACKREF_CONFIG = {
 				codedeploy:
 					PalomaCodestarStackExportsZod.shape.paloma_codestar_codedeploy,
 				ecr: PalomaCodestarStackExportsZod.shape.paloma_codestar_ecr,
+				codeartifact:
+					PalomaCodestarStackExportsZod.shape.paloma_codestar_codeartifact,
+				ssm: PalomaCodestarStackExportsZod.shape.paloma_codestar_ssm,
 			},
 		},
 		datalayer: {
@@ -93,7 +94,9 @@ export = async () => {
 	context.resourcegroups({ _ });
 
 	const stage = process.env.CI_ENVIRONMENT ?? "unknown";
-	const farRole = await getRole({ name: "FourtwoAccessRole" });
+	const automationRole = await getRole({
+		name: datalayer.iam.roles.automation.name,
+	});
 
 	const routemap = ROUTE_MAP(dereferenced$);
 
@@ -357,6 +360,7 @@ export = async () => {
 		const deployAction = "extractimage";
 		const artifactIdentifier = `${deployStage}_${deployAction}`;
 
+		const { codeartifact, ssm } = dereferenced$.codestar;
 		const buildspec = (() => {
 			const content = stringify(
 				new CodeBuildBuildspecBuilder()
@@ -384,10 +388,53 @@ export = async () => {
 						build:
 							new CodeBuildBuildspecResourceLambdaPhaseBuilder().setCommands([
 								"env",
+
+								[
+									"aws",
+									"codeartifact",
+									"get-authorization-token",
+									"--domain",
+									codeartifact.domain.name,
+									"--domain-owner",
+									codeartifact.domain.owner ?? "<DOMAIN_OWNER>",
+									"--region $AWS_REGION",
+									"--query authorizationToken",
+									"--output text",
+									" > .codeartifact-token",
+								].join(" "),
+								[
+									"aws",
+									"codeartifact",
+									"get-repository-endpoint",
+									"--domain",
+									codeartifact.domain.name,
+									"--domain-owner",
+									codeartifact.domain.owner ?? "<DOMAIN_OWNER>",
+									"--repository",
+									codeartifact.repository.npm?.name,
+									"--format npm",
+									"--region $AWS_REGION",
+									"--query repositoryEndpoint",
+									"--output text",
+									" > .codeartifact-repository",
+								].join(" "),
+								`export LEVICAPE_TOKEN=$(${[
+									"aws",
+									"ssm",
+									"get-parameter",
+									"--name",
+									`"${ssm.levicape.npm.parameter.name}"`,
+									"--with-decryption",
+									"--region $AWS_REGION",
+									"--query Parameter.Value",
+									"--output text",
+									"--no-cli-pager",
+								].join(" ")})`,
 								"docker --version",
 								`aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $STACKREF_CODESTAR_ECR_REPOSITORY_URL`,
 								"docker pull $SOURCE_IMAGE_URI",
 								"docker images",
+								`export NPM_REGISTRY=$(cat .codeartifact-repository)`,
 								[
 									"docker run",
 									"--detach",
@@ -395,6 +442,15 @@ export = async () => {
 									"deploy",
 									`-e DEPLOY_FILTER=${PACKAGE_NAME}`,
 									`-e DEPLOY_OUTPUT=/tmp/${deployAction}`,
+									`--env DEPLOY_ARGS="--verify-store-integrity=false --node-linker=hoisted --prefer-offline"`,
+									`--env NPM_REGISTRY`,
+									`--env NPM_REGISTRY_HOST=\${NPM_REGISTRY#https://}`,
+									`--env NPM_TOKEN=$(cat .codeartifact-token)`,
+									`--env NPM_ALWAYS_AUTH=true`,
+									`--env LEVICAPE_REGISTRY=${ssm.levicape.npm.url}`,
+									`--env LEVICAPE_REGISTRY_HOST=${ssm.levicape.npm.host}`,
+									`--env LEVICAPE_TOKEN`,
+									`--env LEVICAPE_ALWAYS_AUTH=true`,
 									"$SOURCE_IMAGE_URI",
 									"> .container",
 								].join(" "),
@@ -432,7 +488,7 @@ export = async () => {
 				{
 					description: `(${PACKAGE_NAME}) Deploy pipeline "${deployStage}" stage: "${deployAction}"`,
 					buildTimeout: 14,
-					serviceRole: farRole.arn,
+					serviceRole: automationRole.arn,
 					artifacts: {
 						type: "CODEPIPELINE",
 						artifactIdentifier,
@@ -514,7 +570,7 @@ export = async () => {
 			{
 				name: interpolate`${pipelineName}-${randomid.hex}`,
 				pipelineType: "V2",
-				roleArn: farRole.arn,
+				roleArn: automationRole.arn,
 				executionMode: "QUEUED",
 				artifactStores: [
 					{
@@ -641,11 +697,6 @@ export = async () => {
 			},
 		);
 
-		new RolePolicyAttachment(_("codepipeline-rolepolicy"), {
-			policyArn: ManagedPolicy.CodePipeline_FullAccess,
-			role: farRole.name,
-		});
-
 		return {
 			pipeline,
 		};
@@ -676,7 +727,7 @@ export = async () => {
 		const pipeline = new EventTarget(_("on-ecr-deploy"), {
 			rule: rule.name,
 			arn: codepipeline.pipeline.arn,
-			roleArn: farRole.arn,
+			roleArn: automationRole.arn,
 		});
 
 		return {

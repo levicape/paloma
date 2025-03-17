@@ -13,7 +13,7 @@ import {
 } from "@levicape/fourtwo/github";
 
 const {
-	current: { register, context: _$_, env },
+	current: { register, context: _$_, env, secret },
 } = GithubWorkflowExpressions;
 
 export const NodeGhaConfiguration = ({
@@ -28,7 +28,7 @@ export const NodeGhaConfiguration = ({
 		},
 		registry: {
 			scope: "@levicape",
-			host: `${e("NPM_REGISTRY_PROTOCOL")}://${e("NPM_REGISTRY_HOST")}`,
+			host: `${e("LEVICAPE_REGISTRY")}`,
 			secret,
 		},
 		version: {
@@ -43,8 +43,9 @@ export default async () => (
 			push: {},
 		}}
 		env={{
-			...register("NPM_REGISTRY_PROTOCOL", "https"),
-			...register("NPM_REGISTRY_HOST", "npm.pkg.github.com"),
+			...register("LEVICAPE_REGISTRY_HOST", "npm.pkg.github.com/"),
+			...register("LEVICAPE_REGISTRY", "https://npm.pkg.github.com"),
+			...register("LEVICAPE_TOKEN", secret("GITHUB_TOKEN")),
 		}}
 	>
 		<GithubJobX

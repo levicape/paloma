@@ -4,7 +4,7 @@ import { Atlas } from "@levicape/spork-atlas";
 
 const { NEVADA_UI } = process.env;
 
-export const NevadaUiRoutemap = Atlas({
+export const NevadaUiRoutemap = Atlas.routes({
 	"/": {
 		$kind: "StaticRouteResource",
 		hostname: `ui:${NEVADA_UI}`,

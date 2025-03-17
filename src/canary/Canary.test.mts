@@ -1,9 +1,9 @@
 import { Effect } from "effect";
 
-import { Canary } from "./canary/Canary.mjs";
-import { PromiseActivity } from "./canary/activity/PromiseActivity.mjs";
-import { RuntimeContext } from "./server/RuntimeContext.mjs";
-import { LoggingContext } from "./server/loglayer/LoggingContext.mjs";
+import { RuntimeContext } from "../server/RuntimeContext.mjs";
+import { LoggingContext } from "../server/loglayer/LoggingContext.mjs";
+import { Canary } from "./Canary.mjs";
+import { PromiseActivity } from "./activity/PromiseActivity.mjs";
 
 const { trace } = await Effect.runPromise(
 	Effect.provide(
@@ -52,7 +52,7 @@ export const canary = new Canary(
 			},
 		},
 		async ({ events }) => {
-			console.warn("HELOLOPLOLO");
+			console.warn("");
 			console.table([
 				{ a: 1, b: "Y" },
 				{ a: "Z", b: 2 },

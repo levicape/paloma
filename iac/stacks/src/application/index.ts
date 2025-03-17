@@ -16,6 +16,19 @@ import { PalomaApplicationStackExportsZod } from "./exports";
 const PACKAGE_NAME = "@levicape/paloma";
 const DESCRIPTION = "Paloma: durable canary tests. Services: {nevada]";
 
+/**
+ * # Application
+ *
+ * This stack creates the following resources:
+ * - A Service Catalog Application Registry Application
+ * - RAM Resource Shares
+ * - A Resource Groups Group
+ * - An SNS Topic
+ * - A Budget
+ *
+ * The stack is used to manage the application resources
+ *
+ */
 export = async () => {
 	const context = await Context.fromConfig({});
 	const _ = (name: string) => `${context.prefix}-${name}`;
@@ -105,7 +118,6 @@ export = async () => {
 			return new Topic(_(`topic-${name}`), {
 				tags: {
 					awsApplication,
-					PACKAGE_NAME,
 				},
 			});
 		};
