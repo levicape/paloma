@@ -1,5 +1,4 @@
-import type { Database } from "better-sqlite3";
-import { type Connector, createDatabase } from "db0";
+import { createDatabase } from "db0";
 import sqlite from "db0/connectors/better-sqlite3";
 import { Context, Effect } from "effect";
 import { RuntimeContext } from "../RuntimeContext.mjs";
@@ -39,9 +38,6 @@ export const withSqliteDb0 = (props: {
 				(db, _exit) => {
 					return Effect.gen(function* () {
 						const instance = yield* Effect.promise(() => db.getInstance());
-						const database = (
-							instance as Connector<Database>
-						).getInstance() as unknown as Database;
 						trace
 							.withMetadata({
 								sqlite: {
@@ -49,7 +45,7 @@ export const withSqliteDb0 = (props: {
 								},
 							})
 							.debug("Releasing sqlite database");
-						database?.close();
+						instance?.close();
 					});
 				},
 			),

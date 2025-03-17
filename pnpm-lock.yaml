@@ -19,15 +19,15 @@ catalogs:
       version: 9.0.2
   database-sql:
     db0:
-      specifier: ^0.2.4
-      version: 0.2.4
+      specifier: ^0.3.1
+      version: 0.3.1
     knex:
       specifier: ^3.1.0
       version: 3.1.0
   database-sqlite:
     better-sqlite3:
-      specifier: ^11.8.1
-      version: 11.8.1
+      specifier: ^11.9.0
+      version: 11.9.0
   default:
     '@levicape/fourtwo':
       specifier: 0.10.1-main.1
@@ -116,10 +116,10 @@ catalogs:
       specifier: ^2.0.3
       version: 2.0.4
     '@loglayer/transport-pino':
-      specifier: ^2.0.2
-      version: 2.0.2
+      specifier: ^2.1.1
+      version: 2.1.1
     loglayer:
-      specifier: ^6.3.1
+      specifier: ^6.3.2
       version: 6.3.2
   log-pino:
     pino:
@@ -262,13 +262,13 @@ importers:
         version: 2.0.4(consola@3.4.0)
       '@loglayer/transport-pino':
         specifier: catalog:log-loglayer
-        version: 2.0.2(pino@9.6.0)
+        version: 2.1.1(pino@9.6.0)
       '@stricli/core':
         specifier: catalog:cli
         version: 1.1.1
       better-sqlite3:
         specifier: catalog:database-sqlite
-        version: 11.8.1
+        version: 11.9.0
       consola:
         specifier: catalog:log-consola
         version: 3.4.0
@@ -277,7 +277,7 @@ importers:
         version: 6.3.11
       db0:
         specifier: catalog:database-sql
-        version: 0.2.4(better-sqlite3@11.8.1)
+        version: 0.3.1(better-sqlite3@11.9.0)
       destr:
         specifier: catalog:parse-json
         version: 2.0.3
@@ -289,7 +289,7 @@ importers:
         version: 11.3.0
       knex:
         specifier: catalog:database-sql
-        version: 3.1.0(better-sqlite3@11.8.1)
+        version: 3.1.0(better-sqlite3@11.9.0)
       ksuid:
         specifier: catalog:id
         version: 3.0.0
@@ -1332,6 +1332,11 @@ packages:
     resolution: {integrity: sha512-3ZlS4AFDUqG3eMRfa3KsJptUMNuOlNS5gCnJz5QPPxoSqhZJk46pGpft555DoYgMr4TBcVh31DF3FsFgbqlaGQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo-pulumi/0.10.1-main.1/7cde890592aad3b2a3a4ed52411a0de7d4da31df}
     engines: {node: ^22}
 
+  '@levicape/fourtwo@0.10.1-GHA-main.1':
+    resolution: {integrity: sha512-0ZkgPm1UpUuBpQCVTG7/SQintz2mBboXJ1smaJ/SPpfeDckrhm7rkSrbpheMQ5Tcivqgix1G1841bl/anyOBhA==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.10.1-GHA-main.1/8e536d27d6c6c75940aa0cd83decfa87783a6f04}
+    engines: {node: 22.13.0}
+    hasBin: true
+
   '@levicape/fourtwo@0.10.1-main.1':
     resolution: {integrity: sha512-EsPra4i7EE9u4dQY3kpBAoKZFaUv/lemkuF1nt+GsjwUoapc3/+NVoW+4m5EDAN6WON4Dhd+hiBTBCU80AmcUQ==, tarball: https://npm.pkg.github.com/download/@levicape/fourtwo/0.10.1-main.1/31da5070f9ae7a02e3ec9bba732f8d513bf1f0a9}
     engines: {node: 22.13.0}
@@ -1400,6 +1405,12 @@ packages:
 
   '@loglayer/transport-pino@2.0.2':
     resolution: {integrity: sha512-C1BGVg2f4Z62Qa90VXB/zrU0pO6QXhEe6cqwZiLZmw1F1pcPfX8ErKJPISqejRH9mjPLfc66KS+8DF0qRXUlNg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      pino: '*'
+
+  '@loglayer/transport-pino@2.1.1':
+    resolution: {integrity: sha512-39Mlxu8uEgAeKSfKPj8zOU1T9D36YGFvKRDw489mdh1ENfiJGZoTCQpuQfsqw1aDBHtdoYDwMzvm60A/feSeMA==}
     engines: {node: '>=18'}
     peerDependencies:
       pino: '*'
@@ -2585,6 +2596,9 @@ packages:
   better-sqlite3@11.8.1:
     resolution: {integrity: sha512-9BxNaBkblMjhJW8sMRZxnxVTRgbRmssZW0Oxc1MPBTfiR+WW21e2Mk4qu8CzrcZb1LwPCnFsfDEzq+SNcBU8eg==}
 
+  better-sqlite3@11.9.0:
+    resolution: {integrity: sha512-4b9xYnoaskj8eIkke9ZCB42p5bOPabptSku8Rl4Yww70Jf+aHeLvrIjXDJrKQxUEjdppsFb+fdJSjoH4TklROA==}
+
   bin-links@4.0.4:
     resolution: {integrity: sha512-cMtq4W5ZsEwcutJrVId+a/tjt8GSbS+h0oNkdl6+6rBuEv8Ot33Bevj5KPm40t309zuhVic8NjpuL42QCiJWWA==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -2821,8 +2835,8 @@ packages:
   dateformat@4.6.3:
     resolution: {integrity: sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==}
 
-  db0@0.2.4:
-    resolution: {integrity: sha512-hIzftLH1nMsF95zSLjDLYLbE9huOXnLYUTAQ5yKF5amp0FpeD+B15XJa8BvGYSOeSCH4gl2WahB/y1FcUByQSg==}
+  db0@0.3.1:
+    resolution: {integrity: sha512-3RogPLE2LLq6t4YiFCREyl572aBjkfMvfwPyN51df00TbPbryL3XqBYuJ/j6mgPssPK8AKfYdLxizaO5UG10sA==}
     peerDependencies:
       '@electric-sql/pglite': '*'
       '@libsql/client': '*'
@@ -6220,7 +6234,7 @@ snapshots:
 
   '@levicape/fourtwo-builders@0.10.1-main.1(projen@0.71.163)':
     dependencies:
-      '@levicape/fourtwo': 0.10.1-main.1(projen@0.71.163)
+      '@levicape/fourtwo': 0.10.1-GHA-main.1(projen@0.71.163)
     transitivePeerDependencies:
       - '@middy/core'
       - bufferutil
@@ -6243,6 +6257,47 @@ snapshots:
       - supports-color
       - ts-node
       - typescript
+
+  '@levicape/fourtwo@0.10.1-GHA-main.1(projen@0.71.163)':
+    dependencies:
+      '@aws-lambda-powertools/logger': 2.16.0
+      '@aws/codecatalyst-workflows-sdk': 0.1.5-preview.6(projen@0.71.163)
+      '@effect/platform': 0.79.2(effect@3.13.11)
+      '@effect/platform-node': 0.75.2(@effect/platform@0.79.2(effect@3.13.11))(effect@3.13.11)
+      '@loglayer/transport-aws-lambda-powertools': 3.0.4(@aws-lambda-powertools/logger@2.16.0)
+      '@loglayer/transport-consola': 2.0.4(consola@3.4.0)
+      '@loglayer/transport-pino': 2.1.1(pino@9.6.0)
+      '@stricli/core': 1.1.1
+      aws4fetch: 1.0.20
+      better-sqlite3: 11.9.0
+      consola: 3.4.0
+      effect: 3.13.11
+      enquirer: 2.4.1
+      fast-xml-parser: 4.5.3
+      ini: 5.0.0
+      js-yaml: 4.1.0
+      knex: 3.1.0(better-sqlite3@11.9.0)
+      loglayer: 6.3.2
+      pino: 9.6.0
+      pino-pretty: 13.0.0
+      pretty-ms: 9.2.0
+      serialize-error: 12.0.0
+      std-env: 3.8.1
+      verror: 1.10.1
+      yaml: 2.7.0
+      zod: 3.24.2
+    transitivePeerDependencies:
+      - '@middy/core'
+      - bufferutil
+      - mysql
+      - mysql2
+      - pg
+      - pg-native
+      - projen
+      - sqlite3
+      - supports-color
+      - tedious
+      - utf-8-validate
 
   '@levicape/fourtwo@0.10.1-main.1(projen@0.71.163)':
     dependencies:
@@ -6379,6 +6434,11 @@ snapshots:
   '@loglayer/transport-pino@2.0.2(pino@9.6.0)':
     dependencies:
       '@loglayer/transport': 2.0.2
+      pino: 9.6.0
+
+  '@loglayer/transport-pino@2.1.1(pino@9.6.0)':
+    dependencies:
+      '@loglayer/transport': 2.1.1
       pino: 9.6.0
 
   '@loglayer/transport@2.0.2':
@@ -7760,6 +7820,11 @@ snapshots:
       bindings: 1.5.0
       prebuild-install: 7.1.3
 
+  better-sqlite3@11.9.0:
+    dependencies:
+      bindings: 1.5.0
+      prebuild-install: 7.1.3
+
   bin-links@4.0.4:
     dependencies:
       cmd-shim: 6.0.3
@@ -8000,9 +8065,9 @@ snapshots:
 
   dateformat@4.6.3: {}
 
-  db0@0.2.4(better-sqlite3@11.8.1):
+  db0@0.3.1(better-sqlite3@11.9.0):
     optionalDependencies:
-      better-sqlite3: 11.8.1
+      better-sqlite3: 11.9.0
 
   debug@2.6.9:
     dependencies:
@@ -8808,6 +8873,27 @@ snapshots:
       tildify: 2.0.0
     optionalDependencies:
       better-sqlite3: 11.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  knex@3.1.0(better-sqlite3@11.9.0):
+    dependencies:
+      colorette: 2.0.19
+      commander: 10.0.1
+      debug: 4.3.4
+      escalade: 3.2.0
+      esm: 3.2.25
+      get-package-type: 0.1.0
+      getopts: 2.3.0
+      interpret: 2.2.0
+      lodash: 4.17.21
+      pg-connection-string: 2.6.2
+      rechoir: 0.8.0
+      resolve-from: 5.0.0
+      tarn: 3.0.2
+      tildify: 2.0.0
+    optionalDependencies:
+      better-sqlite3: 11.9.0
     transitivePeerDependencies:
       - supports-color
 
