@@ -7,8 +7,9 @@ on:
     types:
       - released
 env:
-  NPM_REGISTRY_PROTOCOL: https
-  NPM_REGISTRY_HOST: npm.pkg.github.com
+  LEVICAPE_REGISTRY_HOST: npm.pkg.github.com/
+  LEVICAPE_REGISTRY: https://npm.pkg.github.com
+  LEVICAPE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   publish_paloma:
     name: "@levicape/paloma: Compile and publish to Github"
@@ -17,20 +18,25 @@ jobs:
       packages: write
       contents: read
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Remove project .npmrc
+        run: |-
+          if [ -f .npmrc ]; then rm .npmrc; fi;
+          if [ -f .npmrc ]; then rm .npmrc; fi;
       - name: Verify registry URL
         continue-on-error: true
         run: |-
-          echo "NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}";
-          curl -v --insecure ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }};
-      - name: Checkout
-        uses: actions/checkout@v2
+          echo "NPM_REGISTRY_URL: ${{ env.LEVICAPE_REGISTRY }}";
+          echo "NPM_REGISTRY_HOST: ${{ env.LEVICAPE_REGISTRY_HOST }}";
+          curl -v --insecure ${{ env.LEVICAPE_REGISTRY }};
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
       - name: Setup Node 22.13.0
         uses: actions/setup-node@v4
         with:
           node-version: 22.13.0
-          registry-url: ${{ env.NPM_REGISTRY_PROTOCOL }}://${{ env.NPM_REGISTRY_HOST }}
+          registry-url: ${{ env.LEVICAPE_REGISTRY }}
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
           scope: "@levicape"
@@ -64,8 +70,8 @@ jobs:
         run: pnpm run lint;
       - name: "Run package.json: test"
         run: pnpm run test;
-      - name: "Run package.json: prepublish"
-        run: pnpm run prepublish;
+      - name: "Run package.json: prepublishOnly"
+        run: pnpm run prepublishOnly;
       - name: Increment version
         env:
           RELEVANT_SHA: ${{ github.event.release.target_commitish || github.sha }}
@@ -73,7 +79,7 @@ jobs:
           export PREID=$RELEVANT_SHA;
           export PREID=${PREID:0:10};
           export ARGS="--git-tag-version=false --commit-hooks=false";
-          npm version ${{ github.event.release.tag_name }}-$PREID.${{ github.run_number }} $ARGS --allow-same-version;
+          npm version ${{ github.event.release.tag_name }}-${PREID:-unknown}.${{ github.run_number }} $ARGS --allow-same-version;
       - if: success()
         name: Publish to npm
         continue-on-error: true
@@ -83,7 +89,7 @@ jobs:
 ########################################
 #**:_$~- {"$$":"head","filename":"[release(released)] - Publish - [@levicape_paloma].yml","source":"iac/workflows/github/release/Publish.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"13b8634e213f543439f73eda8b31ac5017f09c66852ca046854937b9ccbdec58"}
-#**:_$~- {"$$":"footer","started":"2025-03-12T05:21:50.059Z","now":"2025-03-12T05:21:50.068Z","elapsed":"9ms"}
+#**:_$~- {"$$":"body","hashed":"bf1945cf551b3b90a6699fc2f0ed082a02b93e142011a59117fcbbfb0c670e52"}
+#**:_$~- {"$$":"footer","started":"2025-03-17T04:27:58.238Z","now":"2025-03-17T04:27:58.244Z","elapsed":"6ms"}
 # END OF GENERATED FILE
 

@@ -195,10 +195,25 @@ export = async () => {
 function handler(event) {
   var request = event.request;
   var uri = request.uri;
-  if (uri.endsWith('/')) {
-      request.uri = '/index.html';
-  } else if (!uri.includes('.')) {
-      request.uri = '/index.html';
+  if (!uri.includes('.')) {
+	
+	if (uri.length === 0) {
+		uri = '/index.html';
+	}
+
+    if(uri === '/') {
+		uri = uri + "index.html";
+	}
+
+	if (!uri.endsWith('.html')) {
+		if (uri.endsWith('/')) {
+		   uri = uri.slice(0, -1);
+		}
+
+		request.uri = uri + ".html";
+	} else {
+	   request.uri = uri;	 
+	}
   }
   return request;
 }
@@ -594,6 +609,8 @@ function handler(event) {
 			},
 			tags: {
 				Name: _("cdn"),
+				awsApplication:
+					dereferenced$.application.servicecatalog.application.tag,
 				StackRef: STACKREF_ROOT,
 				WORKSPACE_PACKAGE_NAME,
 			},
