@@ -1,0 +1,122 @@
+
+@layer base {
+	:root {
+		--color-rodeo-dust-50: #f9f5f3;
+		--color-rodeo-dust-100: #f0eae4;
+		--color-rodeo-dust-200: #e0d2c8;
+		--color-rodeo-dust-300: #c6ab99;
+		--color-rodeo-dust-400: #b79380;
+		--color-rodeo-dust-500: #a97b66;
+		--color-rodeo-dust-600: #9b6a5b;
+		--color-rodeo-dust-700: #82564c;
+		--color-rodeo-dust-800: #6a4842;
+		--color-rodeo-dust-900: #563c38;
+		--color-rodeo-dust-950: #2e1e1c;
+	
+		--color-scorpion-50: #f7f7f8;
+		--color-scorpion-100: #efefef;
+		--color-scorpion-200: #dcdadd;
+		--color-scorpion-300: #bebabf;
+		--color-scorpion-400: #99959b;
+		--color-scorpion-500: #7c787f;
+		--color-scorpion-600: #605c62;
+		--color-scorpion-700: #534f55;
+		--color-scorpion-800: #464448;
+		--color-scorpion-900: #3e3b3f;
+		--color-scorpion-950: #29272a;
+	
+		--color-ironstone-50: #faf6f6;
+		--color-ironstone-100: #f6ebea;
+		--color-ironstone-200: #eedbda;
+		--color-ironstone-300: #e2c1bf;
+		--color-ironstone-400: #d09c99;
+		--color-ironstone-500: #bc7b77;
+		--color-ironstone-600: #a6605c;
+		--color-ironstone-700: #8a4e4b;
+		--color-ironstone-800: #7b4845;
+		--color-ironstone-900: #623c3a;
+		--color-ironstone-950: #331d1c;	
+	}
+}
+
+
+@plugin "daisyui/theme" {
+	name: magmap_dark;
+	prefersdark: true;
+	color-scheme: dark;
+
+	--color-base-100: var(--color-rodeo-dust-900);
+	--color-base-200: var(--color-rodeo-dust-800);
+	--color-base-300: var(--color-rodeo-dust-700);
+	--color-base-content: var(--color-rodeo-dust-50);
+	--color-primary: var(--color-rodeo-dust-600);
+	--color-primary-content: var(--color-rodeo-dust-50);
+	--color-secondary: var(--color-scorpion-600);
+	--color-secondary-content: var(--color-scorpion-50);
+	--color-accent: var(--color-ironstone-600);
+	--color-accent-content: var(--color-ironstone-50);
+	--color-neutral: var(--color-rodeo-dust-800);
+	--color-neutral-content: var(--color-rodeo-dust-50);
+	--color-info: var(--color-scorpion-700);
+	--color-info-content: var(--color-scorpion-100);
+	--color-success: var(--color-ironstone-700);
+	--color-success-content: var(--color-ironstone-100);
+	--color-warning: var(--color-rodeo-dust-400);
+	--color-warning-content: var(--color-rodeo-dust-100);
+	--color-error: var(--color-ironstone-400);
+	--color-error-content: var(--color-ironstone-100);
+	
+	--radius-selector: 1.25rem;
+	--radius-field: 0.50rem;
+	--radius-box: 0.25rem;
+  
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+  
+	--border: 1px;
+  
+	--depth: 1;
+	--noise: 3;	
+}
+
+@plugin "daisyui/theme" {
+	name: magmap;
+	default: true;
+	prefersdark: false;
+	color-scheme: light;
+
+	--color-base-100: var(--color-rodeo-dust-100);
+	--color-base-200: var(--color-rodeo-dust-200);
+	--color-base-300: var(--color-rodeo-dust-300);
+	--color-base-content: var(--color-rodeo-dust-950);
+	--color-primary: var(--color-rodeo-dust-400);
+	--color-primary-content: var(--color-rodeo-dust-950);
+	--color-secondary: var(--color-scorpion-400);
+	--color-secondary-content: var(--color-scorpion-950);
+	--color-accent: var(--color-ironstone-400);
+	--color-accent-content: var(--color-ironstone-950);
+	--color-neutral: var(--color-rodeo-dust-200);
+	--color-neutral-content: var(--color-rodeo-dust-900);
+	--color-info: var(--color-scorpion-600);
+	--color-info-content: var(--color-scorpion-950);
+	--color-success: var(--color-ironstone-600);
+	--color-success-content: var(--color-ironstone-950);
+	--color-warning: var(--color-rodeo-dust-600);
+	--color-warning-content: var(--color-rodeo-dust-950);
+	--color-error: var(--color-ironstone-600);
+	--color-error-content: var(--color-ironstone-950);
+
+	--radius-selector: 1.25rem;
+	--radius-field: 0.50rem;
+	--radius-box: 0.25rem;
+	
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	
+	--border: 1px;
+	
+	--depth: 1;
+	--noise: 3;
+}
+
+@custom-variant dark (&:where([data-theme=magmap_dark], [data-theme=magmap_dark] *));

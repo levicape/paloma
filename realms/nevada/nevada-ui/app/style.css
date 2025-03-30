@@ -1,0 +1,20 @@
+@import "tailwindcss" source("../app");
+@tailwind utilities;
+
+@plugin "daisyui";
+@import "./variant/theme.css";
+
+* {
+	box-sizing: border-box;
+}
+  
+:root {
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+	line-height: 1.25;
+	font-weight: 500;
+
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
