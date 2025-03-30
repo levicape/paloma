@@ -5,7 +5,7 @@
   "neverConnectToCloud": true,
   "targetDefaults": {
     "build:tsc": {
-      "cache": false,
+      "cache": true,
       "outputs": [
         "{projectRoot}/commonjs",
         "{projectRoot}/module"
@@ -26,13 +26,15 @@
     "staticwww:build": {
       "cache": true,
       "outputs": [
-        "{projectRoot}/output/staticwww"
+        "{projectRoot}/output/staticwww",
+        "{projectRoot}/dist"
       ]
     },    
-    "webhttp:build": {
+    "serverwww:build": {
       "cache": true,
       "outputs": [
-        "{projectRoot}/output/webhttp"
+        "{projectRoot}/output/serverwww",
+        "{projectRoot}/dist"
       ]
     }
   }

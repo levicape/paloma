@@ -7,7 +7,7 @@ import type {
 const ENVIRONMENT = "elm_pst_5";
 export const GITHUB_CI_MATRIX = [
 	{
-		name: "Dispatch: Preview, Deploy, Push",
+		name: `Dispatch: Preview, Deploy, Push`,
 		region: "us-west-2",
 		triggers: {
 			workflow_dispatch: {},
@@ -18,7 +18,7 @@ export const GITHUB_CI_MATRIX = [
 				boolean
 			>["pipeline"]["install"],
 			environment: {
-				name: ENVIRONMENT,
+				name: `{{{ vars.CI_ENVIRONMENT }}}`,
 			},
 			preview: true as const,
 			deploy: true as const,
@@ -26,7 +26,70 @@ export const GITHUB_CI_MATRIX = [
 		},
 	},
 	{
-		name: "on Schedule: Preview, Deploy",
+		name: `Dispatch: Delete`,
+		region: "us-west-2",
+		triggers: {
+			workflow_dispatch: {},
+		} satisfies GithubOn,
+		pipeline: {
+			install: undefined as unknown as GithubWorkflowProps<
+				boolean,
+				boolean
+			>["pipeline"]["install"],
+			environment: {
+				name: `{{{ vars.CI_ENVIRONMENT }}}`,
+			},
+			// 		approval: true as const,
+			preview: true as const,
+			delete: true as const,
+		},
+	},
+	// {
+	// 	name: `on Push: Preview, Deploy`,
+	// 	region: "us-west-2",
+	// 	triggers: {
+	// 		workflow_dispatch: {},
+	// 	} satisfies GithubOn,
+	// 	pipeline: {
+	// 		install: undefined as unknown as GithubWorkflowProps<
+	// 			boolean,
+	// 			boolean
+	// 		>["pipeline"]["install"],
+	// 		environment: {
+	// 			name: ENVIRONMENT,
+	// 		},
+	//		approval: true as const,
+	// 		preview: true as const,
+	// 		deploy: true as const,
+	// 		push: true as const,
+	// 	},
+	// },
+	// {
+	// 	name: `on Pull Request: Preview`,
+	// 	region: "us-west-2",
+	// 	triggers: {
+	// 		schedule: [
+	// 			{
+	// 				cron: "0 0 * * *",
+	// 			},
+	// 		],
+	// 	} satisfies GithubOn,
+	// 	pipeline: {
+	// 		install: undefined as unknown as GithubWorkflowProps<
+	// 			boolean,
+	// 			boolean
+	// 		>["pipeline"]["install"],
+	// 		environment: {
+	// 			name: ENVIRONMENT,
+	// 		},
+	// 		approval: true as const,
+	// 		preview: true as const,
+	// 		deploy: false as const,
+	// 		push: false as const,
+	// 	},
+	// },
+	{
+		name: `on Schedule: Preview`,
 		region: "us-west-2",
 		triggers: {
 			schedule: [
@@ -41,48 +104,12 @@ export const GITHUB_CI_MATRIX = [
 				boolean
 			>["pipeline"]["install"],
 			environment: {
-				name: ENVIRONMENT,
-			},
-			preview: true as const,
-			deploy: true as const,
-			push: false as const,
-		},
-	},
-	{
-		name: "Dispatch: Preview",
-		region: "us-west-2",
-		triggers: {
-			workflow_dispatch: {},
-		} satisfies GithubOn,
-		pipeline: {
-			install: undefined as unknown as GithubWorkflowProps<
-				boolean,
-				boolean
-			>["pipeline"]["install"],
-			environment: {
+				// Matrix
 				name: ENVIRONMENT,
 			},
 			preview: true as const,
 			deploy: false as const,
 			push: false as const,
-		},
-	},
-	{
-		name: "Dispatch: Delete",
-		region: "us-west-2",
-		triggers: {
-			workflow_dispatch: {},
-		} satisfies GithubOn,
-		pipeline: {
-			install: undefined as unknown as GithubWorkflowProps<
-				boolean,
-				boolean
-			>["pipeline"]["install"],
-			environment: {
-				name: ENVIRONMENT,
-			},
-			preview: true as const,
-			delete: true as const,
 		},
 	},
 ].map((ci) => {

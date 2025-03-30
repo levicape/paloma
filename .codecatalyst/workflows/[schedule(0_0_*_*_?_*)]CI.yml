@@ -469,16 +469,6 @@ Actions:
                 deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json
                 capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/codestar" "_pulumi/codestar"
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-cognito.current" "$(pwd)/iac/stacks/src/cognito" "paloma-cognito" "_pulumi/cognito" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-cognito.current" "$(pwd)/iac/stacks/src/cognito" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/cognito" 'aws:skipMetadataApiCheck=false
-                context:stack.environment.isProd=false
-                context:stack.environment.features=aws
-                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-cognito.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/cognito" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json
-            - Run: |-
-                source .pulumi-ci-helper
-                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/cognito" --non-interactive --suppress-progress --diff --json
-                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/cognito" "_pulumi/cognito"
-            - Run: |-
                 source .pulumi-ci-helper && configure_stack "Deploy" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
@@ -488,6 +478,56 @@ Actions:
                 source .pulumi-ci-helper
                 deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/datalayer" --non-interactive --suppress-progress --diff --json
                 capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/datalayer" "_pulumi/datalayer"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-dns-root.current" "$(pwd)/iac/stacks/src/dns/root" "paloma-dns-root" "_pulumi/dns_root" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-dns-root.current" "$(pwd)/iac/stacks/src/dns/root" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/dns/root" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-dns-root.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/dns/root" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/dns/root" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/dns/root" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/dns/root" "_pulumi/dns_root"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-idp-oidc.current" "$(pwd)/iac/stacks/src/idp/oidc" "paloma-idp-oidc" "_pulumi/idp_oidc" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-idp-oidc.current" "$(pwd)/iac/stacks/src/idp/oidc" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/idp/oidc" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-idp-oidc.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/idp/oidc" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/idp/oidc" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/idp/oidc" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/idp/oidc" "_pulumi/idp_oidc"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-idp-users.current" "$(pwd)/iac/stacks/src/idp/users" "paloma-idp-users" "_pulumi/idp_users" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-idp-users.current" "$(pwd)/iac/stacks/src/idp/users" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/idp/users" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-idp-users.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/idp/users" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/idp/users" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/idp/users" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/idp/users" "_pulumi/idp_users"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-channels.current" "$(pwd)/iac/stacks/src/levicape/nevada/channels" "paloma-nevada-channels" "_pulumi/levicape_nevada_channels" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-channels.current" "$(pwd)/iac/stacks/src/levicape/nevada/channels" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/channels" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-nevada-channels.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/levicape/nevada/channels" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/channels" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/channels" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/channels" "_pulumi/levicape_nevada_channels"
+            - Run: |-
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-client.current" "$(pwd)/iac/stacks/src/levicape/nevada/client" "paloma-nevada-client" "_pulumi/levicape_nevada_client" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-client.current" "$(pwd)/iac/stacks/src/levicape/nevada/client" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/client" 'aws:skipMetadataApiCheck=false
+                context:stack.environment.isProd=false
+                context:stack.environment.features=aws
+                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=paloma-nevada-client.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/levicape/nevada/client" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/client" --non-interactive --suppress-progress --diff --json
+            - Run: |-
+                source .pulumi-ci-helper
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/client" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/client" "_pulumi/levicape_nevada_client"
             - Run: |-
                 source .pulumi-ci-helper && configure_stack "Deploy" "paloma-monitor.current" "$(pwd)/iac/stacks/src/monitor" "paloma-monitor" "_pulumi/monitor" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-monitor.current" "$(pwd)/iac/stacks/src/monitor" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/monitor" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
@@ -499,52 +539,52 @@ Actions:
                 deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/monitor" --non-interactive --suppress-progress --diff --json
                 capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/monitor" "_pulumi/monitor"
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-http.current" "$(pwd)/iac/stacks/src/domains/nevada/http" "paloma-nevada-http" "_pulumi/domains_nevada_http" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-http.current" "$(pwd)/iac/stacks/src/domains/nevada/http" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/http" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-http.current" "$(pwd)/iac/stacks/src/levicape/nevada/http" "paloma-nevada-http" "_pulumi/levicape_nevada_http" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-http.current" "$(pwd)/iac/stacks/src/levicape/nevada/http" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/http" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
                 frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-nevada-http.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/domains/nevada/http" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/http" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[1]=paloma-nevada-http.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/levicape/nevada/http" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/http" --non-interactive --suppress-progress --diff --json
             - Run: |-
                 source .pulumi-ci-helper
-                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/http" --non-interactive --suppress-progress --diff --json
-                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/http" "_pulumi/domains_nevada_http"
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/http" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/http" "_pulumi/levicape_nevada_http"
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-web.current" "$(pwd)/iac/stacks/src/domains/nevada/web" "paloma-nevada-web" "_pulumi/domains_nevada_web" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-web.current" "$(pwd)/iac/stacks/src/domains/nevada/web" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/web" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-web.current" "$(pwd)/iac/stacks/src/levicape/nevada/web" "paloma-nevada-web" "_pulumi/levicape_nevada_web" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-web.current" "$(pwd)/iac/stacks/src/levicape/nevada/web" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/web" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
                 frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-nevada-web.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/domains/nevada/web" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/web" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[1]=paloma-nevada-web.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/levicape/nevada/web" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/web" --non-interactive --suppress-progress --diff --json
             - Run: |-
                 source .pulumi-ci-helper
-                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/web" --non-interactive --suppress-progress --diff --json
-                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/web" "_pulumi/domains_nevada_web"
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/web" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/web" "_pulumi/levicape_nevada_web"
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-monitor.current" "$(pwd)/iac/stacks/src/domains/nevada/monitor" "paloma-nevada-monitor" "_pulumi/domains_nevada_monitor" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-monitor.current" "$(pwd)/iac/stacks/src/domains/nevada/monitor" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/monitor" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-monitor.current" "$(pwd)/iac/stacks/src/levicape/nevada/monitor" "paloma-nevada-monitor" "_pulumi/levicape_nevada_monitor" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-monitor.current" "$(pwd)/iac/stacks/src/levicape/nevada/monitor" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/monitor" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
                 frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-nevada-monitor.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/domains/nevada/monitor" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/monitor" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[1]=paloma-nevada-monitor.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/levicape/nevada/monitor" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/monitor" --non-interactive --suppress-progress --diff --json
             - Run: |-
                 source .pulumi-ci-helper
-                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/monitor" --non-interactive --suppress-progress --diff --json
-                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/monitor" "_pulumi/domains_nevada_monitor"
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/monitor" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/monitor" "_pulumi/levicape_nevada_monitor"
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-wwwroot.current" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" "paloma-nevada-wwwroot" "_pulumi/domains_nevada_wwwroot" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-wwwroot.current" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Deploy" "paloma-nevada-wwwroot.current" "$(pwd)/iac/stacks/src/levicape/nevada/wwwroot" "paloma-nevada-wwwroot" "_pulumi/levicape_nevada_wwwroot" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-wwwroot.current" "$(pwd)/iac/stacks/src/levicape/nevada/wwwroot" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/wwwroot" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
                 frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-nevada-wwwroot.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[1]=paloma-nevada-wwwroot.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/levicape/nevada/wwwroot" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/wwwroot" --non-interactive --suppress-progress --diff --json
             - Run: |-
                 source .pulumi-ci-helper
-                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" --non-interactive --suppress-progress --diff --json
-                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/domains/nevada/wwwroot" "_pulumi/domains_nevada_wwwroot"
+                deploy_stack "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/wwwroot" --non-interactive --suppress-progress --diff --json
+                capture_outputs "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/wwwroot" "_pulumi/levicape_nevada_wwwroot"
             - Run: du -sh _pulumi
 
 ########################################
 ########################################
 #**:_$~- {"$$":"head","filename":"[schedule(0_0_*_*_?_*)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"6854e25e9b6a21a6e32dc4aeb06841f9d0fb07dbd620d5765fc8d3ecc1bdf096"}
-#**:_$~- {"$$":"footer","started":"2025-03-12T05:09:32.627Z","now":"2025-03-12T05:09:32.631Z","elapsed":"4ms"}
+#**:_$~- {"$$":"body","hashed":"7cc47070db41db988689691d72184ba1c3abba0862451064bcc8f1b92c34d106"}
+#**:_$~- {"$$":"footer","started":"2025-03-30T20:29:49.145Z","now":"2025-03-30T20:29:49.149Z","elapsed":"4ms"}
 # END OF GENERATED FILE
 

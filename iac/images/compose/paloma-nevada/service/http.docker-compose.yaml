@@ -7,7 +7,7 @@ services:
       NODE_OPTIONS: $NODE_OPTIONS
       LOG_LEVEL: $LOG_LEVEL
       STRUCTURED_LOGGING: $STRUCTURED_LOGGING
-      PROJECT_PATH: ./packages/nevada-io
+      PROJECT_PATH: ./realms/nevada/nevada-io
       PROJECT_COMMAND: http:dev
       PORT: $NEVADA_HTTP
     volumes: &workspace_volumes
@@ -26,7 +26,7 @@ services:
       NODE_OPTIONS: $NODE_OPTIONS
       LOG_LEVEL: $LOG_LEVEL
       STRUCTURED_LOGGING: $STRUCTURED_LOGGING
-      PROJECT_PATH: ./packages/nevada-io
+      PROJECT_PATH: ./realms/nevada/nevada-io
       PROJECT_COMMAND: http:canary
       NEVADA_HTTP: $NEVADA_HTTP
       NEVADA_UI: $NEVADA_UI

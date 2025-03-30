@@ -4,15 +4,17 @@ packages:
   - iac/*
   - iac/images/*
   - packages/*
+  - realms/*/*
 catalog:
-  '@levicape/spork': 0.9.2-main.6
-  '@levicape/spork-atlas': 0.9.2-main.6
+  '@levicape/spork': 0.10.0-main.7
+  '@levicape/spork-atlas': 0.10.0-main.7
   "@levicape/fourtwo": "0.10.1-main.1"
   "@levicape/fourtwo-pulumi": "0.10.1-main.1"
   "@levicape/fourtwo-builders": "0.10.1-main.1"
 catalogs:
   aws:
     '@aws/codecatalyst-workflows-sdk': ^0.1.5-preview.6
+    '@aws-sdk/client-codebuild': ^3.772.0
     '@aws-sdk/client-dynamodb': ^3.758.0
     '@aws-sdk/client-secrets-manager': ^3.758.0
     '@aws-sdk/client-sqs': ^3.758.0
@@ -39,6 +41,8 @@ catalogs:
     crypto-js: ^4.2.0
     crypto.js: ^3.2.2
     jsonwebtoken: ^9.0.2
+  crypto-jwk:
+    jose: "^6.0.10"
   database-postgres:
     pg: ^8.13.1
   database-sql:
@@ -46,7 +50,9 @@ catalogs:
     knex: ^3.1.0
     slonik: ^46.4.0
   database-sqlite:
-    better-sqlite3: ^11.9.0
+    better-sqlite3: ^11.9.1
+  database-unstorage:
+    unstorage: "^1.15.0"
   data-column-arrow:
     '@apache-arrow/esnext-esm': ^19.0.0
     '@apache-arrow/ts': ^19.0.0
@@ -60,9 +66,9 @@ catalogs:
     ts-node: ^10.9.2
     typescript: ^5.8.2
   effect:
-    effect: ^3.13.10
-    '@effect/platform': ^0.79.1
-    '@effect/platform-node': ^0.75.1
+    effect: ^3.14.1
+    '@effect/platform': ^0.80.1
+    '@effect/platform-node': ^0.76.2
   error:
     serialize-error: ^12.0.0
     verror: ^1.10.0
@@ -106,7 +112,7 @@ catalogs:
   log-awspowertools:
     '@aws-lambda-powertools/logger': ^2.16.0
   log-consola:
-    consola: ^3.4.0
+    consola: ^3.4.2
   log-loglayer:
     '@loglayer/transport-aws-lambda-powertools': ^3.0.3
     '@loglayer/transport-consola': ^2.0.3
@@ -115,6 +121,8 @@ catalogs:
   log-pino:
     pino: ^9.6.0
     pino-pretty: ^13.0.0
+  oidc-client:
+    oidc-client-ts: "^3.2.0"
   package:
     ci: ^2.3.0
     depcheck: ^1.4.7
@@ -136,7 +144,7 @@ catalogs:
     js-yaml: ^4.1.0
     yaml: ^2.7.0
   project-nx:
-    nx: ^20.5.0
+    nx: ^20.6.2
   protobuf:
     '@bufbuild/protobuf': ^2.2.3
     '@bufbuild/buf': ^1.44.0
@@ -184,7 +192,7 @@ catalogs:
     '@types/jsonwebtoken': ^9.0.9
     '@types/klaw': ^3.0.6
     '@types/module-alias': ^2.0.4
-    '@types/node': ^22.13.10
+    '@types/node': ^22.13.11
     '@types/qrcode': ^1.5.5
     '@types/react': ^19.0.1
     '@types/react-dom': ^19.0.1
@@ -205,6 +213,7 @@ catalogs:
     webpack: ^5.97.1
   web-components:
     "@base-ui-components/react": "1.0.0-alpha.6"
+    "react-range": "^1.10.0"
   web-cloudscape:
     '@cloudscape-design/board-components': ^3.0.92
     '@cloudscape-design/chat-components': ^1.0.28
@@ -216,14 +225,18 @@ catalogs:
     input-otp: ^1.4.1
     qrcode: ^1.5.4
     sonner: ^1.7.0
+  web-i18n:
+    "react-intl": "^7.1.6"
+    "intl-messageformat": "^10.7.15"
   web-polaris:
     '@shopify/polaris-icons': ^9.3.0
   web-react:
     '@conform-to/react': ^1.2.2
     '@uidotdev/usehooks': ^2.4.1
     ahooks: ^3.8.1
-    react: ^19
-    react-dom: ^19
+    react: ^19.1.0
+    react-dom: ^19.1.0
+    react-error-boundary: ^5.0.0
     react-is: ^18.3.1
     react-keyed-flatten-children: ^3.0.2
   web-react-router:
