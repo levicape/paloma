@@ -11,7 +11,6 @@ import { Context } from "@levicape/fourtwo-pulumi/commonjs/context/Context.cjs";
 import { Version } from "@pulumi/aws-native/lambda";
 import { Deployment, Environment } from "@pulumi/aws/appconfig";
 import { ConfigurationProfile } from "@pulumi/aws/appconfig/configurationProfile";
-import { DeploymentStrategy } from "@pulumi/aws/appconfig/deploymentStrategy";
 import { HostedConfigurationVersion } from "@pulumi/aws/appconfig/hostedConfigurationVersion";
 import { EventRule, EventTarget } from "@pulumi/aws/cloudwatch";
 import { LogGroup } from "@pulumi/aws/cloudwatch/logGroup";
@@ -20,7 +19,6 @@ import { DeploymentGroup } from "@pulumi/aws/codedeploy/deploymentGroup";
 import { Pipeline } from "@pulumi/aws/codepipeline";
 import { ManagedPolicy } from "@pulumi/aws/iam";
 import { getRole } from "@pulumi/aws/iam/getRole";
-import { RolePolicy } from "@pulumi/aws/iam/rolePolicy";
 import { RolePolicyAttachment } from "@pulumi/aws/iam/rolePolicyAttachment";
 import {
 	Alias,
@@ -44,6 +42,7 @@ import { RandomId } from "@pulumi/random/RandomId";
 import { serializeError } from "serialize-error";
 import { stringify } from "yaml";
 import type { z } from "zod";
+import { objectEntries, objectFromEntries } from "../Object";
 import { AwsCodeBuildContainerRoundRobin } from "../RoundRobin";
 import { $deref, type DereferencedOutput } from "../Stack";
 import {
@@ -55,9 +54,9 @@ import { PalomaDatalayerStackExportsZod } from "../datalayer/exports";
 import { PalomaMonitorStackExportsZod } from "./exports";
 
 const WORKSPACE_PACKAGE_NAME = "@levicape/paloma";
-
+const APPLICATION_IMAGE_NAME = PalomaApplicationRoot;
 const CI = {
-	CI_ENVIRONMENT: process.env.CI_ENVIRONMENT ?? "unknown",
+	APPLICATION_ENVIRONMENT: process.env.APPLICATION_ENVIRONMENT ?? "unknown",
 	CI_ACCESS_ROLE: process.env.CI_ACCESS_ROLE ?? "FourtwoAccessRole",
 };
 
@@ -111,11 +110,14 @@ const ENVIRONMENT = (
 	_$refs: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT],
 ) => {
 	return {
-		...Object.fromEntries([
-			...Object.entries(ATLASFILE_PATHS).map(([name, { path }]) => [
-				`ATLAS_${name.toUpperCase()}`,
-				`file://$LAMBDA_TASK_ROOT/${HANDLER_TYPE}/${path}`,
-			]),
+		...objectFromEntries([
+			...objectEntries(ATLASFILE_PATHS).map(
+				([name, { path }]) =>
+					[
+						`ATLAS_${name.toUpperCase()}`,
+						`file://$LAMBDA_TASK_ROOT/${HANDLER_TYPE}/${path}`,
+					] as const,
+			),
 		]),
 	} as const;
 };
@@ -162,7 +164,7 @@ export = async () => {
 	const _ = (name: string) => `${context.prefix}-${name}`;
 	context.resourcegroups({ _ });
 
-	const stage = CI.CI_ENVIRONMENT;
+	const stage = CI.APPLICATION_ENVIRONMENT;
 	const farRole = await getRole({ name: CI.CI_ACCESS_ROLE });
 
 	// Object Store
@@ -415,7 +417,6 @@ export = async () => {
 		}: { datalayer: typeof $datalayer; codestar: typeof $codestar },
 		cw: typeof cloudwatch,
 	) => {
-		const role = datalayer.iam.roles.lambda.name;
 		const roleArn = datalayer.iam.roles.lambda.arn;
 
 		const loggroup = new LogGroup(_(`${name}-log`), {
@@ -428,52 +429,6 @@ export = async () => {
 				Monitor: name,
 				MonitorPackageName: packageName,
 			},
-		});
-
-		const lambdaPolicyDocument = all([loggroup.arn]).apply(([loggroupArn]) => {
-			return {
-				Version: "2012-10-17",
-				Statement: [
-					{
-						Effect: "Allow",
-						Action: [
-							"ec2:CreateNetworkInterface",
-							"ec2:DescribeNetworkInterfaces",
-							"ec2:DeleteNetworkInterface",
-						],
-						Resource: "*",
-					},
-					{
-						Effect: "Allow",
-						Action: [
-							"logs:CreateLogGroup",
-							"logs:CreateLogStream",
-							"logs:PutLogEvents",
-						],
-						Resource: loggroupArn,
-					},
-				],
-			};
-		});
-
-		new RolePolicy(_(`${name}-policy`), {
-			role,
-			policy: lambdaPolicyDocument.apply((lpd) => JSON.stringify(lpd)),
-		});
-
-		[
-			["basic", ManagedPolicy.AWSLambdaBasicExecutionRole],
-			["vpc", ManagedPolicy.AWSLambdaVPCAccessExecutionRole],
-			["efs", ManagedPolicy.AmazonElasticFileSystemClientReadWriteAccess],
-			["cloudmap", ManagedPolicy.AWSCloudMapDiscoverInstanceAccess],
-			["s3", ManagedPolicy.AmazonS3ReadOnlyAccess],
-			["ssm", ManagedPolicy.AmazonSSMReadOnlyAccess],
-			["xray", ManagedPolicy.AWSXrayWriteOnlyAccess],
-		].forEach(([policy, policyArn]) => {
-			new RolePolicyAttachment(_(`${name}-policy-${policy}`), {
-				role,
-				policyArn,
-			});
 		});
 
 		const cloudmapEnvironment = {
@@ -569,8 +524,8 @@ export = async () => {
 			};
 		};
 
-		const atlas = Object.fromEntries(
-			Object.entries(ATLASFILE_PATHS).map(([named, { path, content }]) => [
+		const atlas = objectFromEntries(
+			objectEntries(ATLASFILE_PATHS).map(([named, { path, content }]) => [
 				named,
 				atlasfile(named, { path, content }),
 			]),
@@ -657,8 +612,8 @@ export = async () => {
 							...appconfigEnv,
 							AWS_APPCONFIG_EXTENSION_PREFETCH_LIST,
 							...(environment !== undefined && typeof environment === "function"
-								? Object.fromEntries(
-										Object.entries(environment(dereferenced$))
+								? objectFromEntries(
+										objectEntries(environment(dereferenced$))
 											.filter(([_, value]) => value !== undefined)
 											.filter(
 												([_, value]) =>
@@ -811,7 +766,7 @@ export = async () => {
 				const EXTRACT_ACTION = "extractimage" as const;
 				const UPDATE_ACTION = "updatelambda" as const;
 
-				const ATLAS_PIPELINE_VARIABLES = Object.fromEntries(
+				const ATLAS_PIPELINE_VARIABLES = objectFromEntries(
 					Object.keys(ATLASFILE_PATHS).map(
 						(name) =>
 							[
@@ -974,7 +929,7 @@ export = async () => {
 											`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
 										]),
 								// atlasfiles
-								...Object.entries(ATLASFILE_PATHS).flatMap(
+								...objectEntries(ATLASFILE_PATHS).flatMap(
 									([name, { path }]) => {
 										const objectKey = `$ATLASFILE_${name.toUpperCase()}_KEY`;
 										return [
@@ -1131,7 +1086,7 @@ export = async () => {
 					},
 				] as const;
 
-				const entries = Object.fromEntries(
+				const entries = objectFromEntries(
 					stages.map(
 						({
 							stage,
@@ -1159,7 +1114,7 @@ export = async () => {
 
 							const content = stringify(
 								new CodeBuildBuildspecBuilder()
-									.setVersion("0.2")
+									.setVersion(0.2)
 									.setArtifacts(artifacts)
 									.setEnv(env)
 									.setPhases({
@@ -1293,7 +1248,7 @@ export = async () => {
 	} as const;
 
 	const canary = await (async () => {
-		return Object.fromEntries(
+		return objectFromEntries(
 			await Promise.all(
 				CANARY_PATHS.map(async (canary) => {
 					return [
@@ -1305,6 +1260,7 @@ export = async () => {
 		);
 	})();
 
+	const imageTag = `${APPLICATION_IMAGE_NAME}-${stage}`;
 	const codepipeline = (() => {
 		const randomid = new RandomId(_("deploy-id"), {
 			byteLength: 4,
@@ -1339,7 +1295,7 @@ export = async () => {
 									([repositoryName]) => {
 										return {
 											RepositoryName: repositoryName,
-											ImageTag: stage,
+											ImageTag: imageTag,
 										};
 									},
 								),
@@ -1348,7 +1304,7 @@ export = async () => {
 					},
 					{
 						name: "MonitorHandler",
-						actions: Object.entries(canary).flatMap(
+						actions: objectEntries(canary).flatMap(
 							([
 								name,
 								{ codebuild, lambda, codedeploy, environment, atlas },
@@ -1373,7 +1329,7 @@ export = async () => {
 											codebuild.extractimage.project.name,
 											s3.artifacts.bucket,
 											Output.create([
-												...Object.entries(atlas).map(([name, file]) => ({
+												...objectEntries(atlas).map(([name, file]) => ({
 													name: name.toUpperCase(),
 													value: interpolate`${file.object.bucket}/${file.object.key}`,
 												})),
@@ -1583,27 +1539,29 @@ export = async () => {
 
 	// Eventbridge will trigger on ecr push
 	const eventbridge = (() => {
-		const { name } = $codestar.ecr.repository;
+		const { name: codestarRepositoryName } = $codestar.ecr.repository;
 
 		const EcrImageAction = (() => {
 			const rule = new EventRule(
 				_("on-ecr-push"),
 				{
-					description: `(${WORKSPACE_PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
+					description: `(${WORKSPACE_PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${imageTag}"`,
 					state: "ENABLED",
 					eventPattern: JSON.stringify({
 						source: ["aws.ecr"],
 						"detail-type": ["ECR Image Action"],
 						detail: {
-							"repository-name": [name],
+							"repository-name": [codestarRepositoryName],
 							"action-type": ["PUSH"],
 							result: ["SUCCESS"],
-							"image-tag": [stage],
+							"image-tag": [imageTag],
 						},
 					}),
 					tags: {
 						Name: _(`on-ecr-push`),
 						StackRef: STACKREF_ROOT,
+						Stage: stage,
+						ImageTag: imageTag,
 					},
 				},
 				{
@@ -1634,7 +1592,8 @@ export = async () => {
 		})();
 
 		// Max 5 targets per rule
-		let groups = Object.entries(canary)
+		let typeofLambda = Object.values(canary)[0]?.lambda;
+		let groups = objectEntries(canary)
 			.reduce(
 				(acc, key) => {
 					const [name, handler] = key;
@@ -1647,12 +1606,12 @@ export = async () => {
 
 					return acc;
 				},
-				[[]] as Array<[string, typeof canary.register.lambda][]>,
+				[[]] as Array<[string, typeof typeofLambda][]>,
 			)
 			.filter((group) => group.length > 0);
 
 		const OnSchedule = (() => {
-			const targets = Object.fromEntries(
+			const targets = objectFromEntries(
 				groups.flatMap((group, idx) => {
 					const rule = new EventRule(
 						_(`on-rate-${idx}`),
@@ -1696,10 +1655,7 @@ export = async () => {
 						return [key, { rule, target, permission }] as const;
 					});
 				}),
-			) as Record<
-				keyof typeof canary,
-				{ target: EventTarget; permission: Permission; rule: EventRule }
-			>;
+			);
 
 			return {
 				targets,
@@ -1714,8 +1670,8 @@ export = async () => {
 
 	// Outputs
 	const s3Output = Output.create(
-		Object.fromEntries(
-			Object.entries(s3).map(([key, bucket]) => {
+		objectFromEntries(
+			objectEntries(s3).map(([key, bucket]) => {
 				return [
 					key,
 					all([bucket.bucket, bucket.region]).apply(
@@ -1726,12 +1682,12 @@ export = async () => {
 					),
 				];
 			}),
-		) as Record<keyof typeof s3, Output<{ bucket: string; region: string }>>,
+		),
 	);
 
 	const cloudwatchOutput = Output.create(
-		Object.fromEntries(
-			Object.entries(cloudwatch).map(([key, { loggroup }]) => {
+		objectFromEntries(
+			objectEntries(cloudwatch).map(([key, { loggroup }]) => {
 				return [
 					key,
 					all([loggroup.name, loggroup.arn]).apply(([name, arn]) => ({
@@ -1742,15 +1698,12 @@ export = async () => {
 					})),
 				];
 			}),
-		) as Record<
-			keyof typeof cloudwatch,
-			Output<{ logGroup: { name: string; arn: string } }>
-		>,
+		),
 	);
 
 	const lambdaOutput = Output.create(canary).apply((canaries) => {
-		return Object.fromEntries(
-			Object.entries(canaries).map(([name, handler]) => {
+		return objectFromEntries(
+			objectEntries(canaries).map(([name, handler]) => {
 				return [
 					name,
 					{
@@ -1806,55 +1759,40 @@ export = async () => {
 	});
 
 	const codebuildOutput = Output.create(canary).apply((canaries) => {
-		return Object.fromEntries(
-			Object.entries(canaries).map(([name, handler]) => {
+		return objectFromEntries(
+			objectEntries(canaries).map(([name, handler]) => {
 				return [
 					name,
-					Output.create(handler.codebuild).apply(
-						(codebuild) =>
-							Object.fromEntries(
-								Object.entries(codebuild).map(([key, resources]) => {
-									return [
-										key,
-										all([
-											resources.project.arn,
-											resources.project.name,
-											resources.buildspec.upload.bucket,
-											resources.buildspec.upload.key,
-										]).apply(
-											([projectArn, projectName, bucketName, bucketKey]) => ({
-												buildspec: {
-													artifact: resources.buildspec.artifact,
-													bucket: bucketName,
-													key: bucketKey,
-												},
-												pipeline: {
-													stage: resources.pipeline.stage,
-													namespace: resources.pipeline.namespace,
-												},
-												project: {
-													arn: projectArn,
-													name: projectName,
-												},
-											}),
-										),
-									];
-								}),
-							) as Record<
-								keyof typeof handler.codebuild,
-								Output<{
-									buildspec: {
-										artifact: string;
-										bucket: string;
-										key: string;
-									};
-									pipeline: {
-										stage: string;
-										namespace: string;
-									};
-									project: { arn: string; name: string };
-								}>
-							>,
+					Output.create(handler.codebuild).apply((codebuild) =>
+						objectFromEntries(
+							objectEntries(codebuild).map(([key, resources]) => {
+								return [
+									key,
+									all([
+										resources.project.arn,
+										resources.project.name,
+										resources.buildspec.upload.bucket,
+										resources.buildspec.upload.key,
+									]).apply(
+										([projectArn, projectName, bucketName, bucketKey]) => ({
+											buildspec: {
+												artifact: resources.buildspec.artifact,
+												bucket: bucketName,
+												key: bucketKey,
+											},
+											pipeline: {
+												stage: resources.pipeline.stage,
+												namespace: resources.pipeline.namespace,
+											},
+											project: {
+												arn: projectArn,
+												name: projectName,
+											},
+										}),
+									),
+								];
+							}),
+						),
 					),
 				];
 			}),
@@ -1890,67 +1828,41 @@ export = async () => {
 
 	const eventbridgeRulesOutput = Output.create(eventbridge).apply(
 		(eventbridge) => {
-			return Object.fromEntries(
-				Object.entries(eventbridge).map(([key, value]) => {
+			return objectFromEntries(
+				objectEntries(eventbridge).map(([key, value]) => {
 					return [
 						key,
 						all([
-							Output.create(value.targets).apply(
-								(targets) =>
-									Object.fromEntries(
-										Object.entries(targets).map(([key, event]) => {
-											return [
-												key,
-												all([
-													event.rule.arn,
-													event.rule.name,
-													event.target.arn,
-													event.target.targetId,
-												]).apply(
-													([ruleArn, ruleName, targetArn, targetId]) => ({
-														rule: {
-															arn: ruleArn,
-															name: ruleName,
-														},
-														target: {
-															arn: targetArn,
-															id: targetId,
-														},
-													}),
-												),
-											];
-										}),
-									) as Record<
-										keyof typeof value.targets,
-										Output<{
-											rule: { arn: string; name: string };
-											target: { arn: string; id: string };
-										}>
-									>,
-							) as Record<
-								keyof typeof value.targets,
-								Output<{
-									rule: { arn: string; name: string };
-									target: { arn: string; id: string };
-								}>
-							>,
-						]).apply((targets) => ({
+							Output.create(value.targets).apply((targets) =>
+								objectFromEntries(
+									objectEntries(targets).map(([key, event]) => {
+										return [
+											key,
+											all([
+												event.rule.arn,
+												event.rule.name,
+												event.target.arn,
+												event.target.targetId,
+											]).apply(([ruleArn, ruleName, targetArn, targetId]) => ({
+												rule: {
+													arn: ruleArn,
+													name: ruleName,
+												},
+												target: {
+													arn: targetArn,
+													id: targetId,
+												},
+											})),
+										] as const;
+									}),
+								),
+							),
+						] as const).apply((targets) => ({
 							targets,
 						})),
 					];
 				}),
-			) as unknown as Record<
-				keyof typeof eventbridge,
-				Output<{
-					targets: Record<
-						keyof (typeof eventbridge)[keyof typeof eventbridge],
-						{
-							rule: { arn: string; name: string };
-							target: { arn: string; id: string };
-						}
-					>;
-				}>
-			>;
+			);
 		},
 	);
 

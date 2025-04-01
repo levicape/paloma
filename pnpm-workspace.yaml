@@ -8,9 +8,9 @@ packages:
 catalog:
   '@levicape/spork': 0.10.0-main.7
   '@levicape/spork-atlas': 0.10.0-main.7
-  "@levicape/fourtwo": "0.10.1-main.1"
-  "@levicape/fourtwo-pulumi": "0.10.1-main.1"
-  "@levicape/fourtwo-builders": "0.10.1-main.1"
+  "@levicape/fourtwo": "0.10.2-main.2"
+  "@levicape/fourtwo-pulumi": "0.10.2-main.2"
+  "@levicape/fourtwo-builders": "0.10.2-main.2"
 catalogs:
   aws:
     '@aws/codecatalyst-workflows-sdk': ^0.1.5-preview.6
@@ -30,7 +30,7 @@ catalogs:
   build-esbuild:
     esbuild: ^0.25.1
   cli:
-    '@stricli/core': ^1.1.1
+    '@stricli/core': ^1.1.2
     enquirer: ^2.4.1
   compression:
     archiver: ^7.0.1
@@ -66,9 +66,9 @@ catalogs:
     ts-node: ^10.9.2
     typescript: ^5.8.2
   effect:
-    effect: ^3.14.1
-    '@effect/platform': ^0.80.1
-    '@effect/platform-node': ^0.76.2
+    effect: ^3.14.4
+    '@effect/platform': ^0.80.4
+    '@effect/platform-node': ^0.76.7
   error:
     serialize-error: ^12.0.0
     verror: ^1.10.0
@@ -110,14 +110,14 @@ catalogs:
   lint:
     '@biomejs/biome': ^1.9.4
   log-awspowertools:
-    '@aws-lambda-powertools/logger': ^2.16.0
+    '@aws-lambda-powertools/logger': ^2.17.0
   log-consola:
     consola: ^3.4.2
   log-loglayer:
     '@loglayer/transport-aws-lambda-powertools': ^3.0.3
     '@loglayer/transport-consola': ^2.0.3
     '@loglayer/transport-pino': ^2.1.1
-    loglayer: ^6.3.2
+    loglayer: ^6.3.3
   log-pino:
     pino: ^9.6.0
     pino-pretty: ^13.0.0
@@ -142,9 +142,9 @@ catalogs:
     fast-xml-parser: ^5.0.9
   parse-yaml:
     js-yaml: ^4.1.0
-    yaml: ^2.7.0
+    yaml: ^2.7.1
   project-nx:
-    nx: ^20.6.2
+    nx: ^20.7.0
   protobuf:
     '@bufbuild/protobuf': ^2.2.3
     '@bufbuild/buf': ^1.44.0
@@ -192,7 +192,7 @@ catalogs:
     '@types/jsonwebtoken': ^9.0.9
     '@types/klaw': ^3.0.6
     '@types/module-alias': ^2.0.4
-    '@types/node': ^22.13.11
+    '@types/node': ^22.13.14
     '@types/qrcode': ^1.5.5
     '@types/react': ^19.0.1
     '@types/react-dom': ^19.0.1
@@ -277,16 +277,3 @@ catalogs:
     vite-plugin-cjs-interop: ^2.1.6
     vite-plugin-esmodule: ^1.5.0
     vite-tsconfig-paths: ^5.1.4
-onlyBuiltDependencies:
-  - '@biomejs/biome'
-  - '@parcel/watcher'
-  - '@pulumi/aws-native'
-  - '@pulumi/command'
-  - '@pulumi/docker'
-  - '@pulumi/docker-build'
-  - '@swc/core'
-  - better-sqlite3
-  - esbuild
-  - protobufjs
-ignoredBuiltDependencies:
-  - nx

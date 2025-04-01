@@ -26,13 +26,14 @@ import { error, warn } from "@pulumi/pulumi/log";
 import { RandomId } from "@pulumi/random/RandomId";
 import { stringify } from "yaml";
 import type { z } from "zod";
+import { objectEntries } from "../../../Object";
 import { AwsCodeBuildContainerRoundRobin } from "../../../RoundRobin";
 import type {
 	Route,
 	S3RouteResource,
 	WebsiteManifest,
 } from "../../../RouteMap";
-import { $deref, type DereferencedOutput } from "../../../Stack";
+import { $$root, $deref, type DereferencedOutput } from "../../../Stack";
 import {
 	PalomaApplicationRoot,
 	PalomaApplicationStackExportsZod,
@@ -58,6 +59,7 @@ import { PalomaNevadaWebStackExportsZod } from "./exports";
 const PACKAGE_NAME = "@levicape/paloma-nevada-ui" as const;
 const SUBDOMAIN =
 	process.env["STACKREF_SUBDOMAIN"] ?? PalomaNevadaWWWRootSubdomain;
+const APPLICATION_IMAGE_NAME = PalomaApplicationRoot;
 const DEPLOY_DIRECTORY = "output/staticwww" as const;
 const MANIFEST_PATH = "/_web/routemap.json" as const;
 
@@ -128,7 +130,7 @@ export = async () => {
 		name ? `${context.prefix}-${name}` : context.prefix;
 	context.resourcegroups({ _ });
 
-	const stage = process.env.CI_ENVIRONMENT ?? "unknown";
+	const stage = process.env.APPLICATION_ENVIRONMENT ?? "unknown";
 	const automationRole = await getRole({
 		name: datalayer.iam.roles.automation.name,
 	});
@@ -429,7 +431,7 @@ export = async () => {
 		const buildspec = (() => {
 			const content = stringify(
 				new CodeBuildBuildspecBuilder()
-					.setVersion("0.2")
+					.setVersion(0.2)
 					.setArtifacts(
 						new CodeBuildBuildspecArtifactsBuilder()
 							.setFiles(["**/*"])
@@ -541,7 +543,7 @@ export = async () => {
 								// OIDC
 								...(domainName !== undefined
 									? [
-											...Object.entries({
+											...objectEntries({
 												OAUTH_PUBLIC_OIDC_AUTHORITY: `https://cognito-idp.${context?.environment?.aws?.region}.amazonaws.com/${userPoolId}`,
 												OAUTH_PUBLIC_OIDC_CLIENT_ID: clientId,
 												OAUTH_PUBLIC_OIDC_REDIRECT_URI: `https://${domainName}/${PalomaNevadaClientOauthRoutes.callback}`,
@@ -682,7 +684,7 @@ export = async () => {
 		const buildspec = (() => {
 			const content = stringify(
 				new CodeBuildBuildspecBuilder()
-					.setVersion("0.2")
+					.setVersion(0.2)
 					.setEnv(
 						new CodeBuildBuildspecEnvBuilder().setVariables({
 							SOURCE_IMAGE_REPOSITORY: "<SOURCE_IMAGE_REPOSITORY>",
@@ -806,7 +808,7 @@ export = async () => {
 		const buildspec = (() => {
 			const content = stringify(
 				new CodeBuildBuildspecBuilder()
-					.setVersion("0.2")
+					.setVersion(0.2)
 					.setEnv(
 						new CodeBuildBuildspecEnvBuilder().setVariables({
 							SOURCE_IMAGE_REPOSITORY: "<SOURCE_IMAGE_REPOSITORY>",
@@ -923,6 +925,7 @@ export = async () => {
 		};
 	})();
 
+	const imageTag = `${APPLICATION_IMAGE_NAME}-${stage}`;
 	const codepipeline = (() => {
 		const randomid = new RandomId(_("deploy-id"), {
 			byteLength: 4,
@@ -957,7 +960,7 @@ export = async () => {
 									([repositoryName]) => {
 										return {
 											RepositoryName: repositoryName,
-											ImageTag: stage,
+											ImageTag: imageTag,
 										};
 									},
 								),
@@ -1143,31 +1146,45 @@ export = async () => {
 
 	// Eventbridge will trigger on ecr push
 	const eventbridge = (() => {
-		const { name } = codestar.ecr.repository;
-
-		const rule = new EventRule(_("on-ecr-push"), {
-			description: `(${PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${name}"`,
-			state: "ENABLED",
-			eventPattern: JSON.stringify({
-				source: ["aws.ecr"],
-				"detail-type": ["ECR Image Action"],
-				detail: {
-					"repository-name": [name],
-					"action-type": ["PUSH"],
-					result: ["SUCCESS"],
-					"image-tag": [stage],
+		const { name: codestarRepositoryName } = codestar.ecr.repository;
+		const rule = new EventRule(
+			_("on-ecr-push"),
+			{
+				description: `(${PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${imageTag}"`,
+				state: "ENABLED",
+				eventPattern: JSON.stringify({
+					source: ["aws.ecr"],
+					"detail-type": ["ECR Image Action"],
+					detail: {
+						"repository-name": [codestarRepositoryName],
+						"action-type": ["PUSH"],
+						result: ["SUCCESS"],
+						"image-tag": [imageTag],
+					},
+				}),
+				tags: {
+					Name: _(`on-ecr-push`),
+					StackRef: STACKREF_ROOT,
+					Stage: stage,
+					ImageTag: imageTag,
 				},
-			}),
-			tags: {
-				Name: _(`on-ecr-push`),
-				StackRef: STACKREF_ROOT,
 			},
-		});
-		const pipeline = new EventTarget(_("on-ecr-deploy"), {
-			rule: rule.name,
-			arn: codepipeline.pipeline.arn,
-			roleArn: automationRole.arn,
-		});
+			{
+				deleteBeforeReplace: true,
+			},
+		);
+
+		const pipeline = new EventTarget(
+			_("on-ecr-deploy"),
+			{
+				rule: rule.name,
+				arn: codepipeline.pipeline.arn,
+				roleArn: automationRole.arn,
+			},
+			{
+				deleteBeforeReplace: true,
+			},
+		);
 
 		return {
 			EcrImageAction: {
@@ -1299,7 +1316,7 @@ export = async () => {
 				warn(inspect(exported, { depth: null }));
 			}
 
-			return exported;
+			return $$root(APPLICATION_IMAGE_NAME, STACKREF_ROOT, exported);
 		},
 	);
 };

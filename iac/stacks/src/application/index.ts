@@ -11,23 +11,21 @@ import { Topic } from "@pulumi/aws/sns/topic";
 import { type Input, all } from "@pulumi/pulumi";
 import { error, warn } from "@pulumi/pulumi/log";
 import type { z } from "zod";
+import { objectEntries, objectFromEntries } from "../Object";
 import { PalomaApplicationStackExportsZod } from "./exports";
 
 const PACKAGE_NAME = "@levicape/paloma";
 const DESCRIPTION = "Paloma: durable canary tests. Services: {nevada]";
-
 /**
- * # Application
- *
  * This stack creates the following resources:
  * - A Service Catalog Application Registry Application
- * - RAM Resource Shares
  * - A Resource Groups Group
  * - An SNS Topic
  * - A Budget
  *
- * The stack is used to manage the application resources
+ * The stack is used to manage the application resources for the Fourtwo application.
  *
+ * @returns {Promise<FourtwoApplicationStackExportsZod>} The exported resources.
  */
 export = async () => {
 	const context = await Context.fromConfig({});
@@ -118,14 +116,13 @@ export = async () => {
 			return new Topic(_(`topic-${name}`), {
 				tags: {
 					awsApplication,
+					PackageName: PACKAGE_NAME,
 				},
 			});
 		};
 		return {
-			billing: topic("billing"),
-			catalog: topic("catalog"),
-			changes: topic("changes"),
-			operations: topic("operations"),
+			capacity: topic("capacity"),
+			changelog: topic("changelog"),
 		};
 	})();
 
@@ -186,21 +183,21 @@ export = async () => {
 				timeUnit: "DAILY",
 				threshold: 3,
 				notificationType: "ACTUAL",
-				subscriberSnsTopicArns: [sns.billing.arn],
+				subscriberSnsTopicArns: [sns.capacity.arn],
 			}),
 			monthly_forecasted: budget("monthly-forecasted", {
 				limitAmount: "29",
 				timeUnit: "MONTHLY",
 				threshold: 13,
 				notificationType: "FORECASTED",
-				subscriberSnsTopicArns: [sns.billing.arn],
+				subscriberSnsTopicArns: [sns.capacity.arn],
 			}),
 			monthly_absolute: budget("monthly-absolute", {
 				limitAmount: "100",
 				timeUnit: "MONTHLY",
 				threshold: 10,
 				notificationType: "ACTUAL",
-				subscriberSnsTopicArns: [sns.billing.arn],
+				subscriberSnsTopicArns: [sns.capacity.arn],
 			}),
 		};
 	})();
@@ -224,7 +221,7 @@ export = async () => {
 	);
 
 	const resourcegroupsOutput = all(
-		Object.entries(resourcegroups).map(([name, group]) => {
+		objectEntries(resourcegroups).map(([name, group]) => {
 			return all([
 				group.group.arn,
 				group.group.name,
@@ -242,7 +239,7 @@ export = async () => {
 			});
 		}),
 	).apply((groups) => {
-		return Object.fromEntries(
+		return objectFromEntries(
 			groups.map(([name, group]) => {
 				return [
 					name,
@@ -259,7 +256,7 @@ export = async () => {
 	});
 
 	const snsOutput = all(
-		Object.entries(sns).map(([name, topic]) => {
+		objectEntries(sns).map(([name, topic]) => {
 			return all([topic.arn, topic.name, topic.id]).apply(
 				([topicArn, topicName, topicId]) => {
 					return [
@@ -274,7 +271,7 @@ export = async () => {
 			);
 		}),
 	).apply((topics) => {
-		return Object.fromEntries(
+		return objectFromEntries(
 			topics.map(([name, topic]) => {
 				return [
 					name,
@@ -285,7 +282,7 @@ export = async () => {
 							id: topic.id,
 						},
 					},
-				];
+				] as const;
 			}),
 		);
 	});

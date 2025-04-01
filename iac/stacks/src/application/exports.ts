@@ -21,14 +21,21 @@ export const PalomaApplicationStackExportsZod = z
 				}),
 			}),
 		),
-		paloma_application_sns: z.record(
-			z.object({
+		paloma_application_sns: z.object({
+			changelog: z.object({
 				topic: z.object({
 					arn: z.string(),
 					name: z.string(),
 					id: z.string(),
 				}),
 			}),
-		),
+			capacity: z.object({
+				topic: z.object({
+					arn: z.string(),
+					name: z.string(),
+					id: z.string(),
+				}),
+			}),
+		}),
 	})
 	.passthrough();
