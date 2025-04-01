@@ -20,6 +20,7 @@ import { error, warn } from "@pulumi/pulumi/log";
 import { Output, all, interpolate } from "@pulumi/pulumi/output";
 import { RandomId } from "@pulumi/random/RandomId";
 import type { z } from "zod";
+import { objectEntries, objectFromEntries } from "../Object";
 import { $deref } from "../Stack";
 import { PalomaApplicationStackExportsZod } from "../application/exports";
 import { PalomaCodestarStackExportsZod } from "./exports";
@@ -59,8 +60,8 @@ export = async () => {
 			},
 		});
 
-		const taggedTtl = context.environment.isProd ? 28 : 7;
-		const untaggedTtl = context.environment.isProd ? 14 : 3;
+		const taggedTtl = context.environment.isProd ? 14 : 5;
+		const untaggedTtl = context.environment.isProd ? 7 : 2;
 
 		new LifecyclePolicy(_("binaries-lifecycle"), {
 			repository: repository.name,
@@ -85,7 +86,7 @@ export = async () => {
 								},
 								{
 									priority: 2,
-									description: `Expire untagged images older than ${untaggedTtl} days`,
+									description: `Expire untagged images older than ${untaggedTtl} days.`,
 									selection: {
 										tagStatus: "untagged",
 										countType: "sinceImagePushed",
@@ -380,8 +381,8 @@ export = async () => {
 	const codeartifactOutput = Output.create(codeartifact).apply(
 		({ domain, repository }) => {
 			const repositoryOutput = Output.create(
-				Object.fromEntries(
-					Object.entries(repository).map(([key, value]) => [
+				objectFromEntries(
+					objectEntries(repository).map(([key, value]) => [
 						key,
 						all([
 							value.arn,

@@ -451,41 +451,41 @@ Actions:
                 source .pulumi-ci-helper
             - Run: 'mkdir -p _pulumi || true && echo "Preview onto root: paloma"'
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Preview" "paloma-application.current" "$(pwd)/iac/stacks/src/application" "paloma-application" "_pulumi/application" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-application.current" "$(pwd)/iac/stacks/src/application" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/application" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Preview" "true-application.current" "$(pwd)/iac/stacks/src/application" "true-application" "_pulumi/application" && setup_stack "/cc/cache/pulumi/bin/pulumi" "true-application.current" "$(pwd)/iac/stacks/src/application" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/application" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
-                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-application.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/application" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/application" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[0]=current.true.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=true-application.current.true.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/application" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/application" --non-interactive --suppress-progress --diff --json
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Preview" "paloma-codestar.current" "$(pwd)/iac/stacks/src/codestar" "paloma-codestar" "_pulumi/codestar" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-codestar.current" "$(pwd)/iac/stacks/src/codestar" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/codestar" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Preview" "true-codestar.current" "$(pwd)/iac/stacks/src/codestar" "true-codestar" "_pulumi/codestar" && setup_stack "/cc/cache/pulumi/bin/pulumi" "true-codestar.current" "$(pwd)/iac/stacks/src/codestar" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/codestar" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
-                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-codestar.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/codestar" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[0]=current.true.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=true-codestar.current.true.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/codestar" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/codestar" --non-interactive --suppress-progress --diff --json
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Preview" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" "paloma-datalayer" "_pulumi/datalayer" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Preview" "true-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" "true-datalayer" "_pulumi/datalayer" && setup_stack "/cc/cache/pulumi/bin/pulumi" "true-datalayer.current" "$(pwd)/iac/stacks/src/datalayer" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/datalayer" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
-                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-datalayer.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/datalayer" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/datalayer" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[0]=current.true.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=true-datalayer.current.true.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/datalayer" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/datalayer" --non-interactive --suppress-progress --diff --json
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Preview" "paloma-dns-root.current" "$(pwd)/iac/stacks/src/dns/root" "paloma-dns-root" "_pulumi/dns_root" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-dns-root.current" "$(pwd)/iac/stacks/src/dns/root" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/dns/root" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Preview" "true-dns-root.current" "$(pwd)/iac/stacks/src/dns/root" "true-dns-root" "_pulumi/dns_root" && setup_stack "/cc/cache/pulumi/bin/pulumi" "true-dns-root.current" "$(pwd)/iac/stacks/src/dns/root" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/dns/root" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
-                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-dns-root.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/dns/root" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/dns/root" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[0]=current.true.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=true-dns-root.current.true.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/dns/root" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/dns/root" --non-interactive --suppress-progress --diff --json
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Preview" "paloma-idp-oidc.current" "$(pwd)/iac/stacks/src/idp/oidc" "paloma-idp-oidc" "_pulumi/idp_oidc" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-idp-oidc.current" "$(pwd)/iac/stacks/src/idp/oidc" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/idp/oidc" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Preview" "true-idp-oidc.current" "$(pwd)/iac/stacks/src/idp/oidc" "true-idp-oidc" "_pulumi/idp_oidc" && setup_stack "/cc/cache/pulumi/bin/pulumi" "true-idp-oidc.current" "$(pwd)/iac/stacks/src/idp/oidc" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/idp/oidc" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
-                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-idp-oidc.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/idp/oidc" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/idp/oidc" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[0]=current.true.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=true-idp-oidc.current.true.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/idp/oidc" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/idp/oidc" --non-interactive --suppress-progress --diff --json
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Preview" "paloma-idp-users.current" "$(pwd)/iac/stacks/src/idp/users" "paloma-idp-users" "_pulumi/idp_users" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-idp-users.current" "$(pwd)/iac/stacks/src/idp/users" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/idp/users" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Preview" "true-idp-users.current" "$(pwd)/iac/stacks/src/idp/users" "true-idp-users" "_pulumi/idp_users" && setup_stack "/cc/cache/pulumi/bin/pulumi" "true-idp-users.current" "$(pwd)/iac/stacks/src/idp/users" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/idp/users" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
-                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-idp-users.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/idp/users" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/idp/users" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[0]=current.true.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=true-idp-users.current.true.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/idp/users" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/idp/users" --non-interactive --suppress-progress --diff --json
             - Run: |-
                 source .pulumi-ci-helper && configure_stack "Preview" "paloma-nevada-channels.current" "$(pwd)/iac/stacks/src/levicape/nevada/channels" "paloma-nevada-channels" "_pulumi/levicape_nevada_channels" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-channels.current" "$(pwd)/iac/stacks/src/levicape/nevada/channels" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/channels" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
@@ -499,11 +499,11 @@ Actions:
                 frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
                 frontend:stack.dns.hostnames[1]=paloma-nevada-client.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/levicape/nevada/client" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/levicape/nevada/client" --non-interactive --suppress-progress --diff --json
             - Run: |-
-                source .pulumi-ci-helper && configure_stack "Preview" "paloma-monitor.current" "$(pwd)/iac/stacks/src/monitor" "paloma-monitor" "_pulumi/monitor" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-monitor.current" "$(pwd)/iac/stacks/src/monitor" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/monitor" 'aws:skipMetadataApiCheck=false
+                source .pulumi-ci-helper && configure_stack "Preview" "true-monitor.current" "$(pwd)/iac/stacks/src/monitor" "true-monitor" "_pulumi/monitor" && setup_stack "/cc/cache/pulumi/bin/pulumi" "true-monitor.current" "$(pwd)/iac/stacks/src/monitor" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/monitor" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
                 context:stack.environment.features=aws
-                frontend:stack.dns.hostnames[0]=current.paloma.$FRONTEND_HOSTNAME
-                frontend:stack.dns.hostnames[1]=paloma-monitor.current.paloma.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/monitor" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/monitor" --non-interactive --suppress-progress --diff --json
+                frontend:stack.dns.hostnames[0]=current.true.$FRONTEND_HOSTNAME
+                frontend:stack.dns.hostnames[1]=true-monitor.current.true.$FRONTEND_HOSTNAME' && set_state_backend "/cc/cache/pulumi/bin/pulumi" "$AWS_PROVIDER_KEY" "$(pwd)/iac/stacks/src/monitor" && refresh_and_preview "/cc/cache/pulumi/bin/pulumi" "${WorkflowSource.BranchName}-${WorkflowSource.CommitId}" "$(pwd)/iac/stacks/src/monitor" --non-interactive --suppress-progress --diff --json
             - Run: |-
                 source .pulumi-ci-helper && configure_stack "Preview" "paloma-nevada-http.current" "$(pwd)/iac/stacks/src/levicape/nevada/http" "paloma-nevada-http" "_pulumi/levicape_nevada_http" && setup_stack "/cc/cache/pulumi/bin/pulumi" "paloma-nevada-http.current" "$(pwd)/iac/stacks/src/levicape/nevada/http" && configure_stack_settings "/cc/cache/pulumi/bin/pulumi" "$(pwd)/iac/stacks/src/levicape/nevada/http" 'aws:skipMetadataApiCheck=false
                 context:stack.environment.isProd=false
@@ -534,7 +534,7 @@ Actions:
 ########################################
 #**:_$~- {"$$":"head","filename":"[pr(OPEN,REVISION)(b:main)]CI.yml","source":"iac/workflows/codecatalyst/push/CI.js"}
 #**:_$~- {"$$":"script","generator":"codegen/codecatalyst/GenerateCodeCatalystWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"2b7a8e698897a9804ed17663d7fd5fd9fc05450a9f769772a5297eef15d389e7"}
-#**:_$~- {"$$":"footer","started":"2025-03-30T20:29:49.168Z","now":"2025-03-30T20:29:49.171Z","elapsed":"3ms"}
+#**:_$~- {"$$":"body","hashed":"db424b8f35be04b1dab09c10ada69ab90e028b905b2c4a1c8e9b040cdb300cca"}
+#**:_$~- {"$$":"footer","started":"2025-03-31T23:29:54.794Z","now":"2025-03-31T23:29:54.799Z","elapsed":"5ms"}
 # END OF GENERATED FILE
 

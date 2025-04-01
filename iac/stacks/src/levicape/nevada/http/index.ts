@@ -47,7 +47,7 @@ import type { z } from "zod";
 import { objectEntries, objectFromEntries } from "../../../Object";
 import { AwsCodeBuildContainerRoundRobin } from "../../../RoundRobin";
 import type { LambdaRouteResource, Route } from "../../../RouteMap";
-import { $deref, type DereferencedOutput } from "../../../Stack";
+import { $$root, $deref, type DereferencedOutput } from "../../../Stack";
 import {
 	PalomaApplicationRoot,
 	PalomaApplicationStackExportsZod,
@@ -70,8 +70,9 @@ const LLRT_PLATFORM: "node" | "browser" | undefined = LLRT_ARCH
 const OUTPUT_DIRECTORY = `output/esbuild`;
 const HANDLER = `${LLRT_ARCH ? `${OUTPUT_DIRECTORY}/${LLRT_PLATFORM}` : "module"}/http/PalomaNevadaHonoApp.handler`;
 
+const APPLICATION_IMAGE_NAME = PalomaApplicationRoot;
 const CI = {
-	CI_ENVIRONMENT: process.env.CI_ENVIRONMENT ?? "unknown",
+	APPLICATION_ENVIRONMENT: process.env.APPLICATION_ENVIRONMENT ?? "unknown",
 	CI_ACCESS_ROLE: process.env.CI_ACCESS_ROLE ?? "FourtwoAccessRole",
 };
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? PalomaApplicationRoot;
@@ -216,7 +217,7 @@ export = async () => {
 	const _ = (name: string) => `${context.prefix}-${name}`;
 	context.resourcegroups({ _ });
 
-	const stage = CI.CI_ENVIRONMENT;
+	const stage = CI.APPLICATION_ENVIRONMENT;
 	const automationRole = await getRole({
 		name: __datalayer.iam.roles.automation.name,
 	});
@@ -868,13 +869,13 @@ export = async () => {
 			serviceId: cloudMapService.id,
 			instanceId: _("instance"),
 			attributes: {
+				APPLICATION_ENVIRONMENT: stage,
 				AWS_INSTANCE_CNAME: handler.http.url,
+				CONTEXT_PREFIX: context.prefix,
 				LAMBDA_FUNCTION_ARN: handler.http.arn,
+				PACKAGE_NAME,
 				STACK_NAME: getStack(),
 				STACKREF_ROOT,
-				CONTEXT_PREFIX: context.prefix,
-				CI_ENVIRONMENT: stage,
-				PACKAGE_NAME,
 			},
 		});
 
@@ -1134,7 +1135,7 @@ export = async () => {
 										`ls -al $CODEBUILD_SRC_DIR/.${EXTRACT_ACTION}/${PIPELINE_STAGE} || true`,
 									]),
 							// atlasfiles
-							...Object.entries(ATLASFILE_PATHS).flatMap(([name, { path }]) => {
+							...objectEntries(ATLASFILE_PATHS).flatMap(([name, { path }]) => {
 								const objectKey = `$ATLASFILE_${name.toUpperCase()}_KEY`;
 								return [
 									`echo "Rendering Atlasfile: ${name}"`,
@@ -1284,11 +1285,11 @@ export = async () => {
 							"zip appspec.zip appspec.yml",
 							"ls -al",
 						] as string[],
-					} as Record<string, string[]>,
+					},
 				},
 			] as const;
 
-			const entries = Object.fromEntries(
+			const entries = objectFromEntries(
 				stages.map(
 					({
 						stage,
@@ -1316,7 +1317,7 @@ export = async () => {
 
 						const content = stringify(
 							new CodeBuildBuildspecBuilder()
-								.setVersion("0.2")
+								.setVersion(0.2)
 								.setArtifacts(artifacts)
 								.setEnv(env)
 								.setPhases({
@@ -1395,19 +1396,7 @@ export = async () => {
 				),
 			);
 
-			return entries as Record<
-				(typeof stages)[number]["artifact"]["name"],
-				{
-					stage: string;
-					action: string;
-					artifactName: string;
-					project: Project;
-					buildspec: {
-						content: string;
-						upload: BucketObjectv2;
-					};
-				}
-			>;
+			return entries;
 		})();
 
 		return {
@@ -1415,6 +1404,7 @@ export = async () => {
 		} as const;
 	})();
 
+	const imageTag = `${APPLICATION_IMAGE_NAME}-${stage}`;
 	const codepipeline = (() => {
 		const randomid = new RandomId(_("deploy-id"), {
 			byteLength: 4,
@@ -1449,7 +1439,7 @@ export = async () => {
 									([repositoryName]) => {
 										return {
 											RepositoryName: repositoryName,
-											ImageTag: stage,
+											ImageTag: imageTag,
 										};
 									},
 								),
@@ -1478,7 +1468,7 @@ export = async () => {
 									codebuild.httphandler_extractimage.project.name,
 									s3.artifacts.bucket,
 									Output.create([
-										...Object.entries(handler.configuration).map(
+										...objectEntries(handler.configuration).map(
 											([name, file]) => ({
 												name: name.toUpperCase(),
 												value: interpolate`${file.object.bucket}/${file.object.key}`,
@@ -1672,31 +1662,44 @@ export = async () => {
 	// Eventbridge
 	const eventbridge = (() => {
 		const { name: codestarRepositoryName } = __codestar.ecr.repository;
-
-		const rule = new EventRule(_("on-ecr-push"), {
-			description: `(${PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${stage}"`,
-			state: "ENABLED",
-			eventPattern: JSON.stringify({
-				source: ["aws.ecr"],
-				"detail-type": ["ECR Image Action"],
-				detail: {
-					"repository-name": [codestarRepositoryName],
-					"action-type": ["PUSH"],
-					result: ["SUCCESS"],
-					"image-tag": [stage],
+		const rule = new EventRule(
+			_("on-ecr-push"),
+			{
+				description: `(${PACKAGE_NAME}) ECR image deploy pipeline trigger for tag "${imageTag}"`,
+				state: "ENABLED",
+				eventPattern: JSON.stringify({
+					source: ["aws.ecr"],
+					"detail-type": ["ECR Image Action"],
+					detail: {
+						"repository-name": [codestarRepositoryName],
+						"action-type": ["PUSH"],
+						result: ["SUCCESS"],
+						"image-tag": [imageTag],
+					},
+				}),
+				tags: {
+					Name: _(`on-ecr-push`),
+					StackRef: STACKREF_ROOT,
+					Stage: stage,
+					ImageTag: imageTag,
 				},
-			}),
-			tags: {
-				Name: _(`on-ecr-push`),
-				StackRef: STACKREF_ROOT,
 			},
-		});
+			{
+				deleteBeforeReplace: true,
+			},
+		);
 
-		const pipeline = new EventTarget(_("on-ecr-push-deploy"), {
-			rule: rule.name,
-			arn: codepipeline.pipeline.arn,
-			roleArn: automationRole.arn,
-		});
+		const pipeline = new EventTarget(
+			_("on-ecr-push-deploy"),
+			{
+				rule: rule.name,
+				arn: codepipeline.pipeline.arn,
+				roleArn: automationRole.arn,
+			},
+			{
+				deleteBeforeReplace: true,
+			},
+		);
 
 		return {
 			EcrImageAction: {
@@ -1722,7 +1725,7 @@ export = async () => {
 					),
 				];
 			}),
-		) as Record<keyof typeof s3, Output<{ bucket: string; region: string }>>,
+		),
 	);
 
 	const cloudwatchOutput = Output.create(
@@ -1963,7 +1966,7 @@ export = async () => {
 				error(`Validation failed: ${JSON.stringify(validate.error, null, 2)}`);
 				warn(inspect(exported, { depth: null }));
 			}
-			return exported;
+			return $$root(APPLICATION_IMAGE_NAME, STACKREF_ROOT, exported);
 		},
 	);
 };

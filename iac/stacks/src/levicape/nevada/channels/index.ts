@@ -5,7 +5,7 @@ import { error, warn } from "@pulumi/pulumi/log";
 import { Output, all } from "@pulumi/pulumi/output";
 import type { z } from "zod";
 import { objectEntries, objectFromEntries } from "../../../Object";
-import { $deref } from "../../../Stack";
+import { $$root, $deref } from "../../../Stack";
 import {
 	PalomaApplicationRoot,
 	PalomaApplicationStackExportsZod,
@@ -17,6 +17,7 @@ const PACKAGE_NAME = "@levicape/paloma-nevada-io" as const;
 const SUBDOMAIN =
 	process.env["STACKREF_SUBDOMAIN"] ?? PalomaNevadaWWWRootSubdomain;
 
+const APPLICATION_IMAGE_NAME = PalomaApplicationRoot;
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? PalomaApplicationRoot;
 const STACKREF_CONFIG = {
 	[STACKREF_ROOT]: {
@@ -85,6 +86,6 @@ export = async () => {
 			warn(inspect(exported, { depth: null }));
 		}
 
-		return exported;
+		return $$root(APPLICATION_IMAGE_NAME, STACKREF_ROOT, exported);
 	});
 };

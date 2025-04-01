@@ -67,17 +67,19 @@ export const PalomaMonitorStackExportsZod = z
 		}),
 		paloma_monitor_eventbridge: z.record(
 			z.object({
-				targets: z.record(
-					z.object({
-						rule: z.object({
-							arn: z.string(),
-							name: z.string(),
+				targets: z.array(
+					z.record(
+						z.object({
+							rule: z.object({
+								arn: z.string(),
+								name: z.string(),
+							}),
+							target: z.object({
+								arn: z.string(),
+								id: z.string(),
+							}),
 						}),
-						target: z.object({
-							arn: z.string(),
-							id: z.string(),
-						}),
-					}),
+					),
 				),
 			}),
 		),
