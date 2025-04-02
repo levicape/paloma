@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { PropsWithChildren } from "react";
+import type { DOMAttributes, JSX, PropsWithChildren } from "hono/jsx";
 
 export type SelectColor =
 	| "neutral"
@@ -18,11 +18,13 @@ export type SelectProps = {
 	color?: SelectColor;
 	variant?: SelectVariant;
 	size?: SelectSize;
+	onChange?: (
+		event: Event & { target: JSX.IntrinsicElements["select"] },
+	) => void;
 };
 
 export const Select = (
-	props: PropsWithChildren<SelectProps> &
-		React.SelectHTMLAttributes<HTMLSelectElement>,
+	props: PropsWithChildren<SelectProps> & Exclude<DOMAttributes, "onChange">,
 ) => {
 	const { children, className, color, size, ...selectProps } = props;
 

@@ -1,30 +1,25 @@
 import clsx from "clsx";
-import type {
-	BaseHTMLAttributes,
-	FunctionComponent,
-	PropsWithChildren,
-	ReactNode,
-} from "react";
+import type { Child, DOMAttributes, FC, PropsWithChildren } from "hono/jsx";
 
 export type NavbarProps = {
 	className?: string;
 	background?: `bg-${string}`;
 	text?: `text-${string}`;
 	shadow?: `shadow-${string}` | null;
-	start?: ReactNode;
-	startHtmlProps?: BaseHTMLAttributes<HTMLDivElement>;
+	start?: Child;
+	startHtmlProps?: DOMAttributes;
 	startClassName?: string;
-	center?: ReactNode;
-	centerHtmlProps?: BaseHTMLAttributes<HTMLDivElement>;
+	center?: Child;
+	centerHtmlProps?: DOMAttributes;
 	centerClassName?: string;
-	end?: ReactNode;
-	endHtmlProps?: BaseHTMLAttributes<HTMLDivElement>;
+	end?: Child;
+	endHtmlProps?: DOMAttributes;
 	endClassName?: string;
 };
 
-export const Navbar: FunctionComponent<
-	PropsWithChildren<NavbarProps> & BaseHTMLAttributes<HTMLBaseElement>
-> = (props) => {
+export const Navbar: FC<PropsWithChildren<NavbarProps> & DOMAttributes> = (
+	props,
+) => {
 	const {
 		background,
 		text,

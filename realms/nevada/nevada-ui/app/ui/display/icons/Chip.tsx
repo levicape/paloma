@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type Chip_IconProps = {
 	className?: string;
@@ -27,7 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const Chip_Icon: FunctionComponent<Chip_IconProps> = (props) => {
+export const Chip_Icon: FC<Chip_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

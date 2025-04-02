@@ -26,6 +26,25 @@ export const GITHUB_CI_MATRIX = [
 		},
 	},
 	{
+		name: `Dispatch: Preview`,
+		region: "us-west-2",
+		triggers: {
+			workflow_dispatch: {},
+		} satisfies GithubOn,
+		pipeline: {
+			install: undefined as unknown as GithubWorkflowProps<
+				boolean,
+				boolean
+			>["pipeline"]["install"],
+			environment: {
+				name: "${{ vars.CI_ENVIRONMENT }}",
+			},
+			preview: true as const,
+			deploy: false as const,
+			push: false as const,
+		},
+	},
+	{
 		name: `Dispatch: Delete`,
 		region: "us-west-2",
 		triggers: {

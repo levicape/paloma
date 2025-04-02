@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type LanguageGlyphs_IconProps = {
 	className?: string;
@@ -27,9 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const LanguageGlyphs_Icon: FunctionComponent<
-	LanguageGlyphs_IconProps
-> = (props) => {
+export const LanguageGlyphs_Icon: FC<LanguageGlyphs_IconProps> = (props) => {
 	const { viewBox } = props;
 	return (
 		<svg

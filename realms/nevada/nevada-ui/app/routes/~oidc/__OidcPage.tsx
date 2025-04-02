@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import type { FC, PropsWithChildren } from "react";
+import type { FC, PropsWithChildren } from "hono/jsx";
 import { ApplicationHead } from "../../variant/ApplicationHead";
 
 export const OidcPage: FC<PropsWithChildren> = ({ children }) => {

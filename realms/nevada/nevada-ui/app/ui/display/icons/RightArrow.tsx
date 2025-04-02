@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type RightArrow_IconProps = {
 	className?: string;
@@ -27,9 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const RightArrow_Icon: FunctionComponent<RightArrow_IconProps> = (
-	props,
-) => {
+export const RightArrow_Icon: FC<RightArrow_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

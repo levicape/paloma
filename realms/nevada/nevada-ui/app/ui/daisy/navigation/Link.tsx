@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import type { DOMAttributes } from "react";
 
 export type DaisyLinkVariant = "hover";
 
@@ -22,7 +23,7 @@ export type LinkProps = {
 export const Link = (
 	props: {
 		href: string;
-	} & React.AnchorHTMLAttributes<HTMLAnchorElement> &
+	} & DOMAttributes &
 		LinkProps,
 ) => {
 	const { href, children, className, hover, ...aprops } = props;

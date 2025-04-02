@@ -1,5 +1,5 @@
 // import { clsx } from "clsx";
-// import { Suspense, use, useCallback, useMemo, useState } from "react";
+// import { Suspense, use, useCallback, useMemo, useState } from "hono/jsx";
 // import { useOidcClient } from "../../atoms/authentication/OidcClientAtom";
 // import { SuspenseGuard } from "../../ui/ClientSuspense";
 // import { DesignSystem } from "../../ui/DesignSystem";

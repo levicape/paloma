@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useMemo } from "hono/jsx";
 import { useAtom } from "jotai/react";
 import { atom } from "jotai/vanilla";
 import {
@@ -6,7 +7,6 @@ import {
 	UserManager,
 	WebStorageStateStore,
 } from "oidc-client-ts";
-import { useCallback, useEffect, useMemo } from "react";
 
 export type OauthClientAtomState = {
 	oidcClient: OidcClient | null;

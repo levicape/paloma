@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { type CSSProperties, useEffect, useMemo } from "hono/jsx";
 import { useOidcClient } from "../../../atoms/authentication/OidcClientAtom";
 
 export const AuthnLogout = () => {
@@ -39,7 +39,7 @@ export const AuthnLogout = () => {
 		}
 	}, [oidc, discordEnabled]);
 
-	const style: React.CSSProperties = useMemo(
+	const style: CSSProperties = useMemo(
 		() => ({
 			display: "none",
 			pointerEvents: "none",

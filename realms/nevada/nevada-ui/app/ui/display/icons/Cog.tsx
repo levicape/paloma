@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type Cog_IconProps = {
 	className?: string;
@@ -27,7 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const Cog_Icon: FunctionComponent<Cog_IconProps> = (props) => {
+export const Cog_Icon: FC<Cog_IconProps> = (props) => {
 	const { viewBox } = props;
 	return (
 		<svg

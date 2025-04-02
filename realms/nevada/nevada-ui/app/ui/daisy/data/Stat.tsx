@@ -1,10 +1,10 @@
 import { clsx } from "clsx";
 import type {
-	BaseHTMLAttributes,
+	DOMAttributes,
 	Fragment,
 	PropsWithChildren,
 	ReactElement,
-} from "react";
+} from "hono/jsx";
 
 export type StatsDirection = "horizontal" | "vertical";
 export type StatsProps = {
@@ -25,9 +25,7 @@ export type StatProps = {
 	actionsClassName?: string;
 };
 
-export const Stats = (
-	props: PropsWithChildren<StatsProps> & BaseHTMLAttributes<HTMLDivElement>,
-) => {
+export const Stats = (props: PropsWithChildren<StatsProps> & DOMAttributes) => {
 	const { direction, children, className, ...htmlProps } = props;
 	const { horizontal, vertical } = direction
 		? ({ [direction]: true } as Record<string, boolean | undefined>)
@@ -62,7 +60,7 @@ export const Stat = ({
 	actionsClassName,
 	...htmlProps
 }: PropsWithChildren<StatProps> &
-	Omit<BaseHTMLAttributes<HTMLDivElement>, "title" | "children">) => {
+	Omit<DOMAttributes, "title" | "children">) => {
 	return (
 		<div className={clsx("stat", className)} {...htmlProps}>
 			{icon ? (

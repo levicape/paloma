@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
 			build: {
 				sourcemap: true,
 				rollupOptions: {
-					input: ["./app/render.ts", "./app/style.css"],
+					input: ["./app/client.ts", "./app/style.css"],
 					output: {
 						entryFileNames: "!/!!/[name].js",
 						chunkFileNames: `!/!!/_c/${timehash}/[name]-[hash].js`,
@@ -51,8 +51,8 @@ export default defineConfig(({ mode }) => {
 		},
 		ssr: {
 			external: [
-				"react",
-				"react-dom",
+				// "react",
+				// "react-dom",
 				"prop-types",
 				"react-router-dom",
 				"fs-extra",

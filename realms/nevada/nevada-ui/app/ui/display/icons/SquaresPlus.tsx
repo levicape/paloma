@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type SquaresPlus_IconProps = {
 	className?: string;
@@ -27,9 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const SquaresPlus_Icon: FunctionComponent<SquaresPlus_IconProps> = (
-	props,
-) => {
+export const SquaresPlus_Icon: FC<SquaresPlus_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

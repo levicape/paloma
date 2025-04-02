@@ -1,13 +1,13 @@
 import clsx from "clsx";
 import {
-	type FunctionComponent,
-	type MouseEventHandler,
+	type Child,
+	type Event,
+	type FC,
 	type PropsWithChildren,
-	type ReactNode,
 	useCallback,
 	useContext,
 	useEffect,
-} from "react";
+} from "hono/jsx";
 import { env } from "std-env";
 import { useFormatMessage } from "../../../atoms/localization/I18nAtom";
 import { LanguageDropdown } from "../../../atoms/localization/input/$LanguageDropdown";
@@ -26,12 +26,10 @@ interface HeaderMenuLinkProps {
 	href: string;
 	messageI18nId: string;
 	i18nDescription: string;
-	icon: ReactNode;
+	icon: Child;
 }
 
-const HeaderMenuListItem: FunctionComponent<PropsWithChildren> = ({
-	children,
-}) => {
+const HeaderMenuListItem: FC<PropsWithChildren> = ({ children }) => {
 	return (
 		<DaisyMenuItem
 			className={clsx(
@@ -52,7 +50,7 @@ const HeaderMenuListItem: FunctionComponent<PropsWithChildren> = ({
 	);
 };
 
-const HeaderMenuLink: FunctionComponent<HeaderMenuLinkProps> = ({
+const HeaderMenuLink: FC<HeaderMenuLinkProps> = ({
 	href,
 	messageI18nId,
 	i18nDescription,
@@ -95,17 +93,14 @@ const HeaderMenuLink: FunctionComponent<HeaderMenuLinkProps> = ({
 	);
 };
 
-export const HeaderMenuSidebar: FunctionComponent<{ className?: string }> = ({
+export const HeaderMenuSidebar: FC<{ className?: string }> = ({
 	className,
 }) => {
 	const [menuOpen, setMenuOpen] = useContext(HeaderMenuOpenContext);
 
-	const preventDefault: MouseEventHandler<HTMLElement> = useCallback(
-		(event) => {
-			event.preventDefault();
-		},
-		[],
-	);
+	const preventDefault = useCallback((event: Event) => {
+		event.preventDefault();
+	}, []);
 
 	useEffect(() => {
 		const handler = (event: KeyboardEvent) => {

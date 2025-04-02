@@ -8,7 +8,7 @@ services:
       LOG_LEVEL: $LOG_LEVEL
       STRUCTURED_LOGGING: $STRUCTURED_LOGGING
       PROJECT_PATH: ./realms/nevada/nevada-ui
-      PROJECT_COMMAND: staticwww:dev
+      PROJECT_COMMAND: serverwww:dev
       PORT: $NEVADA_UI
     volumes: &workspace_volumes
       - ../../../../..:/workspace

@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type CubeTransparent_IconProps = {
 	className?: string;
@@ -27,9 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const CubeTransparent_Icon: FunctionComponent<
-	CubeTransparent_IconProps
-> = (props) => {
+export const CubeTransparent_Icon: FC<CubeTransparent_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import type { DOMAttributes } from "hono/jsx";
 import { Link } from "react-router";
 
 export type DaisyLinkVariant = "hover";
@@ -23,11 +24,10 @@ export type LinkProps = {
 export const RouterLink = (
 	props: {
 		href: string;
-	} & React.AnchorHTMLAttributes<HTMLAnchorElement> &
+	} & DOMAttributes &
 		LinkProps,
 ) => {
-	const { href, children, className, hover, ...aprops } = props;
-	const { color } = props;
+	const { href, children, className, hover, color, ...aprops } = props;
 	const { neutral, primary, secondary, accent, info, success, warning, error } =
 		color ? ({ [color]: true } as Record<string, boolean>) : {};
 

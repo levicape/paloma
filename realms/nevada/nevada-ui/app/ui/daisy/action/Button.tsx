@@ -1,10 +1,5 @@
 import clsx from "clsx";
-import type {
-	AnchorHTMLAttributes,
-	ButtonHTMLAttributes,
-	FunctionComponent,
-	PropsWithChildren,
-} from "react";
+import type { FC, JSX, PropsWithChildren } from "hono/jsx";
 
 export type DaisyButtonColor =
 	| "neutral"
@@ -32,10 +27,10 @@ export type ButtonProps = {
 	[key in DaisyButtonModifier]?: boolean;
 };
 
-export const Button: FunctionComponent<
-	| (PropsWithChildren<ButtonHTMLAttributes<HTMLButtonElement>> &
+export const Button: FC<
+	| (PropsWithChildren<JSX.HTMLAttributes> &
 			Omit<ButtonProps, "renderAs"> & { renderAs?: "button" })
-	| (PropsWithChildren<AnchorHTMLAttributes<HTMLAnchorElement>> &
+	| (PropsWithChildren<JSX.HTMLAttributes> &
 			Omit<ButtonProps, "renderAs"> & { renderAs: "a"; href: string })
 > = ({ children, className, renderAs, ...buttonProps }) => {
 	const {
@@ -98,17 +93,11 @@ export const Button: FunctionComponent<
 	);
 
 	return renderAs === "a" ? (
-		<a
-			className={buttonClass}
-			{...(htmlProps as AnchorHTMLAttributes<HTMLAnchorElement>)}
-		>
+		<a className={buttonClass} {...htmlProps}>
 			{children}
 		</a>
 	) : (
-		<button
-			className={buttonClass}
-			{...(htmlProps as ButtonHTMLAttributes<HTMLButtonElement>)}
-		>
+		<button className={buttonClass} {...htmlProps}>
 			{children}
 		</button>
 	);

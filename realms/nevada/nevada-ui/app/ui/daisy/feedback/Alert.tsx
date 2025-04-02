@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { BaseHTMLAttributes, PropsWithChildren } from "react";
+import type { DOMAttributes, PropsWithChildren } from "hono/jsx";
 
 export type AlertProps = {
 	className?: string;
@@ -15,7 +15,7 @@ export const Alert = ({
 	direction,
 	children,
 	...htmlProps
-}: PropsWithChildren<AlertProps> & BaseHTMLAttributes<HTMLDivElement>) => {
+}: PropsWithChildren<AlertProps> & DOMAttributes) => {
 	const { horizontal, vertical } = direction
 		? ({ [direction]: true } as Record<string, boolean | undefined>)
 		: ({} as Record<string, boolean | undefined>);

@@ -1,10 +1,10 @@
 import { clsx } from "clsx";
 import {
-	type FunctionComponent,
+	type FC,
 	type PropsWithChildren,
 	useCallback,
 	useContext,
-} from "react";
+} from "hono/jsx";
 import { useFormatMessage } from "../../../atoms/localization/I18nAtom";
 import { Button } from "../../daisy/action/Button";
 import {
@@ -14,7 +14,7 @@ import {
 
 const HeaderMenuOpenContext = HeaderMenuOpenContextExport();
 const HeaderSettingsOpenContext = HeaderSettingsOpenContextExport();
-export const HeaderSettingsButton: FunctionComponent<
+export const HeaderSettingsButton: FC<
 	PropsWithChildren<{
 		className: string;
 		requestPath?: string;

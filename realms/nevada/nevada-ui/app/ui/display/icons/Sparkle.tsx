@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type Sparkle_IconProps = {
 	className?: string;
@@ -27,7 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const Sparkle_Icon: FunctionComponent<Sparkle_IconProps> = (props) => {
+export const Sparkle_Icon: FC<Sparkle_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

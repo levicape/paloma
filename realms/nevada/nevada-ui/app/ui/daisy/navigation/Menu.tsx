@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import type { BaseHTMLAttributes, PropsWithChildren } from "react";
+import type { DOMAttributes, PropsWithChildren } from "hono/jsx";
 
 export type DaisyMenuItemVariant = "disabled" | "active" | "focused";
 
@@ -26,8 +26,7 @@ export type DaisyMenuItemProps = {
  * @see [BaseMenu]
  */
 export const DaisyMenu = (
-	props: PropsWithChildren<DaisyMenuProps> &
-		BaseHTMLAttributes<HTMLMenuElement>,
+	props: PropsWithChildren<DaisyMenuProps> & DOMAttributes,
 ) => {
 	const { className, size, direction, ...htmlProps } = props;
 	const { xs, sm, md, lg, xl } = size
@@ -67,8 +66,7 @@ export const DaisyMenu = (
  * @see [BaseMenu]
  */
 export const DaisyMenuItem = (
-	props: PropsWithChildren<DaisyMenuItemProps> &
-		BaseHTMLAttributes<HTMLLIElement>,
+	props: PropsWithChildren<DaisyMenuItemProps> & DOMAttributes,
 ) => {
 	const { className, variant, ...htmlProps } = props;
 	const { disabled, active, focused } = variant

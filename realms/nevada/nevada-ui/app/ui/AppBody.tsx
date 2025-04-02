@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { type FC, type PropsWithChildren, Suspense, useMemo } from "react";
+import { type FC, type PropsWithChildren, Suspense, useMemo } from "hono/jsx";
 import { AuthnSession } from "../atoms/authentication/behavior/$AuthnSession";
 import { BackgroundBody } from "../variant/BackgroundBody";
 import { DesignSystem } from "./DesignSystem";
