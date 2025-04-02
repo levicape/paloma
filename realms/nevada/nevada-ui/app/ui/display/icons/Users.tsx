@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type Users_IconProps = {
 	className?: string;
@@ -27,7 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const Users_Icon: FunctionComponent<Users_IconProps> = (props) => {
+export const Users_Icon: FC<Users_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

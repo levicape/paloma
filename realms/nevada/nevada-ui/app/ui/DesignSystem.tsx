@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "hono/jsx";
 
 export type DesignSystemProps = {
 	id?: string;

@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type ReceiptRefund_IconProps = {
 	className?: string;
@@ -27,9 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const ReceiptRefund_Icon: FunctionComponent<ReceiptRefund_IconProps> = (
-	props,
-) => {
+export const ReceiptRefund_Icon: FC<ReceiptRefund_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

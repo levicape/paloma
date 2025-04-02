@@ -1,13 +1,11 @@
 import { clsx } from "clsx";
 import {
-	type BaseHTMLAttributes,
-	type ChangeEventHandler,
+	type DOMAttributes,
+	type Event,
+	type FC,
 	Fragment,
-	type FunctionComponent,
-	type OptionHTMLAttributes,
-	type SelectHTMLAttributes,
 	useCallback,
-} from "react";
+} from "hono/jsx";
 import { Select, type SelectProps } from "../../../ui/daisy/field/Select";
 import {
 	LanguageGlyphs_Icon,
@@ -27,11 +25,11 @@ const languageText: Record<I18nSupportedLanguage, string> = {
 
 export type LanguageDropdownProps = {
 	className?: string;
-	glyph?: FunctionComponent | null;
+	glyph?: FC | null;
 	glyphProps?: LanguageGlyphs_IconProps;
 	selectClassname?: string;
 	selectProps?: Omit<SelectProps, "className" | "onChange" | "defaultValue"> &
-		SelectHTMLAttributes<HTMLSelectElement>;
+		DOMAttributes;
 	optionClassname?: (
 		language: keyof typeof languageText,
 		index: number,
@@ -39,10 +37,10 @@ export type LanguageDropdownProps = {
 	optionProps?: (
 		language: keyof typeof languageText,
 		index: number,
-	) => OptionHTMLAttributes<HTMLOptionElement>;
+	) => DOMAttributes;
 };
 
-export const LanguageDropdown: FunctionComponent = ({
+export const LanguageDropdown: FC = ({
 	className,
 	glyph,
 	glyphProps,
@@ -51,15 +49,17 @@ export const LanguageDropdown: FunctionComponent = ({
 	optionClassname,
 	optionProps,
 	...htmlProps
-}: LanguageDropdownProps & BaseHTMLAttributes<HTMLDivElement>) => {
+}: LanguageDropdownProps & DOMAttributes) => {
 	const [i18nState, dispatch] = useI18nAtom();
 	const { selectedLanguage: language } = i18nState;
 
-	const languageOnChange: ChangeEventHandler<HTMLSelectElement> = useCallback(
-		({ target }) => {
-			dispatch(
-				I18nAtomActions.SetLanguage(target.value as I18nSupportedLanguage),
-			);
+	const languageOnChange = useCallback(
+		({ target }: Event & { target?: { value?: unknown } | null }) => {
+			if (target?.value) {
+				dispatch(
+					I18nAtomActions.SetLanguage(target?.value as I18nSupportedLanguage),
+				);
+			}
 		},
 		[dispatch],
 	);

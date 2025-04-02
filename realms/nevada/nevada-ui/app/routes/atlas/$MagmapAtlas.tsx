@@ -2,7 +2,7 @@
 // import clsx from "clsx";
 // import { destr } from "destr";
 // import { hc } from "hono/client";
-// import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+// import { Suspense, useCallback, useEffect, useMemo, useState } from "hono/jsx";
 // import { ErrorBoundary } from "react-error-boundary";
 // import { Await } from "react-router";
 // import { deserializeError, serializeError } from "serialize-error";

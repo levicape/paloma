@@ -60,7 +60,7 @@ const PACKAGE_NAME = "@levicape/paloma-nevada-ui" as const;
 const SUBDOMAIN =
 	process.env["STACKREF_SUBDOMAIN"] ?? PalomaNevadaWWWRootSubdomain;
 const APPLICATION_IMAGE_NAME = PalomaApplicationRoot;
-const DEPLOY_DIRECTORY = "output/staticwww" as const;
+const DEPLOY_DIRECTORY = "dist" as const;
 const MANIFEST_PATH = "/_web/routemap.json" as const;
 
 const STACKREF_ROOT = process.env["STACKREF_ROOT"] ?? PalomaApplicationRoot;

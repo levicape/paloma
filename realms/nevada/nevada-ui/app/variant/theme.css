@@ -1,70 +1,73 @@
 
 @layer base {
 	:root {
-		--color-rodeo-dust-50: #f9f5f3;
-		--color-rodeo-dust-100: #f0eae4;
-		--color-rodeo-dust-200: #e0d2c8;
-		--color-rodeo-dust-300: #c6ab99;
-		--color-rodeo-dust-400: #b79380;
-		--color-rodeo-dust-500: #a97b66;
-		--color-rodeo-dust-600: #9b6a5b;
-		--color-rodeo-dust-700: #82564c;
-		--color-rodeo-dust-800: #6a4842;
-		--color-rodeo-dust-900: #563c38;
-		--color-rodeo-dust-950: #2e1e1c;
+		--color-esmeralda-50: #e0ffe2;
+		--color-esmeralda-100: #7dff93;
+		--color-esmeralda-200: #64e77d;
+		--color-esmeralda-300: #4ad067;
+		--color-esmeralda-400: #2cb950;
+		--color-esmeralda-500: #00a338;
+		--color-esmeralda-600: #008530;
+		--color-esmeralda-700: #006121;
+		--color-esmeralda-800: #003d12;
+		--color-esmeralda-900: #001f06;
+		--color-esmeralda-950: #000e01;
 	
-		--color-scorpion-50: #f7f7f8;
-		--color-scorpion-100: #efefef;
-		--color-scorpion-200: #dcdadd;
-		--color-scorpion-300: #bebabf;
-		--color-scorpion-400: #99959b;
-		--color-scorpion-500: #7c787f;
-		--color-scorpion-600: #605c62;
-		--color-scorpion-700: #534f55;
-		--color-scorpion-800: #464448;
-		--color-scorpion-900: #3e3b3f;
-		--color-scorpion-950: #29272a;
-	
-		--color-ironstone-50: #faf6f6;
-		--color-ironstone-100: #f6ebea;
-		--color-ironstone-200: #eedbda;
-		--color-ironstone-300: #e2c1bf;
-		--color-ironstone-400: #d09c99;
-		--color-ironstone-500: #bc7b77;
-		--color-ironstone-600: #a6605c;
-		--color-ironstone-700: #8a4e4b;
-		--color-ironstone-800: #7b4845;
-		--color-ironstone-900: #623c3a;
-		--color-ironstone-950: #331d1c;	
+		--color-redcarrot-50: #fff2ea;
+		--color-redcarrot-100: #ffdbc4;
+		--color-redcarrot-200: #ffc39c;
+		--color-redcarrot-300: #ffaa6f;
+		--color-redcarrot-400: #ff8e32;
+		--color-redcarrot-500: #f37800;
+		--color-redcarrot-600: #c36300;
+		--color-redcarrot-700: #8c4500;
+		--color-redcarrot-800: #552800;
+		--color-redcarrot-900: #2a1000;
+		--color-redcarrot-950: #1a0d1c;	
+
+
+		--color-pastpurp-50: #f3f4ff;
+		--color-pastpurp-100: #e6e8ff;
+		--color-pastpurp-200: #dadbff;
+		--color-pastpurp-300: #cdcfff;
+		--color-pastpurp-400: #c1c2ff;
+		--color-pastpurp-500: #b5b6fe;
+		--color-pastpurp-600: #8f8ee4;
+		--color-pastpurp-700: #6157c5;
+		--color-pastpurp-800: #381e93;
+		--color-pastpurp-900: #17004d;
+		--color-pastpurp-950: #09152a;		
 	}
 }
 
 
 @plugin "daisyui/theme" {
-	name: magmap_dark;
+	name: nevada_dark;
 	prefersdark: true;
 	color-scheme: dark;
 
-	--color-base-100: var(--color-rodeo-dust-900);
-	--color-base-200: var(--color-rodeo-dust-800);
-	--color-base-300: var(--color-rodeo-dust-700);
-	--color-base-content: var(--color-rodeo-dust-50);
-	--color-primary: var(--color-rodeo-dust-600);
-	--color-primary-content: var(--color-rodeo-dust-50);
-	--color-secondary: var(--color-scorpion-600);
-	--color-secondary-content: var(--color-scorpion-50);
-	--color-accent: var(--color-ironstone-600);
-	--color-accent-content: var(--color-ironstone-50);
-	--color-neutral: var(--color-rodeo-dust-800);
-	--color-neutral-content: var(--color-rodeo-dust-50);
-	--color-info: var(--color-scorpion-700);
-	--color-info-content: var(--color-scorpion-100);
-	--color-success: var(--color-ironstone-700);
-	--color-success-content: var(--color-ironstone-100);
-	--color-warning: var(--color-rodeo-dust-400);
-	--color-warning-content: var(--color-rodeo-dust-100);
-	--color-error: var(--color-ironstone-400);
-	--color-error-content: var(--color-ironstone-100);
+	--color-primary: var(--color-esmeralda-600);
+	--color-primary-content: var(--color-esmeralda-50);
+	--color-secondary: var(--color-pastpurp-600);
+	--color-secondary-content: var(--color-pastpurp-50);
+	--color-accent: var(--color-redcarrot-600);
+	--color-accent-content: var(--color-redcarrot-50);
+
+	--color-base-100: var(--color-esmeralda-900);
+	--color-base-200: var(--color-esmeralda-800);
+	--color-base-300: var(--color-esmeralda-700);
+	--color-base-content: var(--color-esmeralda-50);
+	--color-neutral: var(--color-esmeralda-800);
+	--color-neutral-content: var(--color-esmeralda-50);
+
+	--color-info: var(--color-pastpurp-700);
+	--color-info-content: var(--color-pastpurp-100);
+	--color-success: var(--color-redcarrot-700);
+	--color-success-content: var(--color-redcarrot-100);
+	--color-warning: var(--color-esmeralda-400);
+	--color-warning-content: var(--color-esmeralda-100);
+	--color-error: var(--color-redcarrot-400);
+	--color-error-content: var(--color-redcarrot-100);
 	
 	--radius-selector: 1.25rem;
 	--radius-field: 0.50rem;
@@ -80,31 +83,33 @@
 }
 
 @plugin "daisyui/theme" {
-	name: magmap;
+	name: nevada;
 	default: true;
 	prefersdark: false;
 	color-scheme: light;
 
-	--color-base-100: var(--color-rodeo-dust-100);
-	--color-base-200: var(--color-rodeo-dust-200);
-	--color-base-300: var(--color-rodeo-dust-300);
-	--color-base-content: var(--color-rodeo-dust-950);
-	--color-primary: var(--color-rodeo-dust-400);
-	--color-primary-content: var(--color-rodeo-dust-950);
-	--color-secondary: var(--color-scorpion-400);
-	--color-secondary-content: var(--color-scorpion-950);
-	--color-accent: var(--color-ironstone-400);
-	--color-accent-content: var(--color-ironstone-950);
-	--color-neutral: var(--color-rodeo-dust-200);
-	--color-neutral-content: var(--color-rodeo-dust-900);
-	--color-info: var(--color-scorpion-600);
-	--color-info-content: var(--color-scorpion-950);
-	--color-success: var(--color-ironstone-600);
-	--color-success-content: var(--color-ironstone-950);
-	--color-warning: var(--color-rodeo-dust-600);
-	--color-warning-content: var(--color-rodeo-dust-950);
-	--color-error: var(--color-ironstone-600);
-	--color-error-content: var(--color-ironstone-950);
+	--color-primary: var(--color-esmeralda-400);
+	--color-primary-content: var(--color-esmeralda-950);
+	--color-secondary: var(--color-pastpurp-400);
+	--color-secondary-content: var(--color-pastpurp-950);
+	--color-accent: var(--color-redcarrot-400);
+	--color-accent-content: var(--color-redcarrot-950);
+
+	--color-base-100: var(--color-esmeralda-100);
+	--color-base-200: var(--color-esmeralda-200);
+	--color-base-300: var(--color-esmeralda-300);
+	--color-base-content: var(--color-esmeralda-950);
+	--color-neutral: var(--color-esmeralda-200);
+	--color-neutral-content: var(--color-esmeralda-900);
+
+	--color-info: var(--color-pastpurp-600);
+	--color-info-content: var(--color-pastpurp-950);
+	--color-success: var(--color-redcarrot-600);
+	--color-success-content: var(--color-redcarrot-950);
+	--color-warning: var(--color-esmeralda-600);
+	--color-warning-content: var(--color-esmeralda-950);
+	--color-error: var(--color-redcarrot-600);
+	--color-error-content: var(--color-redcarrot-950);
 
 	--radius-selector: 1.25rem;
 	--radius-field: 0.50rem;
@@ -119,4 +124,4 @@
 	--noise: 3;
 }
 
-@custom-variant dark (&:where([data-theme=magmap_dark], [data-theme=magmap_dark] *));
+@custom-variant dark (&:where([data-theme=nevada_dark], [data-theme=nevada_dark] *));

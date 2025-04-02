@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type RectangleGroup_IconProps = {
 	className?: string;
@@ -27,9 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const RectangleGroup_Icon: FunctionComponent<
-	RectangleGroup_IconProps
-> = (props) => {
+export const RectangleGroup_Icon: FC<RectangleGroup_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

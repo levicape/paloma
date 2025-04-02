@@ -1,11 +1,11 @@
+import type { Child } from "hono/jsx";
 import type { FormatXMLElementFn } from "intl-messageformat";
-import type { ReactNode } from "react";
 
 export const HtmlFormatValues: Record<
 	string,
-	FormatXMLElementFn<React.ReactNode, React.ReactNode>
+	FormatXMLElementFn<Child, Child>
 > = {
-	span: (children: ReactNode) => <span>{children}</span>,
-	strong: (children: ReactNode) => <strong>{children}</strong>,
-	em: (children: ReactNode) => <em>{children}</em>,
+	span: (children: Child) => <span>{children}</span>,
+	strong: (children: Child) => <strong>{children}</strong>,
+	em: (children: Child) => <em>{children}</em>,
 };

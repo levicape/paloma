@@ -1,10 +1,11 @@
-import { reactRenderer } from "@hono/react-renderer";
 import clsx from "clsx";
-import type { PropsWithChildren } from "react";
+import type { CSSProperties } from "hono/jsx";
+import { jsxRenderer } from "hono/jsx-renderer";
+import { Script } from "honox/server";
 import { AppBody } from "../ui/AppBody";
 import { ApplicationHead } from "../variant/ApplicationHead";
 
-const foafStyle: React.CSSProperties = {
+const foafStyle: CSSProperties = {
 	display: "none",
 	pointerEvents: "none",
 	touchAction: "none",
@@ -17,7 +18,7 @@ const foafStyle: React.CSSProperties = {
 	zIndex: -1,
 };
 
-export default reactRenderer(({ children }: PropsWithChildren) => {
+export default jsxRenderer(({ children }) => {
 	return (
 		<html className={clsx("overflow-x-hidden", "overscroll-contain")} lang="en">
 			{/* <!-- Root --> */}
@@ -29,17 +30,16 @@ export default reactRenderer(({ children }: PropsWithChildren) => {
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 				<link rel="icon" href={"/favicon.ico"} type="image/png" />
 				<script type="module" src="/_window/oidc.js" />
+				<Script src="/app/client.ts" />
 				{import.meta.env.PROD ? (
 					<>
-						<script type="module" src="/!/!!/render.js" defer />
 						<link href="/!/!!/_a/style.css" rel="stylesheet" />
 					</>
 				) : (
 					<>
-						<script type="module" src="/app/render.ts" defer />
 						<link href="/app/style.css" rel="stylesheet" />
 					</>
-				)}
+				)}				
 			</head>
 			<AppBody>
 				{/* <!-- Body --> */}

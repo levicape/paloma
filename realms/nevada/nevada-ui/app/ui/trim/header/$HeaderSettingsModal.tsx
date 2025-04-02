@@ -1,11 +1,11 @@
 // import {
 //   ChangeEventHandler,
-//   FunctionComponent,
+//   FC,
 //   MouseEventHandler,
 //   useCallback,
 //   useContext,
 //   useEffect,
-// } from "react";
+// } from "hono/jsx";
 // import { Direction, Range } from "react-range";
 // import { useStoreDispatch, useStoreSelector } from "@/ui/store/ReduxProvider";
 // import { getSettings } from "@/ui/store/settings/reducer";
@@ -21,7 +21,7 @@
 //   labelI18nId: string;
 //   onChange: H;
 // }
-// const HeaderSettingsBooleanToggle: FunctionComponent<
+// const HeaderSettingsBooleanToggle: FC<
 //   HeaderSettingsElementProps<boolean, ChangeEventHandler>
 // > = ({ value, onChange, labelI18nId }) => {
 //   return (
@@ -41,7 +41,7 @@
 //   );
 // };
 
-// const HeaderSettingsNumberSlider: FunctionComponent<
+// const HeaderSettingsNumberSlider: FC<
 //   HeaderSettingsElementProps<number, (v: number) => void> & {
 //     inputProps: Partial<typeof Range.defaultProps>;
 //   }
@@ -97,7 +97,7 @@
 //     </label>
 //   );
 // };
-// export const HeaderSettingsModal: FunctionComponent = () => {
+// export const HeaderSettingsModal: FC = () => {
 //   const { showNumberOverlay, pauseBetweenRounds, gameSpeed } =
 //     useStoreSelector(getSettings);
 //   const [settingsOpen, setSettingsOpen] = useContext(HeaderSettingsOpenContext);

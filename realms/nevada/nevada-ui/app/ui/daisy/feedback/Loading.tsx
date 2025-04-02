@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { BaseHTMLAttributes, ElementType, PropsWithChildren } from "react";
+import type { DOMAttributes, PropsWithChildren } from "hono/jsx";
 
 export type LoadingColor =
 	| "neutral"
@@ -42,13 +42,13 @@ export type LoadingProps = {
 	 *
 	 * Replace the root `<span>` with a different element
 	 */
-	render?: ElementType;
+	render?: "span" | "div" | "section" | "article" | "footer" | "header";
 };
 
 /**
  * Loading indicator component.
  */
-export const Loading = <RenderedElement extends HTMLElement>({
+export const Loading = ({
 	className,
 	color,
 	variant,
@@ -56,7 +56,7 @@ export const Loading = <RenderedElement extends HTMLElement>({
 	children,
 	render: Component = "span",
 	...htmlProps
-}: PropsWithChildren<LoadingProps> & BaseHTMLAttributes<RenderedElement>) => {
+}: PropsWithChildren<LoadingProps> & DOMAttributes) => {
 	const { xs, sm, md, lg, xl } = size
 		? ({ [size]: true } as Record<string, boolean | undefined>)
 		: ({} as Record<string, boolean | undefined>);

@@ -1,11 +1,11 @@
 import { clsx } from "clsx";
 import {
-	type FunctionComponent,
+	type FC,
 	type PropsWithChildren,
 	useCallback,
 	useEffect,
 	useState,
-} from "react";
+} from "hono/jsx";
 import { DesignSystem } from "../../DesignSystem";
 import { Navbar } from "../../daisy/navigation/Navbar";
 import { Bars4_Icon } from "../../display/icons/Bars4";
@@ -28,9 +28,9 @@ export type HeaderDrawerProps = {
 	};
 };
 
-export const HeaderDrawer: FunctionComponent<
-	PropsWithChildren<HeaderDrawerProps>
-> = (props) => {
+export const HeaderDrawer: FC<PropsWithChildren<HeaderDrawerProps>> = (
+	props,
+) => {
 	const { children, vars, requestPath } = props;
 	const pathname =
 		typeof window !== "undefined"
@@ -69,8 +69,8 @@ export const HeaderDrawer: FunctionComponent<
 		[scrollToTop, settingsOpen],
 	);
 
-	const closeModalOnClick = useCallback<React.MouseEventHandler>(
-		(event) => {
+	const closeModalOnClick = useCallback(
+		(event: MouseEvent) => {
 			if (showOverlay) {
 				event.preventDefault();
 				setMenuOpen(false);
@@ -81,8 +81,8 @@ export const HeaderDrawer: FunctionComponent<
 		[showOverlay],
 	);
 
-	const closeModalOnKeydown = useCallback<React.KeyboardEventHandler>(
-		(event) => {
+	const closeModalOnKeydown = useCallback(
+		(event: KeyboardEvent) => {
 			if (event.key === "Escape" && showOverlay) {
 				event.preventDefault();
 				setMenuOpen(false);

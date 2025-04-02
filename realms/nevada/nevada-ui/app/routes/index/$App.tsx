@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { Suspense } from "react";
+import { Suspense } from "hono/jsx";
 import { useOidcClient } from "../../atoms/authentication/OidcClientAtom";
 import { useFormatMessage } from "../../atoms/localization/I18nAtom";
 import { DesignSystem } from "../../ui/DesignSystem";

@@ -1,10 +1,10 @@
-import { useRequestContext } from "@hono/react-renderer";
 import { clsx } from "clsx";
-import { type FunctionComponent, type PropsWithChildren, useMemo } from "react";
+import { type FC, type PropsWithChildren, useMemo } from "hono/jsx";
+import { useRequestContext } from "hono/jsx-renderer";
 import { ApplicationHead } from "../../../variant/ApplicationHead";
 import { HeaderDrawer } from "./$HeaderDrawer";
 
-export const HeaderLayout: FunctionComponent<
+export const HeaderLayout: FC<
 	PropsWithChildren<{
 		vars: {
 			appHeight: string;

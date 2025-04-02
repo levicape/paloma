@@ -1,10 +1,10 @@
 import { clsx } from "clsx";
 import {
-	type FunctionComponent,
+	type FC,
 	type PropsWithChildren,
 	useCallback,
 	useContext,
-} from "react";
+} from "hono/jsx";
 import { useOidcClient } from "../../../atoms/authentication/OidcClientAtom";
 import { useFormatMessage } from "../../../atoms/localization/I18nAtom";
 import { Button } from "../../daisy/action/Button";
@@ -16,9 +16,9 @@ export type HeaderMenuButtonProps = {
 	className?: string;
 };
 
-export const HeaderMenuButton: FunctionComponent<
-	PropsWithChildren<HeaderMenuButtonProps>
-> = (props) => {
+export const HeaderMenuButton: FC<PropsWithChildren<HeaderMenuButtonProps>> = (
+	props,
+) => {
 	const { user } = useOidcClient();
 	const formatMessage = useFormatMessage();
 	const [menuOpen, setHeaderMenuOpen] = useContext(HeaderMenuOpenContext);

@@ -1,9 +1,9 @@
-import { useMemo } from "react";
+import { type CSSProperties, useMemo } from "hono/jsx";
 import { useOidcClient } from "../OidcClientAtom";
 
 export const AuthnSession = () => {
 	const { oidc, user } = useOidcClient();
-	const style: React.CSSProperties = useMemo(
+	const style: CSSProperties = useMemo(
 		() => ({
 			display: "none",
 			pointerEvents: "none",

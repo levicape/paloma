@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type DiscordLogo_IconProps = {
 	className?: string;
@@ -27,9 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const DiscordLogo_Icon: FunctionComponent<DiscordLogo_IconProps> = (
-	props,
-) => {
+export const DiscordLogo_Icon: FC<DiscordLogo_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (

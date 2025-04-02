@@ -1,18 +1,17 @@
 import {
-	type FunctionComponent,
-	type JSX,
+	type CSSProperties,
+	type FC,
 	useCallback,
 	useEffect,
 	useMemo,
 	useState,
-} from "react";
+} from "hono/jsx";
 
 /**
  * Capture touch events to prevent default behavior.
  * @kind Island
- * @returns {JSX.Element}
  */
-export const CaptureTouchEvents: FunctionComponent = (): JSX.Element => {
+export const CaptureTouchEvents: FC = () => {
 	const [mounted, setMounted] = useState(false);
 	const noop = useCallback(() => {}, []);
 	useEffect(() => {
@@ -35,7 +34,7 @@ export const CaptureTouchEvents: FunctionComponent = (): JSX.Element => {
 		};
 	}, [noop]);
 
-	const style: React.CSSProperties = useMemo(
+	const style: CSSProperties = useMemo(
 		() => ({
 			display: "none",
 			pointerEvents: "none",

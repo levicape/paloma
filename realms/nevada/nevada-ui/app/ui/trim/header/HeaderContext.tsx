@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext } from "hono/jsx";
 
 export type HeaderOpenContext = [boolean, (val?: boolean) => void];
 const HeaderMenuOpenContext = createContext<HeaderOpenContext>([

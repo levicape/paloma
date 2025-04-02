@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { FunctionComponent } from "react";
+import type { FC } from "hono/jsx";
 
 export type ShieldCheckmark_IconProps = {
 	className?: string;
@@ -27,9 +27,7 @@ const getClassName = ({
 	);
 };
 
-export const ShieldCheckmark_Icon: FunctionComponent<
-	ShieldCheckmark_IconProps
-> = (props) => {
+export const ShieldCheckmark_Icon: FC<ShieldCheckmark_IconProps> = (props) => {
 	const { viewBox } = props;
 
 	return (
