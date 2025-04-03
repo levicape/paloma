@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import { Fragment } from "hono/jsx/jsx-runtime";
 import { useFormatMessage } from "../../../atoms/localization/I18nAtom";
 import { Loading } from "../../../ui/daisy/feedback/Loading";
 import { ShieldCheckmark_Icon } from "../../../ui/display/icons/ShieldCheckmark";
@@ -9,7 +10,7 @@ export const AuthorizeProgress = () => {
 
 	const formatMessage = useFormatMessage();
 	return !discordEnabled ? (
-		<>
+		<Fragment>
 			<div className={clsx("flex", "justify-center", "items-center")}>
 				<Loading
 					variant={"ring"}
@@ -73,7 +74,7 @@ export const AuthorizeProgress = () => {
     opacity: 0;
 }
 			`}</style>
-		</>
+		</Fragment>
 	) : (
 		<div className={clsx("flex", "items-center")}>
 			<div>

@@ -22,7 +22,7 @@ export const AuthnClose = () => {
 					},
 				})
 				.finally(() => {
-					location.replace("/~oidc/logout");
+					location.replace("/;oidc/logout");
 				});
 		}
 	}, [oidc, discordEnabled]);

@@ -58,10 +58,10 @@ export const healthcheck = new Canary(
 			trace.metadataOnly([
 				events,
 				{ a: 1, b: "Y" },
-				client["~"].Paloma.Nevada.$url({}),
+				client["~"].Paloma.Nevada.ls.$url({}),
 				{ a: "Z", b: 2 },
 			]);
-			const response = await client["~"].Paloma.Nevada.$get({});
+			const response = await client["~"].Paloma.Nevada.ls.$get({});
 			const json = await response.json();
 			trace.withMetadata({ json }).info("Fetched");
 		},

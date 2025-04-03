@@ -73,10 +73,11 @@ const SUBDOMAIN =
 	process.env["STACKREF_SUBDOMAIN"] ?? PalomaNevadaWWWRootSubdomain;
 //
 
-const ROUTE_MAP = ({
-	"nevada-http": nevada_http,
-	"nevada-web": nevada_web,
-}: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT]) => {
+const ROUTE_MAP = (
+	_$refs: DereferencedOutput<typeof STACKREF_CONFIG>[typeof STACKREF_ROOT],
+) => {
+	const nevada_http = _$refs[PalomaNevadaHttpStackrefRoot];
+	const nevada_web = _$refs[PalomaNevadaWebStackrefRoot];
 	return {
 		...nevada_http.routemap,
 		...nevada_web.routemap,

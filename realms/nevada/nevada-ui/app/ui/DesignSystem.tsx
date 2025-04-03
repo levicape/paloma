@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import type { PropsWithChildren } from "hono/jsx";
+import { Fragment, type PropsWithChildren } from "hono/jsx";
+import { ApplicationHead } from "../variant/ApplicationHead";
 
 export type DesignSystemProps = {
 	id?: string;
@@ -8,11 +9,11 @@ export type DesignSystemProps = {
 
 export const DesignSystemComponents = {
 	Shell: "Shell",
-	ShellBackground: "ShellBackground",
 	Header: "Header",
 	Menubar: "Menubar",
 	Commandline: "Commandline",
-	Layout: "Layout",
+	ContentLayout: "ContentLayout",
+	FootingLayout: "FootingLayout",
 	Footer: "Footer",
 };
 export type DesignSystemId =
@@ -32,48 +33,16 @@ export namespace DesignSystem {
 			<div
 				id={DesignSystemComponents.Shell}
 				className={clsx(
-					"bg-base-100",
+					"bg-base-100/10",
 					"overflow-hidden",
 					"min-h-screen",
 					"bg-fixed",
 					"text-base-content",
 					className,
+					"z-[1]",
 				)}
 			>
 				{children}
-			</div>
-		);
-	}
-	/**
-	 * css: Shell > #ShellBackground
-	 */
-	export function ShellBackground() {
-		return (
-			<div
-				id={DesignSystemComponents.ShellBackground}
-				aria-hidden
-				className={clsx(
-					"absolute",
-					"w-full",
-					"h-full",
-					"bg-neutral/10",
-					"to-accent/25",
-					"bg-gradient-to-b",
-					"opacity-15",
-				)}
-			>
-				<div
-					aria-hidden
-					className={clsx(
-						"w-full",
-						"h-full",
-						"bg-primary/15",
-						"to-neutral/70",
-						"bg-gradient-to-t",
-						"dark:mix-blend-color-dodge",
-						"light:mix-blend-color-burn",
-					)}
-				/>
 			</div>
 		);
 	}
@@ -88,7 +57,13 @@ export namespace DesignSystem {
 		return (
 			<header
 				id={id ?? DesignSystemComponents.Header}
-				className={clsx("text-2xl", "font-bold", className)}
+				className={clsx(
+					"text-2xl",
+					"font-black",
+					"font-stretch-extra-expanded",
+					"z-40",
+					className,
+				)}
 			>
 				{children}
 			</header>
@@ -162,28 +137,33 @@ export namespace DesignSystem {
 	}
 
 	/**
-	 * Layout is a sibling of the Header and Menubar components
-	 * css: Shell > Layout
+	 * ContentLayout is a sibling of the Header and Menubar components
+	 * css: Shell > ContentLayout
 	 */
-	export function Layout({ children }: PropsWithChildren) {
+	export function ContentLayout({ children }: PropsWithChildren) {
 		return (
-			<div
-				id={DesignSystemComponents.Layout}
-				className={clsx(
-					"antialiased",
-					"min-h-50",
-					"bg-base-200/30",
-					"pt-[0.5rem]",
-					"mx-[-1rem]",
-					"px-[2rem]",
-					"md:rounded-2xl",
-					"bg-gradient-to-t",
-					"from-base-100/80",
-					"to-base-200/20",
-				)}
-			>
-				{children}
-			</div>
+			<Fragment>
+				<div
+					id={DesignSystemComponents.ContentLayout}
+					className={clsx(
+						"min-h-50",
+						"bg-base-200/60",
+						"md:pt-0.5",
+						"sm:mx-1",
+						"md:-mx-1",
+						"sm:px-0.5",
+						"md:px-2",
+						"md:rounded-box",
+						"bg-gradient-to-t",
+						"from-base-100/80",
+						"to-base-200/40",
+						"z-20",
+						"isolate",
+					)}
+				>
+					{children}
+				</div>
+			</Fragment>
 		);
 	}
 
@@ -196,8 +176,26 @@ export namespace DesignSystem {
 		className,
 	}: PropsWithChildren<DesignSystemProps>) {
 		return (
-			<footer id={id ?? DesignSystemComponents.Footer} className={className}>
-				{children}
+			<footer
+				id={id ?? DesignSystemComponents.Footer}
+				className={clsx(
+					className,
+					"text-sm",
+					"text-primary-content/20",
+					"dark:text-primary-content/20",
+					"font-light",
+					"font-sans",
+					"font-stretch-condensed",
+					"transform-gpu",
+					"will-change-[opacity,transform,translate]",
+					"transition-all",
+					"duration-[100s]",
+
+					"mx-20",
+					"z-10",
+				)}
+			>
+				{children ?? ApplicationHead.footer.default}
 			</footer>
 		);
 	}

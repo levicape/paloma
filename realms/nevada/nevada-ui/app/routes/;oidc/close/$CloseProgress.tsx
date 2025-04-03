@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
+import { Fragment } from "hono/jsx/jsx-runtime";
 import { useFormatMessage } from "../../../atoms/localization/I18nAtom";
-import { Alert } from "../../../ui/daisy/feedback/Alert";
+import { Loading } from "../../../ui/daisy/feedback/Loading";
 import { ShieldCheckmark_Icon } from "../../../ui/display/icons/ShieldCheckmark";
 import { DiscordLogo_Icon } from "../../../ui/display/icons/logos/DiscordLogo";
 
@@ -8,15 +9,71 @@ export const CloseProgress = () => {
 	const { enabled: discordEnabled } = {} as Record<string, unknown>; //useDiscord();
 	const formatMessage = useFormatMessage();
 	return !discordEnabled ? (
-		<Alert color={"info"} variant={"outline"} role={"alert"}>
-			<span className={clsx("font-bold", "animate-pulse")}>
+		<Fragment>
+			<div className={clsx("flex", "justify-center", "items-center")}>
+				<Loading
+					variant={"ring"}
+					className={clsx(
+						"bg-clip-content",
+						"stroke-accent",
+						"fill-primary",
+						"text-accent-content",
+						"blur-2xl",
+						"w-14",
+						"animate-[loader]",
+						"duration-500",
+						"delay-700",
+						"ease-out",
+					)}
+					size={"xl"}
+				/>
+				<Loading
+					variant={"ring"}
+					color={"accent"}
+					className={clsx(
+						"bg-clip-content",
+						"stroke-accent",
+						"fill-primary",
+						"text-accent-content",
+						"blur-2xl",
+						"w-27",
+						"animate-[loader]",
+						"opacity-20",
+						"transform-gpu",
+						"translate-3d",
+						"fixed",
+						"top-1/2",
+						"left-1/2",
+						"-translate-x-1/2",
+						"-translate-y-1/2",
+						"z-20",
+						"bg-neutral/90",
+						"border-8",
+						"border-primary-500/30",
+						"rounded-full",
+						"animate-spin",
+						"duration-500",
+						"ease-in-out",
+						"delay-150",
+					)}
+					size={"xl"}
+				/>
+			</div>
+			<div className={clsx("pt-4", "animate-pulse", "min-h-12", "min-w-8")}>
 				{formatMessage({
 					id: "oidc.close.logout.alert",
 					description: "Logout in progress",
 					defaultMessage: "Signing out",
 				})}
-			</span>
-		</Alert>
+			</div>
+			<style>{`
+@keyframes loader {
+  75%, 100% {
+	transform: scale(2);
+	opacity: 0;
+}
+			`}</style>
+		</Fragment>
 	) : (
 		<div className={clsx("flex", "items-center")}>
 			<div>
