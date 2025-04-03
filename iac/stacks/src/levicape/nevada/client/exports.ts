@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const PalomaNevadaClientOauthRoutes = {
-	callback: "~oidc/callback",
-	renew: "~oidc/renew",
-	logout: "~oidc/logout",
+	callback: ";oidc/callback",
+	renew: ";oidc/renew",
+	logout: ";oidc/logout",
 } as const;
 
 export const PalomaNevadaClientStackrefRoot = "nevada-client";

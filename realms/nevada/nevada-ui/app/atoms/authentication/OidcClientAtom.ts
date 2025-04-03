@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "hono/jsx";
+import { useCallback, useEffect, useMemo, useState } from "hono/jsx";
 import { useAtom } from "jotai/react";
 import { atom } from "jotai/vanilla";
 import {
@@ -110,87 +110,172 @@ export const OidcUserAtom = atom<User | null | undefined>(undefined);
 export type OidcFetch = typeof fetch;
 export type OidcUser = User | null | undefined;
 
+export const DEFAULT_TRAILING_PREFIXES = ["/~/", "/!/"];
+
 const windowFetch = fetch;
-export const useOidcClient = () => {
+export interface UseOidcClientProps {
+	/**
+	 * If a Request starts with any string in `trailingSlashFilter`,
+	 * the returned fetch client (`oidcFetch`) will attach a trailing slash
+	 * at the end of the pathname only if it is not already included in the URL
+	 */
+	trailingSlashFilter?: Array<string>;
+}
+export type UseOidcClientFetchUserStateProps = {
+	/**
+	 *  Always fetch User state, regardless of if the user is already loaded.
+	 *  Do not use with useEffect, as it may performance implications
+	 */
+	refresh: boolean;
+};
+
+export interface UseOidcClientState {
+	/**
+	 * The OIDC client instance from oidc-client-ts
+	 */
+	oidc: typeof client;
+	/**
+	 * The user object from oidc-client-ts
+	 */
+	user: OidcUser;
+	/**
+	 * The fetch client that will automatically attach the access token to the request
+	 * if the user is authenticated
+	 */
+	oidcFetch: OidcFetch;
+	/**
+	 * Whether the user is authenticated and the access token is valid. Will be set to null if user is still loading
+	 */
+	userReady: boolean | null;
+	/**
+	 * Fetch the user state from the OIDC client
+	 */
+	fetchUserState: (props?: UseOidcClientFetchUserStateProps) => void;
+}
+
+const EMPTY: Record<string, unknown> = {};
+
+export const useOidcClient = (props?: UseOidcClientProps) => {
+	const { trailingSlashFilter } = props ?? EMPTY;
 	const [oidc] = useAtom(OidcClientAtom);
 	const [user, setUser] = useAtom(OidcUserAtom);
-	const { enabled: discordEnabled } = {} as Record<string, unknown>;
+	const { enabled: discordEnabled } = EMPTY;
+
 	const oidcFetch = useMemo(() => {
-		if (user) {
-			const authenticatedFetch: OidcFetch = async (
-				input: Parameters<OidcFetch>[0],
-				init?: Parameters<OidcFetch>[1],
-			) => {
-				if (oidc && user) {
-					const token = user;
-					if (token?.access_token) {
-						return windowFetch(input, {
-							...init,
-							headers: {
-								...(init?.headers ?? {}),
-								authorization: `Bearer ${token.access_token}`,
-							},
-						});
+		const authenticatedFetch: OidcFetch = async (
+			input: Parameters<OidcFetch>[0],
+			init?: Parameters<OidcFetch>[1],
+		) => {
+			let url: typeof input | undefined;
+			if (Array.isArray(trailingSlashFilter) && !(input instanceof Request)) {
+				const notrequest = new URL(input);
+				const { pathname } = notrequest;
+				if (trailingSlashFilter.some((prefix) => pathname.startsWith(prefix))) {
+					if (!pathname.endsWith("/")) {
+						url = `${pathname}/`;
 					}
 				}
-				return windowFetch(input, init);
-			};
+			}
 
-			return authenticatedFetch;
-		}
+			if (url === undefined) {
+				url = input;
+			}
 
-		return windowFetch;
+			if (oidc && user) {
+				const token = user;
+				if (token?.access_token) {
+					return windowFetch(url, {
+						...init,
+						headers: {
+							...(init?.headers ?? {}),
+							...(user
+								? { authorization: `Bearer ${token.access_token}` }
+								: {}),
+						},
+					});
+				}
+			}
+
+			return windowFetch(url, init);
+		};
+
+		return authenticatedFetch;
 	}, [oidc, user]);
 
-	const fetchUserState = useCallback(() => {
-		if (!discordEnabled) {
-			if (user === null || user === undefined) {
-				(async () => {
-					const debugEnabled = window["--oidc-debug"];
-					let sessionUser: User | null | undefined;
-					let sessionError: unknown;
-					try {
-						sessionUser = await oidc?.userManager.getUser();
-						setUser(sessionUser);
-					} catch (error) {
-						sessionError = error;
-					}
+	const [ready, setReady] = useState(false);
+	const fetchUserState: UseOidcClientState["fetchUserState"] = useCallback(
+		(props) => {
+			const { refresh } = { refresh: false, ...(props ?? {}) };
 
-					debugEnabled &&
-						console.debug({
-							OidcClientAtom: {
-								sessionUser: {
-									...sessionUser,
-									access_token: undefined,
-									id_token: undefined,
-									refresh_token: undefined,
-									token_type: undefined,
+			if (!discordEnabled) {
+				if (refresh || user === null || user === undefined) {
+					return (async () => {
+						const debugEnabled = window["--oidc-debug"];
+						let sessionUser: User | null | undefined;
+						let sessionError: unknown;
+						try {
+							sessionUser = await oidc?.userManager.getUser();
+							setUser(sessionUser);
+						} catch (error) {
+							sessionError = error;
+						}
+
+						debugEnabled &&
+							console.debug({
+								OidcClientAtom: {
+									sessionUser: {
+										...sessionUser,
+										access_token: undefined,
+										id_token: undefined,
+										refresh_token: undefined,
+										token_type: undefined,
+									},
+									sessionError,
 								},
-								sessionError,
-							},
-						});
+							});
 
-					if (sessionError) {
-						throw sessionError;
-					}
-				})().then(() => void 0);
+						if (sessionError) {
+							throw sessionError;
+						}
+
+						if (!sessionUser?.expired) {
+							setReady(true);
+						}
+
+						return sessionUser;
+					})().then((user) => user);
+				}
+				if (ready === false) {
+					setReady(true);
+				}
+				return Promise.resolve(user);
 			}
-		}
-	}, [oidc, discordEnabled, user, setUser]);
-
+		},
+		[oidc, discordEnabled, user, setUser, ready, setReady],
+	);
 	const userReady = useMemo(() => {
+		if (!ready) {
+			return null;
+		}
+
 		return (
 			user?.expired === false &&
 			user?.access_token !== undefined &&
 			oidcFetch !== windowFetch
 		);
-	}, [user?.expired, user?.access_token, oidcFetch]);
+	}, [user?.expired, user?.access_token, oidcFetch, ready]);
 
 	useEffect(() => {
-		fetchUserState();
+		fetchUserState({ refresh: false });
 	}, [fetchUserState]);
 
 	return useMemo(() => {
-		return { oidc, user, userReady, oidcFetch };
-	}, [oidc, user, userReady, oidcFetch]);
+		return {
+			oidc,
+			user,
+			userReady,
+			oidcFetch,
+			fetchUserState,
+		};
+	}, [oidc, user, userReady, oidcFetch, fetchUserState]);
 };

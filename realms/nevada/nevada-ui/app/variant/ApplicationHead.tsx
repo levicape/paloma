@@ -6,8 +6,10 @@ export const ApplicationHead = {
 		template: `%s | ${ApplicationName}`,
 		default: ApplicationName,
 	},
-	description:
-		"The Nevada platform provides visibility for Activity executions.",
+	description: [
+		"View the status of your Paloma tests with a next-gen observability platform.",
+		"Stay informed at all times on the operational health of your mission-critical systems.",
+	],
 	metadataBase:
 		(process?.env.URL !== undefined && new URL(process.env.URL)) || undefined,
 	openGraph: {
@@ -15,5 +17,8 @@ export const ApplicationHead = {
 		title: ApplicationName,
 		url: process.env.URL,
 		images: [`${process.env.URL}/static/social/splash.png`],
+	},
+	footer: {
+		default: `Levicape ${new Date().getFullYear()}`,
 	},
 } as const;

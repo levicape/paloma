@@ -22,9 +22,9 @@ export default defineConfig(({ mode }) => {
 				rollupOptions: {
 					input: ["./app/client.ts", "./app/style.css"],
 					output: {
-						entryFileNames: "!/!!/[name].js",
-						chunkFileNames: `!/!!/_c/${timehash}/[name]-[hash].js`,
-						assetFileNames: "!/!!/_a/[name].[ext]",
+						entryFileNames: `!/${timehash}/[name].js`,
+						chunkFileNames: `!/${timehash}/_c/[name]-[hash].js`,
+						assetFileNames: `!/${timehash}/_a/[name].[ext]`,
 						generatedCode: "es2015",
 						compact: true,
 					},
@@ -51,15 +51,10 @@ export default defineConfig(({ mode }) => {
 		},
 		ssr: {
 			external: [
-				// "react",
-				// "react-dom",
 				"prop-types",
-				"react-router-dom",
 				"fs-extra",
-				"react-intl",
 				"cookie",
 				"set-cookie-parser",
-				"react-router",
 				"oidc-client-ts",
 			],
 		},

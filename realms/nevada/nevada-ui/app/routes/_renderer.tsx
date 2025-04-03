@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import type { CSSProperties } from "hono/jsx";
 import { jsxRenderer } from "hono/jsx-renderer";
-import { Script } from "honox/server";
+import { Link, Script } from "honox/server";
 import { AppBody } from "../ui/AppBody";
 import { ApplicationHead } from "../variant/ApplicationHead";
 
@@ -25,26 +25,19 @@ export default jsxRenderer(({ children }) => {
 			<head>
 				{/* <!-- Head --> */}
 				<title>{ApplicationHead.title.default}</title>
-				<meta name="description" content={ApplicationHead.description} />
+				<meta
+					name="description"
+					content={ApplicationHead.description[0] ?? ""}
+				/>
 				<meta charSet="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 				<link rel="icon" href={"/favicon.ico"} type="image/png" />
 				<script type="module" src="/_window/oidc.js" />
 				<Script src="/app/client.ts" />
-				{import.meta.env.PROD ? (
-					<>
-						<link href="/!/!!/_a/style.css" rel="stylesheet" />
-					</>
-				) : (
-					<>
-						<link href="/app/style.css" rel="stylesheet" />
-					</>
-				)}				
+				<Link href="/app/style.css" rel="stylesheet" />
 			</head>
-			<AppBody>
-				{/* <!-- Body --> */}
-				{children}
-			</AppBody>
+			{/* <!-- Body --> */}
+			{children}
 			<object
 				suppressHydrationWarning
 				typeof="foaf:Document"

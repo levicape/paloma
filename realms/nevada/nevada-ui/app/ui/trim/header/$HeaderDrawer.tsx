@@ -104,8 +104,10 @@ export const HeaderDrawer: FC<PropsWithChildren<HeaderDrawerProps>> = (
 		};
 	}, []);
 
-	if (pathname.startsWith("/~")) {
-		return <div className={clsx("min-h-12")} />;
+	// TODO: Load this from context provided callback
+	const isRoot = pathname === "/";
+	if (isRoot || pathname.startsWith("/;")) {
+		return <div className={clsx(isRoot ? "min-h-0.5" : "min-h-12")} />;
 	}
 	// const a = useAtomValue(AuthenticationAtom);
 	return (
@@ -145,7 +147,7 @@ export const HeaderDrawer: FC<PropsWithChildren<HeaderDrawerProps>> = (
 						shadow={"shadow-sm"}
 						className={clsx(
 							"flex",
-							"min-h-[2.5rem]",
+							"min-h-2.5",
 							"bg-gradient-to-b",
 							"to-base-300",
 							"transition-all",

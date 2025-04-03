@@ -34,6 +34,7 @@ const HeaderMenuListItem: FC<PropsWithChildren> = ({ children }) => {
 		<DaisyMenuItem
 			className={clsx(
 				"border-y-1",
+				"max-w-50",
 				"group",
 				"cursor-pointer",
 				"border-dotted",
@@ -154,9 +155,9 @@ export const HeaderMenuSidebar: FC<{ className?: string }> = ({
 				<nav>
 					<DaisyMenu className={clsx("p-0", "w-full")}>
 						<HeaderMenuLink
-							href={"/help/rules"}
-							messageI18nId={"lobby.howtoplay.header"}
-							i18nDescription={"How to play"}
+							href={"/"}
+							messageI18nId={"$HeaderMenuSidebar.home"}
+							i18nDescription={"Return home"}
 							icon={<QuestionMark_Icon />}
 						/>
 					</DaisyMenu>
