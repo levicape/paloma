@@ -1,5 +1,4 @@
 import type { ErrorHandler } from "hono";
-import { Fragment } from "hono/jsx";
 import { AppBody } from "../ui/AppBody";
 import { SUSPENSE_GUARD } from "../ui/ClientSuspense";
 

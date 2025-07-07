@@ -2,7 +2,6 @@ import clsx from "clsx";
 import type { CSSProperties } from "hono/jsx";
 import { jsxRenderer } from "hono/jsx-renderer";
 import { Link, Script } from "honox/server";
-import { AppBody } from "../ui/AppBody";
 import { ApplicationHead } from "../variant/ApplicationHead";
 
 const foafStyle: CSSProperties = {

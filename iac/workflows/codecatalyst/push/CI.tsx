@@ -1,14 +1,14 @@
-/** @jsxImportSource @levicape/fourtwo */
+/** @jsxImportSource @levicape/syncretic */
 /** @jsxRuntime automatic */
 
-import { AwsStateBackendCommandsParameter } from "@levicape/fourtwo/cli/commands/aws/pulumi/AwsPulumiBackendCommand";
+import { AwsStateBackendCommandsParameter } from "@levicape/syncretic/cli/commands/aws/pulumi/AwsPulumiBackendCommand";
 import {
 	CodeCatalystActionGroupX,
 	CodeCatalystBuildX,
 	CodeCatalystStepX,
 	CodeCatalystWorkflowExpressions,
 	CodeCatalystWorkflowX,
-} from "@levicape/fourtwo/codecatalyst";
+} from "@levicape/syncretic/codecatalyst";
 import { CODECATALYST_PULUMI_STACKS } from "../../PulumiStacks.mts";
 import {
 	CODECATALYST_CI_MATRIX,

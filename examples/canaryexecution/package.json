@@ -116,7 +116,7 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
-  "repository": "github:levicape/paloma",
+  "repository": "github:levicape/palomaious",
   "scripts": {
     "build": "$npm_package_config_packageexecutor nx nx:compile",
     "build:esbuild": "[ \"$ESBUILD_DISABLED\" = \"1\" ] && echo 'ESBUILD_DISABLED is set to 1. Skipping esbuild' || $npm_package_config_packageexecutor esbuild $npm_package_config_esbuildpaths --outdir=output/esbuild --outbase=module --platform=$npm_package_config_esbuildplatform --target=es2023 --format=esm --bundle --minify --packages=$npm_package_config_esbuildpackages --external:@aws-sdk --external:@smithy $npm_package_config_esbuildargs",

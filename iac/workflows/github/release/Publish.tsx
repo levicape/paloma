@@ -1,5 +1,5 @@
 /** @jsxRuntime automatic */
-/** @jsxImportSource @levicape/fourtwo */
+/** @jsxImportSource @levicape/syncretic */
 
 import {
 	GithubJobBuilder,
@@ -11,7 +11,7 @@ import {
 	GithubStepX,
 	GithubWorkflowExpressions,
 	GithubWorkflowX,
-} from "@levicape/fourtwo/github";
+} from "@levicape/syncretic/github";
 
 import { NodeGhaConfiguration } from "../push/CI.js";
 

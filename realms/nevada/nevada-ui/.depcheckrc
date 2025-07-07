@@ -28,5 +28,4 @@ ignores:
 - "react-router"
 - "react-range"
 - "destr"
-- "react-error-boundary"
 - "serialize-error"

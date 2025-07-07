@@ -1,6 +1,5 @@
 #!/usr/bin/env -S node --no-warnings --watch
-
-import { Atlas } from "@levicape/spork-atlas";
+import { Atlas } from "@levicape/spork-polly";
 import { env } from "std-env";
 
 const { NEVADA_UI, NEVADA_HTTP } = env;

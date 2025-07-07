@@ -242,9 +242,9 @@ jobs:
         run: |-
           mkdir -p _pulumi;
           source .export-cd;
-          echo '@levicape/fourtwo:';
-          ls -la node_modules/@levicape/fourtwo || true;
-          cat node_modules/@levicape/fourtwo/package.json || true;
+          echo '@levicape/syncretic:';
+          ls -la node_modules/@levicape/syncretic || true;
+          cat node_modules/@levicape/syncretic/package.json || true;
           source .pulumi-helper.sh;
           echo ".📁";
           echo "...📁";
@@ -2153,7 +2153,7 @@ jobs:
 ########################################
 #**:_$~- {"$$":"head","filename":"[wd][dispatch] - CD - [Dispatch: Preview, Deploy, Push].yml","source":"iac/workflows/github/workflow_dispatch/CD.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"0eec9c8f71ac8dbb6c9e88163c20f26ab6fbab8c3f24309224a756dbba902f2f"}
-#**:_$~- {"$$":"footer","started":"2025-03-31T23:55:41.771Z","now":"2025-03-31T23:55:41.780Z","elapsed":"9ms"}
+#**:_$~- {"$$":"body","hashed":"a593890b131b0dffcdfde4fe7a8a62651108803454caaabbf290b2913e2a3734"}
+#**:_$~- {"$$":"footer","started":"2025-07-07T19:59:32.085Z","now":"2025-07-07T19:59:32.095Z","elapsed":"10ms"}
 # END OF GENERATED FILE
 

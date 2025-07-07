@@ -5,8 +5,8 @@ import {
 } from "@levicape/paloma/runtime/server/RuntimeContext";
 import { Effect } from "effect";
 import { hc } from "hono/client";
-import { HTTP_BASE_PATH, NevadaIoRoutemap } from "../http/Atlas.mjs";
 import type { NevadaHonoApp } from "../http/HonoApp.mjs";
+import { HTTP_BASE_PATH, NevadaIoRoutemap } from "../http/Polly.mjs";
 
 const client = hc<NevadaHonoApp>(NevadaIoRoutemap[HTTP_BASE_PATH].url());
 const { trace } = await Effect.runPromise(

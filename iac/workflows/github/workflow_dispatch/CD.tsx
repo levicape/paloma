@@ -1,4 +1,4 @@
-/** @jsxImportSource @levicape/fourtwo */
+/** @jsxImportSource @levicape/syncretic */
 /** @jsxRuntime automatic */
 import {
 	GithubJobX,
@@ -8,7 +8,7 @@ import {
 	GithubStepX,
 	GithubWorkflowExpressions,
 	GithubWorkflowX,
-} from "@levicape/fourtwo/github";
+} from "@levicape/syncretic/github";
 import { CODECATALYST_PULUMI_STACKS } from "../../PulumiStacks.mts";
 import {
 	GITHUB_CI_MATRIX,
@@ -26,9 +26,9 @@ const RUNS_ON = "act-darwin-a64-atoko";
 const FOURTWO_BIN = "pnpm exec fourtwo";
 
 const DEPLOY_PREAMBLE = [
-	"echo '@levicape/fourtwo:'",
-	"ls -la node_modules/@levicape/fourtwo || true",
-	"cat node_modules/@levicape/fourtwo/package.json || true",
+	"echo '@levicape/syncretic:'",
+	"ls -la node_modules/@levicape/syncretic || true",
+	"cat node_modules/@levicape/syncretic/package.json || true",
 ];
 
 export const NodeGhaConfiguration = ({

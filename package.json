@@ -1,6 +1,6 @@
 {
   "name": "@levicape/paloma",
-  "version": "0.0.0-local.0",
+  "version": "0.4.0",
   "author": "Pedro Cardona",
   "bin": {
     "@levicape/paloma": "module/cli/bin.mjs",
@@ -19,6 +19,7 @@
     "@aws-lambda-powertools/logger": "catalog:log-awspowertools",
     "@effect/platform": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
+    "@levicape/loglayer-effect": "1.0.0",
     "@loglayer/transport-aws-lambda-powertools": "catalog:log-loglayer",
     "@loglayer/transport-consola": "catalog:log-loglayer",
     "@loglayer/transport-pino": "catalog:log-loglayer",
@@ -41,7 +42,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:lint",
-    "@levicape/fourtwo": "catalog:",
+    "@levicape/syncretic": "catalog:",
     "@types/aws-lambda": "catalog:types",
     "@types/better-sqlite3": "catalog:types",
     "@types/fs-extra": "catalog:types",
@@ -64,7 +65,6 @@
     "./runtime/*": "./module/*.mjs"
   },
   "files": [
-    "iac",
     "module",
     "output"
   ],
@@ -151,9 +151,6 @@
         "arm64"
       ]
     }
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   },
   "repository": "github:levicape/paloma",
   "scripts": {

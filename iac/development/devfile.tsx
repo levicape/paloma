@@ -1,5 +1,5 @@
 #!/usr/bin/env -S node --import tsx
-/** @jsxImportSource @levicape/fourtwo */
+/** @jsxImportSource @levicape/syncretic */
 /** @jsxRuntime automatic */
 
 import {
@@ -8,7 +8,7 @@ import {
 	DevfileMetadataX,
 	DevfileSourceComponentX,
 	DevfileX,
-} from "@levicape/fourtwo/devfile";
+} from "@levicape/syncretic/devfile";
 
 const APPLICATION_NAME = "paloma";
 const NODE_VERSION = "22.12.0";

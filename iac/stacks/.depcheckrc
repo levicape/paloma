@@ -1,9 +1,0 @@
-ignore-patterns:
-- "output"
-one-line: true
-ignores: 
-- "@bufbuild/protobuf"
-- "@levicape/*"
-- "expect"
-- "nx" 
-- "verror"

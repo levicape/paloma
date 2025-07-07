@@ -5,7 +5,7 @@
 		"module": "preserve",
 		"moduleResolution": "bundler",
 		"jsx": "react-jsx",
-		"jsxImportSource": "@levicape/fourtwo",
+		"jsxImportSource": "@levicape/syncretic",
 		"lib": ["es2022"],
 		"inlineSources": true,
 		"inlineSourceMap": true,

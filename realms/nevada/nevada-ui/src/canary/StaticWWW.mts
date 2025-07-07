@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { Canary, PromiseActivity } from "@levicape/paloma";
-import { NevadaIoRoutemap } from "@levicape/paloma-nevada-io/http/Atlas";
+import { NevadaIoRoutemap } from "@levicape/paloma-nevada-io/http/Polly";
 import { LoggingContext } from "@levicape/paloma/runtime/server/RuntimeContext";
 import { withStructuredLogging } from "@levicape/paloma/runtime/server/loglayer/LoggingContext";
 import { Context, Effect } from "effect";

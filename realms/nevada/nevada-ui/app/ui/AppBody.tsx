@@ -3,7 +3,6 @@ import {
 	ErrorBoundary,
 	type FC,
 	type PropsWithChildren,
-	Suspense,
 	useMemo,
 } from "hono/jsx";
 import { AuthnSession } from "../atoms/authentication/behavior/$AuthnSession";

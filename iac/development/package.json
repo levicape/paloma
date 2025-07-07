@@ -1,7 +1,7 @@
 {
   "name": "iac-development",
   "dependencies": {
-    "@levicape/fourtwo": "catalog:",
+    "@levicape/syncretic": "catalog:",
     "yaml": "catalog:parse-yaml"
   },
   "private": "true",

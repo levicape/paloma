@@ -1,5 +1,5 @@
 {
-  "name": "@levicape/paloma-iac-stacks",
+  "name": "@levicape/duvet-iac-stacks",
   "version": "0.0.0-local.0",
   "config": {
     "packagemanager": "pnpm",
@@ -8,9 +8,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-codebuild": "catalog:aws",
-    "@levicape/fourtwo": "catalog:",
-    "@levicape/fourtwo-builders": "catalog:",
     "@levicape/fourtwo-pulumi": "catalog:",
+    "@levicape/syncretic": "catalog:",
     "@pulumi/aws": "catalog:pulumi",
     "@pulumi/aws-native": "catalog:pulumi",
     "@pulumi/awsx": "catalog:pulumi",

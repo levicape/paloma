@@ -80,8 +80,6 @@ export const canary = new Canary(
 	),
 );
 
-// DurableActivity { setup, teardown, stale: (versions) => { teardown: boolean } }
-
 if (Math.random() > 0.49) {
 	setImmediate(() => {
 		canary();

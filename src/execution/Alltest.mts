@@ -1,4 +1,8 @@
 import { createHash } from "node:crypto";
+import {
+	LoggingContext,
+	withStructuredLogging,
+} from "@levicape/loglayer-effect";
 import { Context, Effect } from "effect";
 import VError from "verror";
 import {
@@ -7,10 +11,6 @@ import {
 } from "../repository/workqueue/WorkQueueClient.mjs";
 import type { WorkQueueExecutionTable } from "../repository/workqueue/WorkQueueExecutionTable.mjs";
 import { WorkQueueFilesystem } from "../repository/workqueue/WorkQueueFilesystem.mjs";
-import {
-	LoggingContext,
-	withStructuredLogging,
-} from "../server/loglayer/LoggingContext.mjs";
 import type { AlltestOptions } from "./AlltestOptions.mjs";
 import type { AlltestSetup } from "./AlltestSetup.mjs";
 import type { Funnel } from "./Funnel.mjs";

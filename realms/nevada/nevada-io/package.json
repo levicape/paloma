@@ -22,7 +22,7 @@
     "@bufbuild/protobuf": "catalog:protobuf",
     "@levicape/paloma": "workspace:",
     "@levicape/spork": "catalog:",
-    "@levicape/spork-atlas": "catalog:",
+    "@levicape/spork-polly": "catalog:",
     "effect": "catalog:effect",
     "hono": "catalog:hono",
     "jsonwebtoken": "catalog:crypto",

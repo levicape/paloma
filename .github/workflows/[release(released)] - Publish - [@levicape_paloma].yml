@@ -36,10 +36,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.13.0
-          registry-url: ${{ env.LEVICAPE_REGISTRY }}
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
-          scope: "@levicape"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: cache-npm
@@ -89,7 +87,7 @@ jobs:
 ########################################
 #**:_$~- {"$$":"head","filename":"[release(released)] - Publish - [@levicape_paloma].yml","source":"iac/workflows/github/release/Publish.js"}
 #**:_$~- {"$$":"script","generator":"codegen/github/GenerateGithubWorkflow.mjs"}
-#**:_$~- {"$$":"body","hashed":"bf1945cf551b3b90a6699fc2f0ed082a02b93e142011a59117fcbbfb0c670e52"}
-#**:_$~- {"$$":"footer","started":"2025-03-30T20:52:29.404Z","now":"2025-03-30T20:52:29.411Z","elapsed":"7ms"}
+#**:_$~- {"$$":"body","hashed":"c3203c3a427b0a376c4b3b56cc7f6af1a6a331366d14de9740b34b2f7a069728"}
+#**:_$~- {"$$":"footer","started":"2025-07-08T01:17:27.793Z","now":"2025-07-08T01:17:27.805Z","elapsed":"12ms"}
 # END OF GENERATED FILE
 

@@ -153,6 +153,7 @@ export class Canary extends Function {
 					.replace(/\.mts$/, ".mjs")
 					.replace(/\.cts$/, ".cjs")
 					.replace(/\.ts$/, ".js");
+
 				hash = `main:${createHash("sha256")
 					.update(readFileSync(main ?? "", "utf8"))
 					.digest("hex")}`;

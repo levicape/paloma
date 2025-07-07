@@ -2,7 +2,7 @@ import type {
 	CodeCatalystComputeSpec,
 	CodeCatalystTriggersSpec,
 	CodeCatalystWorkflowExpressions,
-} from "@levicape/fourtwo/codecatalyst";
+} from "@levicape/syncretic/codecatalyst";
 
 export const CODECATALYST_CI_MATRIX = [
 	{
