@@ -9,7 +9,6 @@ catalog:
   '@levicape/spork': "0.16.2"
   '@levicape/spork-polly': "0.16.2"
   "@levicape/syncretic": "0.11.1"
-  "@levicape/fourtwo-pulumi": "0.10.2-main.2"
 catalogs:
   aws:
     '@aws/codecatalyst-workflows-sdk': ^0.1.5-preview.6
